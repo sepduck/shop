@@ -4,6 +4,7 @@ import com.github.javafaker.Faker;
 import com.qlyshopphone_backend.dto.GroupSupplierDTO;
 import com.qlyshopphone_backend.dto.LocationDTO;
 import com.qlyshopphone_backend.service.LocationService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -12,9 +13,9 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @CrossOrigin("*")
 @RequestMapping()
+@RequiredArgsConstructor
 public class RestLocationController {
-    @Autowired
-    private LocationService locationService;
+    private final LocationService locationService;
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_ACCOUNTANT')")
     @GetMapping("/location")

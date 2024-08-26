@@ -5,6 +5,7 @@ import com.qlyshopphone_backend.service.ProductService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,11 +19,10 @@ import java.util.Map;
 
 @RestController
 @RequestMapping()
+@RequiredArgsConstructor
 public class RestSaleController {
-    @Autowired
-    private ProductService productService;
-    @Autowired
-    private GroupProductService groupProductService;
+    private final ProductService productService;
+    private final GroupProductService groupProductService;
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_ACCOUNTANT', 'ROLE_USER')")
     @GetMapping("/sale")

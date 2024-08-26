@@ -3,6 +3,7 @@ package com.qlyshopphone_backend.controller.rest;
 import com.github.javafaker.Faker;
 import com.qlyshopphone_backend.dto.GroupProductDTO;
 import com.qlyshopphone_backend.service.GroupProductService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -10,9 +11,9 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping()
+@RequiredArgsConstructor
 public class RestGroupProductController {
-    @Autowired
-    private GroupProductService groupProductService;
+    private final GroupProductService groupProductService;
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_ACCOUNTANT', 'ROLE_USER')")
     @GetMapping("/group-product")

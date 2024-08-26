@@ -7,6 +7,7 @@ import com.qlyshopphone_backend.mapper.CustomerInfoMapper;
 import com.qlyshopphone_backend.model.Users;
 import com.qlyshopphone_backend.service.UserService;
 import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,9 +20,9 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping()
+@RequiredArgsConstructor
 public class RestSessionCartController {
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
     @GetMapping("/session-cart")
     public ResponseEntity<?> viewSessionCartAndCustomerInfo(Principal principal, HttpSession session) {

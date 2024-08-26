@@ -5,6 +5,7 @@ import com.qlyshopphone_backend.model.BaseReponse;
 import com.qlyshopphone_backend.model.GroupSupplier;
 import com.qlyshopphone_backend.repository.GroupSupplierRepository;
 import com.qlyshopphone_backend.service.GroupSupplierService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,9 +14,9 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class GroupSupplierServiceImpl extends BaseReponse implements GroupSupplierService {
-    @Autowired
-    private GroupSupplierRepository groupSupplierRepository;
+    private final GroupSupplierRepository groupSupplierRepository;
 
     @Override
     public ResponseEntity<?> getAllGroupSupplier() {

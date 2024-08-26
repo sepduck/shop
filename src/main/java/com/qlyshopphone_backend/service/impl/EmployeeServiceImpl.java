@@ -5,18 +5,17 @@ import com.qlyshopphone_backend.dao.UserDAO;
 import com.qlyshopphone_backend.model.BaseReponse;
 import com.qlyshopphone_backend.repository.EmployeeRepository;
 import com.qlyshopphone_backend.service.EmployeeService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class EmployeeServiceImpl extends BaseReponse implements EmployeeService {
-    @Autowired
-    private EmployeeRepository employeeRepository;
-    @Autowired
-    private UserDAO userDAO;
-    @Autowired
-    private EmployeeDAO employeeDAO;
+    private final EmployeeRepository employeeRepository;
+    private final UserDAO userDAO;
+    private final EmployeeDAO employeeDAO;
 
     @Override
     public ResponseEntity<?> getAllEmployees() {

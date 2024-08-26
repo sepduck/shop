@@ -16,18 +16,14 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
-import java.util.HashMap;
-import java.util.Map;
 
 @RestController
 @RequestMapping()
 @RequiredArgsConstructor
 @Validated
 public class RestProductController {
-    @Autowired
-    private ProductService productService;
-    @Autowired
-    private UserService userService;
+    private final ProductService productService;
+    private final UserService userService;
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_ACCOUNTANT', 'ROLE_USER')")
     @GetMapping("/product")
@@ -101,7 +97,7 @@ public class RestProductController {
 //    }
 //
 //    // Nơi lưu file ảnh
-//    private String storeFile(MultipartFile file) throws IOException {
+//    private final String storeFile(MultipartFile file) throws IOException {
 //        if (!isImageFile(file) || file.getOriginalFilename() == null) {
 //            throw new IOException("Invalid image file");
 //        }
@@ -121,7 +117,7 @@ public class RestProductController {
 //        return uniqueFilename;
 //    }
 //
-//    private boolean isImageFile(MultipartFile file) {
+//    private final boolean isImageFile(MultipartFile file) {
 //        String contentType = file.getContentType();
 //        return contentType != null && contentType.startsWith("image/");
 //    }

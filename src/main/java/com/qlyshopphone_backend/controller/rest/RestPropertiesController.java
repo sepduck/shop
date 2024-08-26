@@ -3,6 +3,7 @@ package com.qlyshopphone_backend.controller.rest;
 import com.github.javafaker.Faker;
 import com.qlyshopphone_backend.dto.PropertiesDTO;
 import com.qlyshopphone_backend.service.PropertiesService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -10,28 +11,32 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping()
+@RequiredArgsConstructor
 public class RestPropertiesController {
-    @Autowired
-    private PropertiesService propertiesService;
+    private final PropertiesService propertiesService;
+
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_ACCOUNTANT')")
     @GetMapping("/properties")
-    public ResponseEntity<?> getAllProperties(){
+    public ResponseEntity<?> getAllProperties() {
         return propertiesService.getAllProperties();
     }
+
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_ACCOUNTANT')")
     @PostMapping("/properties")
-    public ResponseEntity<?> saveProperties(@RequestBody PropertiesDTO propertiesDTO){
+    public ResponseEntity<?> saveProperties(@RequestBody PropertiesDTO propertiesDTO) {
         return propertiesService.saveProperties(propertiesDTO);
     }
+
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_ACCOUNTANT')")
     @PutMapping("/properties/{id}")
     public ResponseEntity<?> updateProperties(@RequestBody PropertiesDTO propertiesDTO,
-                                              @PathVariable int id){
+                                              @PathVariable int id) {
         return propertiesService.updateProperties(propertiesDTO, id);
     }
+
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_ACCOUNTANT')")
     @DeleteMapping("/properties/{id}")
-    public ResponseEntity<?> deleteProperties(@PathVariable int id){
+    public ResponseEntity<?> deleteProperties(@PathVariable int id) {
         return propertiesService.deleteProperties(id);
     }
 
@@ -41,7 +46,7 @@ public class RestPropertiesController {
         Faker faker = new Faker();
         for (int i = 0; i < 100; i++) {
             String properties = faker.name().fullName();
-            if (propertiesService.existsByPropertiesName(properties)){
+            if (propertiesService.existsByPropertiesName(properties)) {
                 continue;
             }
             PropertiesDTO propertiesDTO = PropertiesDTO.builder()

@@ -2,6 +2,7 @@ package com.qlyshopphone_backend.controller.rest;
 
 import com.qlyshopphone_backend.dto.NotificationDTO;
 import com.qlyshopphone_backend.service.NotificationService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -13,9 +14,9 @@ import java.util.List;
 
 @RestController
 @RequestMapping()
+@RequiredArgsConstructor
 public class RestNotificationController {
-    @Autowired
-    private NotificationService notificationService;
+    private final NotificationService notificationService;
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_ACCOUNTANT')")
     @GetMapping("/notification")

@@ -4,6 +4,7 @@ import com.qlyshopphone_backend.dto.CartDTO;
 import com.qlyshopphone_backend.mapper.CartMapper;
 import com.qlyshopphone_backend.model.*;
 import com.qlyshopphone_backend.service.*;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,22 +23,16 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping()
+@RequiredArgsConstructor
 public class RestCartController {
     private static final Logger log = LoggerFactory.getLogger(RestCartController.class);
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private ProductService productService;
-    @Autowired
-    private CartService cartService;
-    @Autowired
-    private UserStatisticsService userStatisticsService;
-    @Autowired
-    private CustomerInfoService customerInfoService;
-    @Autowired
-    private PurchaseService purchaseService;
-    @Autowired
-    private NotificationService notificationService;
+    private final UserService userService;
+    private final ProductService productService;
+    private final CartService cartService;
+    private final UserStatisticsService userStatisticsService;
+    private final CustomerInfoService customerInfoService;
+    private final PurchaseService purchaseService;
+    private final NotificationService notificationService;
 
     @PostMapping("/cart/add/{productId}")
     public ResponseEntity<?> addCartItem(@PathVariable("productId") int productId, Principal principal) {

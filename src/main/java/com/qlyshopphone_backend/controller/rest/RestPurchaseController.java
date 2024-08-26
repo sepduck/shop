@@ -3,6 +3,7 @@ package com.qlyshopphone_backend.controller.rest;
 import com.qlyshopphone_backend.dto.PurchaseDTO;
 import com.qlyshopphone_backend.model.Purchase;
 import com.qlyshopphone_backend.service.PurchaseService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,9 +19,9 @@ import java.util.Map;
 
 @RestController
 @RequestMapping
+@RequiredArgsConstructor
 public class RestPurchaseController {
-    @Autowired
-    private PurchaseService purchaseService;
+    private final PurchaseService purchaseService;
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_ACCOUNTANT')")
 

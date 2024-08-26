@@ -8,6 +8,7 @@ import com.qlyshopphone_backend.service.AuthenticationService;
 import com.qlyshopphone_backend.service.GenderService;
 import com.qlyshopphone_backend.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,13 +23,11 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping()
+@RequiredArgsConstructor
 public class RestUserController {
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private AuthenticationService authenticationService;
-    @Autowired
-    private GenderService genderService;
+    private final UserService userService;
+    private final AuthenticationService authenticationService;
+    private final GenderService genderService;
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_ACCOUNTANT')")
     @GetMapping("/users")

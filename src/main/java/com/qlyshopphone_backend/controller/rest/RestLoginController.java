@@ -4,6 +4,7 @@ import com.qlyshopphone_backend.dto.UsersDTO;
 import com.qlyshopphone_backend.model.Users;
 import com.qlyshopphone_backend.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,9 +16,9 @@ import java.util.Base64;
 
 @RestController
 @RequestMapping("/account")
+@RequiredArgsConstructor
 public class RestLoginController {
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_ACCOUNTANT', 'ROLE_USER')")
     @GetMapping("/info")

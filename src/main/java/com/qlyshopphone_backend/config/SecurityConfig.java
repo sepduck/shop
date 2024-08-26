@@ -3,6 +3,7 @@ package com.qlyshopphone_backend.config;
 import com.qlyshopphone_backend.service.impl.UserSecurityDetailService;
 import com.qlyshopphone_backend.service.jwt.JwtEntryPoint;
 import com.qlyshopphone_backend.service.jwt.JwtFilter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,13 +21,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @EnableMethodSecurity
 @Configuration
+@RequiredArgsConstructor
 public class SecurityConfig {
-    @Autowired
-    private JwtEntryPoint entryPoint;
-    @Autowired
-    private JwtFilter filter;
-    @Autowired
-    private UserSecurityDetailService service;
+    private final JwtEntryPoint entryPoint;
+    private final JwtFilter filter;
+    private final UserSecurityDetailService service;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {

@@ -5,6 +5,7 @@ import com.qlyshopphone_backend.model.BaseReponse;
 import com.qlyshopphone_backend.model.Category;
 import com.qlyshopphone_backend.repository.CategoryRepository;
 import com.qlyshopphone_backend.service.CategoryService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,9 +14,9 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class CategoryServiceImpl extends BaseReponse implements CategoryService {
-    @Autowired
-    private CategoryRepository categoryRepository;
+    private final CategoryRepository categoryRepository;
     @Override
     public ResponseEntity<?> getAllCategory() {
         return getResponseEntity(categoryRepository.findAll());

@@ -6,6 +6,7 @@ import com.qlyshopphone_backend.exceptions.DataNotFoundException;
 import com.qlyshopphone_backend.model.Users;
 import com.qlyshopphone_backend.service.SupplierService;
 import com.qlyshopphone_backend.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,11 +16,10 @@ import java.security.Principal;
 
 @RestController
 @RequestMapping()
+@RequiredArgsConstructor
 public class RestSupplierController {
-    @Autowired
-    private SupplierService supplierService;
-    @Autowired
-    private UserService userService;
+    private final SupplierService supplierService;
+    private final UserService userService;
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_ACCOUNTANT')")
     @GetMapping("/supplier")

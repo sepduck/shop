@@ -9,23 +9,20 @@ import com.qlyshopphone_backend.repository.ProductRepository;
 import com.qlyshopphone_backend.repository.SupplierRepository;
 import com.qlyshopphone_backend.service.NotificationService;
 import com.qlyshopphone_backend.service.SupplierService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class SupplierServiceImpl extends BaseReponse implements SupplierService {
-    @Autowired
-    private SupplierRepository supplierRepository;
-    @Autowired
-    private GroupSupplierRepository groupSupplierRepository;
-    @Autowired
-    private ProductRepository productRepository;
-    @Autowired
-    private SupplierDAO supplierDAO;
-    @Autowired
-    private NotificationService notificationService;
+    private final SupplierRepository supplierRepository;
+    private final GroupSupplierRepository groupSupplierRepository;
+    private final ProductRepository productRepository;
+    private final SupplierDAO supplierDAO;
+    private final NotificationService notificationService;
 
     @Override
     public ResponseEntity<?> getSupplier() {

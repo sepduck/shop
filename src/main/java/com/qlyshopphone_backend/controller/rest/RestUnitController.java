@@ -4,6 +4,7 @@ import com.github.javafaker.Faker;
 import com.qlyshopphone_backend.dto.SupplierDTO;
 import com.qlyshopphone_backend.dto.UnitDTO;
 import com.qlyshopphone_backend.service.UnitService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -11,10 +12,9 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping()
+@RequiredArgsConstructor
 public class RestUnitController {
-
-    @Autowired
-    private UnitService unitService;
+    private final UnitService unitService;
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_ACCOUNTANT')")
     @GetMapping("/unit")

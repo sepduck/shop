@@ -7,6 +7,7 @@ import com.qlyshopphone_backend.model.*;
 import com.qlyshopphone_backend.repository.*;
 import com.qlyshopphone_backend.service.NotificationService;
 import com.qlyshopphone_backend.service.ProductService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,25 +19,17 @@ import java.util.Optional;
 
 
 @Service
+@RequiredArgsConstructor
 public class ProductServiceImpl extends BaseReponse implements ProductService {
-    @Autowired
-    private ProductRepository productRepository;
-    @Autowired
-    private GroupProductRepository groupProductRepository;
-    @Autowired
-    private TrademarkRepository trademarkRepository;
-    @Autowired
-    private LocationRepository locationRepository;
-    @Autowired
-    private PropertiesRepository propertiesRepository;
-    @Autowired
-    private UnitRepository unitRepository;
-    @Autowired
-    private CategoryRepository categoryRepository;
-    @Autowired
-    private ProductDAO productDAO;
-    @Autowired
-    private NotificationService notificationService;
+    private final ProductRepository productRepository;
+    private final GroupProductRepository groupProductRepository;
+    private final TrademarkRepository trademarkRepository;
+    private final LocationRepository locationRepository;
+    private final PropertiesRepository propertiesRepository;
+    private final UnitRepository unitRepository;
+    private final CategoryRepository categoryRepository;
+    private final ProductDAO productDAO;
+    private final NotificationService notificationService;
 
     @Override
     public ResponseEntity<?> getAllProducts() {

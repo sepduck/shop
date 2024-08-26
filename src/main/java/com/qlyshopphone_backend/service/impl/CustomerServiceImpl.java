@@ -5,16 +5,16 @@ import com.qlyshopphone_backend.dto.UsersDTO;
 import com.qlyshopphone_backend.model.BaseReponse;
 import com.qlyshopphone_backend.repository.CustomerRepository;
 import com.qlyshopphone_backend.service.CustomerService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class CustomerServiceImpl extends BaseReponse implements CustomerService {
-    @Autowired
-    private CustomerRepository customerRepository;
-    @Autowired
-    private CustomerDAO customerDAO;
+    private final CustomerRepository customerRepository;
+    private final CustomerDAO customerDAO;
 
     @Override
     public ResponseEntity<?> getAllCustomers() {

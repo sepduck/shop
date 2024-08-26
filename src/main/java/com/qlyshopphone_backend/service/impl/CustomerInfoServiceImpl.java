@@ -8,6 +8,7 @@ import com.qlyshopphone_backend.model.Users;
 import com.qlyshopphone_backend.repository.CustomerInfoRepository;
 import com.qlyshopphone_backend.repository.UserRepository;
 import com.qlyshopphone_backend.service.CustomerInfoService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -15,11 +16,10 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class CustomerInfoServiceImpl extends BaseReponse implements CustomerInfoService {
-    @Autowired
-    private CustomerInfoRepository customerInfoRepository;
-    @Autowired
-    private UserRepository usersRepository;
+    private final CustomerInfoRepository customerInfoRepository;
+    private final UserRepository usersRepository;
 
     @Override
     public CustomerInfo createCustomerInfo(CustomerInfoDTO customerInfoDTO) {

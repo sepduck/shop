@@ -6,6 +6,7 @@ import com.qlyshopphone_backend.model.BaseReponse;
 import com.qlyshopphone_backend.model.Purchase;
 import com.qlyshopphone_backend.repository.PurchaseRepository;
 import com.qlyshopphone_backend.service.PurchaseService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,9 +21,9 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Service
+@RequiredArgsConstructor
 public class PurchaseServiceImpl extends BaseReponse implements PurchaseService {
-    @Autowired
-    private PurchaseRepository purchaseRepository;
+    private final PurchaseRepository purchaseRepository;
 
     @Override
     public void createPurchase(Purchase purchase) {

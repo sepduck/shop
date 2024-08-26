@@ -3,6 +3,7 @@ package com.qlyshopphone_backend.controller.rest;
 import com.qlyshopphone_backend.dto.UsersDTO;
 import com.qlyshopphone_backend.service.CustomerService;
 import com.qlyshopphone_backend.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -10,11 +11,10 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping()
+@RequiredArgsConstructor
 public class RestCustomerController {
-    @Autowired
-    private CustomerService customerService;
-    @Autowired
-    private UserService userService;
+    private final CustomerService customerService;
+    private final UserService userService;
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_ACCOUNTANT')")
     @GetMapping("/customer")

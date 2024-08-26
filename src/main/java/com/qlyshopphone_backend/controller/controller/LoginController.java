@@ -5,6 +5,7 @@ import com.qlyshopphone_backend.model.Users;
 import com.qlyshopphone_backend.service.AuthenticationService;
 import com.qlyshopphone_backend.service.NotificationService;
 import com.qlyshopphone_backend.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -13,11 +14,10 @@ import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin("*")
 @Controller
+@RequiredArgsConstructor
 public class LoginController {
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private AuthenticationService authenticationService;
+    private final UserService userService;
+    private final AuthenticationService authenticationService;
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Users users) {

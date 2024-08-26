@@ -5,6 +5,7 @@ import com.qlyshopphone_backend.model.BaseReponse;
 import com.qlyshopphone_backend.model.Properties;
 import com.qlyshopphone_backend.repository.PropertiesRepository;
 import com.qlyshopphone_backend.service.PropertiesService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,9 +13,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 @Service
+@RequiredArgsConstructor
 public class PropertiesServiceImpl extends BaseReponse implements PropertiesService {
-    @Autowired
-    private PropertiesRepository propertiesRepository;
+    private final PropertiesRepository propertiesRepository;
 
     @Override
     public ResponseEntity<?> getAllProperties() {

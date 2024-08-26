@@ -5,6 +5,7 @@ import com.qlyshopphone_backend.mapper.CustomerInfoMapper;
 import com.qlyshopphone_backend.model.Users;
 import com.qlyshopphone_backend.service.CustomerInfoService;
 import com.qlyshopphone_backend.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,11 +17,10 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping()
+@RequiredArgsConstructor
 public class RestCustomerInfoController {
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private CustomerInfoService customerInfoService;
+    private final UserService userService;
+    private final CustomerInfoService customerInfoService;
 
     @GetMapping("/customer-info")
     public ResponseEntity<?> viewCustomerInfo(Principal principal) {

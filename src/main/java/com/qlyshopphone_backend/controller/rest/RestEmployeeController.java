@@ -5,6 +5,7 @@ import com.qlyshopphone_backend.service.AuthenticationService;
 import com.qlyshopphone_backend.service.CustomerService;
 import com.qlyshopphone_backend.service.EmployeeService;
 import com.qlyshopphone_backend.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,13 +14,11 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping()
+@RequiredArgsConstructor
 public class RestEmployeeController {
-    @Autowired
-    private EmployeeService employeeService;
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private AuthenticationService authenticationService;
+    private final EmployeeService employeeService;
+    private final UserService userService;
+    private final AuthenticationService authenticationService;
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_ACCOUNTANT')")
     @GetMapping("/employee")

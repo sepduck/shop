@@ -9,6 +9,7 @@ import com.qlyshopphone_backend.repository.*;
 import com.qlyshopphone_backend.service.CartService;
 import com.qlyshopphone_backend.service.NotificationService;
 import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -18,17 +19,13 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class CartServiceImpl extends BaseReponse implements CartService {
-    @Autowired
-    private CartRepository cartRepository;
-    @Autowired
-    private ProductRepository productRepository;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private CartDAO cartDAO;
-    @Autowired
-    private NotificationService notificationService;
+    private final CartRepository cartRepository;
+    private final ProductRepository productRepository;
+    private final UserRepository userRepository;
+    private final CartDAO cartDAO;
+    private final NotificationService notificationService;
 
     private static final String CART_SESSION_KEY = "cart";
 

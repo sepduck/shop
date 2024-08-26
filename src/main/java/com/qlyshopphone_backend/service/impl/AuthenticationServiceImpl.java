@@ -11,6 +11,7 @@ import com.qlyshopphone_backend.repository.UserRepository;
 import com.qlyshopphone_backend.service.AuthenticationService;
 import com.qlyshopphone_backend.service.NotificationService;
 import com.qlyshopphone_backend.service.jwt.JwtProvider;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,23 +27,17 @@ import java.util.List;
 import java.util.Set;
 
 @Service
+@RequiredArgsConstructor
 public class AuthenticationServiceImpl extends BaseReponse implements AuthenticationService {
-    @Autowired
-    private JwtProvider provider;
-    @Autowired
-    private AuthenticationManager authenticationManager;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private RoleRepository roleRepository;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-    @Autowired
-    private GenderRepository genderRepository;
-    @Autowired
-    private NotificationService notificationService;
+    private final JwtProvider provider;
+    private final AuthenticationManager authenticationManager;
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final GenderRepository genderRepository;
+    private final NotificationService notificationService;
 
-    private Set<String> invalidatedTokens = new HashSet<>();
+    private final Set<String> invalidatedTokens = new HashSet<>();
 
     @Override
     public ResponseEntity<?> login(Users users) {

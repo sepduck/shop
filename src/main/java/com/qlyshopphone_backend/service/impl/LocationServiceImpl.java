@@ -5,6 +5,7 @@ import com.qlyshopphone_backend.model.BaseReponse;
 import com.qlyshopphone_backend.model.Location;
 import com.qlyshopphone_backend.repository.LocationRepository;
 import com.qlyshopphone_backend.service.LocationService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,9 +14,9 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class LocationServiceImpl extends BaseReponse implements LocationService {
-    @Autowired
-    private LocationRepository locationRepository;
+    private final LocationRepository locationRepository;
 
     @Override
     public ResponseEntity<?> getAllLocation() {
