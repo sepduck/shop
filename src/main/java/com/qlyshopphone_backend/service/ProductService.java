@@ -13,15 +13,15 @@ public interface ProductService {
 
     void createProduct(Product product);
 
-    Product saveProduct(ProductDTO productDTO, Users users) throws Exception;
+    String saveProduct(ProductDTO productDTO, Users users) throws Exception;
 
-    Product updateProduct(Long productId, ProductDTO productDTO, Users users) throws Exception;
+    String updateProduct(Long productId, ProductDTO productDTO, Users users) throws Exception;
 
     ResponseEntity<?> findByIdProduct(Long productId);
 
     Optional<Product> findByProductId(Long productId);
 
-    ResponseEntity<?> deleteProduct(Long productId, Users users);
+    String deleteProduct(Long productId, Users users);
 
     List<Map<String, Object>> searchAllByProductName(String productName);
 
@@ -43,7 +43,7 @@ public interface ProductService {
 
     List<Category> getAllCategory();
 
-    ResponseEntity<?> saveCategory(CategoryDTO categoryDTO);
+    String saveCategory(CategoryDTO categoryDTO);
 
     String updateCategory(CategoryDTO categoryDTO, Long categoryId);
 

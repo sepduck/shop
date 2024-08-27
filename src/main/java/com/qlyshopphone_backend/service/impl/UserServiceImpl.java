@@ -1,4 +1,5 @@
 package com.qlyshopphone_backend.service.impl;
+import static com.qlyshopphone_backend.constant.ErrorMessage.*;
 
 import com.qlyshopphone_backend.dto.PasswordChangeRequestDTO;
 import com.qlyshopphone_backend.dto.UsersDTO;
@@ -38,14 +39,14 @@ public class UserServiceImpl implements UserService {
     public String updatePassword(String username, PasswordChangeRequestDTO passwordChangeRequestDTO) {
             Users existingUser = userRepository.findByUsername(username);
             if (!checkPasswordPresent(existingUser, passwordChangeRequestDTO.getOldPassword())) {
-                throw new RuntimeException("Old passwords do not match");
+                throw new RuntimeException(OLD_PASSWORD_DOSE_NOT_MATCH);
             }
             if (!passwordChangeRequestDTO.getNewPassword().equals(passwordChangeRequestDTO.getConfirmPassword())) {
-                throw new RuntimeException("New password does not match");
+                throw new RuntimeException(NEW_PASSWORD_DOSE_NOT_MATCH);
             }
             existingUser.setPassword(passwordEncoder.encode(passwordChangeRequestDTO.getNewPassword()));
             userRepository.save(existingUser);
-            return "Successfully updated password";
+            return SUCCESSFULLY_UPDATED_PASSWORD;
 
 
     }
@@ -58,9 +59,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public String updateUser(Long userId, UsersDTO usersDTO) throws Exception {
         Users existingUsers = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException(USER_NOT_FOUND));
         Gender existingGender = genderRepository.findById(usersDTO.getGenderId())
-                .orElseThrow(() -> new RuntimeException("Gender not found"));
+                .orElseThrow(() -> new RuntimeException(GENDER_NOT_FOUND));
         existingUsers.setFullName(usersDTO.getFullName());
         existingUsers.setPhoneNumber(usersDTO.getPhoneNumber());
         existingUsers.setEmail(usersDTO.getEmail());
@@ -71,7 +72,7 @@ public class UserServiceImpl implements UserService {
         existingUsers.setFacebook(usersDTO.getFacebook());
         existingUsers.setFileUser(usersDTO.getFileUser().getBytes());
         userRepository.save(existingUsers);
-        return "User successfully updated";
+        return USER_UPDATED_SUCCESSFULLY;
     }
 
     @Transactional
@@ -79,7 +80,7 @@ public class UserServiceImpl implements UserService {
     public String updateUserInfo(String username, UsersDTO usersDTO) {
         Users existingUsers = userRepository.findByUsername(username);
         Gender existingGender = genderRepository.findById(usersDTO.getGenderId())
-                .orElseThrow(() -> new RuntimeException("Gender not found"));
+                .orElseThrow(() -> new RuntimeException(GENDER_NOT_FOUND));
         existingUsers.setFullName(usersDTO.getFullName());
         existingUsers.setPhoneNumber(usersDTO.getPhoneNumber());
         existingUsers.setEmail(usersDTO.getEmail());
@@ -89,7 +90,7 @@ public class UserServiceImpl implements UserService {
         existingUsers.setIdCard(usersDTO.getIdCard());
         existingUsers.setFacebook(usersDTO.getFacebook());
         userRepository.save(existingUsers);
-        return "User successfully updated";
+        return UNIT_UPDATED_SUCCESSFULLY;
     }
 
     @Override
@@ -97,7 +98,7 @@ public class UserServiceImpl implements UserService {
         Users existing = userRepository.findByUsername(username);
         existing.setFileUser(usersDTO.getFileUser().getBytes());
         userRepository.save(existing);
-        return "User successfully updated";
+        return USER_UPDATED_SUCCESSFULLY;
     }
 
     @Override
@@ -108,9 +109,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public String deleteUser(Long userId) {
         Users users = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException(USER_NOT_FOUND));
             userRepository.deleteById(users.getUserId());
-            return "User deleted successfully";
+            return USER_DELETED_SUCCESSFULLY;
     }
 
     @Override
@@ -121,7 +122,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public String deleteCustomerById(Long userId) {
         userRepository.deleteCustomerId(userId);
-        return "Delete customer successfully";
+        return DELETE_CUSTOMER_SUCCESSFULLY;
     }
 
     @Override
@@ -172,15 +173,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public String saveEmployeeRoles(Long userId){
 //        userDAO.updateEmployeeStatusAndRole(userId);
-        return "Employee Roles successfully saved";
+        return EMPLOYEE_ROLES_SUCCESSFULLY_SAVED;
     }
 
     @Override
     public String deleteEmployeeById(Long userId) {
         Users users = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException(USER_NOT_FOUND));
         userRepository.deleteEmployeeById(users.getUserId());
-        return "Employee deleted successfully";
+        return EMPLOYEE_DELETED_SUCCESSFULLY;
     }
 
     @Override

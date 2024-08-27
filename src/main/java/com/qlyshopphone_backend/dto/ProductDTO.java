@@ -1,4 +1,5 @@
 package com.qlyshopphone_backend.dto;
+import static com.qlyshopphone_backend.constant.ErrorMessage.*;
 
 import com.qlyshopphone_backend.model.GroupProduct;
 import jakarta.validation.constraints.*;

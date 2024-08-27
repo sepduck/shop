@@ -1,4 +1,5 @@
 package com.qlyshopphone_backend.service.impl;
+import static com.qlyshopphone_backend.constant.ErrorMessage.*;
 
 import com.qlyshopphone_backend.model.UserSecurityDetails;
 import com.qlyshopphone_backend.model.Users;
@@ -18,9 +19,8 @@ public class UserSecurityDetailService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Users users = userRepository.findByUsername(username);
         if (users == null) {
-            throw new RuntimeException("Account does not exist");
+            throw new RuntimeException(ACCOUNT_DOES_NOT_EXIST);
         }
-        UserSecurityDetails userSecurityDetails = new UserSecurityDetails(users);
-        return userSecurityDetails;
+        return new UserSecurityDetails(users);
     }
 }

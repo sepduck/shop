@@ -1,4 +1,5 @@
 package com.qlyshopphone_backend.service.impl;
+import static com.qlyshopphone_backend.constant.ErrorMessage.*;
 
 import com.qlyshopphone_backend.dto.*;
 import com.qlyshopphone_backend.exceptions.DataNotFoundException;
@@ -7,7 +8,6 @@ import com.qlyshopphone_backend.repository.*;
 import com.qlyshopphone_backend.service.NotificationService;
 import com.qlyshopphone_backend.service.ProductService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +19,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class ProductServiceImpl extends BaseReponse implements ProductService {
+public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final GroupProductRepository groupProductRepository;
     private final TrademarkRepository trademarkRepository;
@@ -40,19 +40,19 @@ public class ProductServiceImpl extends BaseReponse implements ProductService {
     }
 
     @Override
-    public Product saveProduct(ProductDTO productDTO, Users users) throws Exception {
+    public String saveProduct(ProductDTO productDTO, Users users) throws Exception {
         GroupProduct existingGroupProduct = groupProductRepository.findById(productDTO.getGroupProductId())
-                .orElseThrow(() -> new DataNotFoundException("Can't find product with id: " + productDTO.getGroupProductId()));
+                .orElseThrow(() -> new DataNotFoundException(GROUP_PRODUCT_NOT_FOUND));
         Trademark existingTrademark = trademarkRepository.findById(productDTO.getTrademarkId())
-                .orElseThrow(() -> new DataNotFoundException("Can't find trademark with id: " + productDTO.getTrademarkId()));
+                .orElseThrow(() -> new DataNotFoundException(TRADEMARK_NOT_FOUND));
         Location existingLocation = locationRepository.findById(productDTO.getLocationId())
-                .orElseThrow(() -> new DataNotFoundException("Can't find product with id: " + productDTO.getLocationId()));
+                .orElseThrow(() -> new DataNotFoundException(LOCATION_NOT_FOUND));
         Properties existingProperties = propertiesRepository.findById(productDTO.getPropertiesId())
-                .orElseThrow(() -> new DataNotFoundException("Can't find product with id: " + productDTO.getPropertiesId()));
+                .orElseThrow(() -> new DataNotFoundException(PROPERTIES_NOT_FOUND));
         Unit existingUnit = unitRepository.findById(productDTO.getUnitId())
-                .orElseThrow(() -> new DataNotFoundException("Can't find unit with id: " + productDTO.getUnitId()));
+                .orElseThrow(() -> new DataNotFoundException(UNIT_NOT_FOUND));
         Category existingCategory = categoryRepository.findById(productDTO.getCategoryId())
-                .orElseThrow(() -> new DataNotFoundException("Can't find unit with id: " + productDTO.getCategoryId()));
+                .orElseThrow(() -> new DataNotFoundException(CATEGORY_NOT_FOUND));
 
 
         Product product = new Product();
@@ -72,27 +72,28 @@ public class ProductServiceImpl extends BaseReponse implements ProductService {
         product.setFile(productDTO.getFile().getBytes());
 
         // Tạo thông báo
-        String message = users.getFullName() + " đã thêm sản phẩm " + product.getProductName();
+        String message = users.getFullName() + " have successfully added product " + product.getProductName();
         notificationService.saveNotification(message, users);
-        return productRepository.save(product);
+        productRepository.save(product);
+        return PRODUCT_CREATED_SUCCESSFULLY;
     }
 
     @Override
-    public Product updateProduct(Long productId, ProductDTO productDTO, Users users) throws Exception {
+    public String updateProduct(Long productId, ProductDTO productDTO, Users users) throws Exception {
         Product existingProduct = productRepository.findById(productId)
-                .orElseThrow(() -> new DataNotFoundException("Can't find product with id: " + productId));
+                .orElseThrow(() -> new DataNotFoundException(PRODUCT_NOT_FOUND));
         GroupProduct existingGroupProduct = groupProductRepository.findById(productDTO.getGroupProductId())
-                .orElseThrow(() -> new DataNotFoundException("Can't find product with id: " + productDTO.getGroupProductId()));
+                .orElseThrow(() -> new DataNotFoundException(GROUP_PRODUCT_NOT_FOUND));
         Trademark existingTrademark = trademarkRepository.findById(productDTO.getTrademarkId())
-                .orElseThrow(() -> new DataNotFoundException("Can't find trademark with id: " + productDTO.getTrademarkId()));
+                .orElseThrow(() -> new DataNotFoundException(TRADEMARK_NOT_FOUND));
         Location existingLocation = locationRepository.findById(productDTO.getLocationId())
-                .orElseThrow(() -> new DataNotFoundException("Can't find product with id: " + productDTO.getLocationId()));
+                .orElseThrow(() -> new DataNotFoundException(LOCATION_NOT_FOUND));
         Properties existingProperties = propertiesRepository.findById(productDTO.getPropertiesId())
-                .orElseThrow(() -> new DataNotFoundException("Can't find product with id: " + productDTO.getPropertiesId()));
+                .orElseThrow(() -> new DataNotFoundException(PROPERTIES_NOT_FOUND));
         Unit existingUnit = unitRepository.findById(productDTO.getUnitId())
-                .orElseThrow(() -> new DataNotFoundException("Can't find unit with id: " + productDTO.getUnitId()));
+                .orElseThrow(() -> new DataNotFoundException(UNIT_NOT_FOUND));
         Category existingCategory = categoryRepository.findById(productDTO.getCategoryId())
-                .orElseThrow(() -> new DataNotFoundException("Can't find unit with id: " + productDTO.getCategoryId()));
+                .orElseThrow(() -> new DataNotFoundException(CATEGORY_NOT_FOUND));
         existingProduct.setProductName(productDTO.getProductName());
         existingProduct.setPrice(productDTO.getPrice());
         existingProduct.setCapitalPrice(productDTO.getCapitalPrice());
@@ -108,9 +109,10 @@ public class ProductServiceImpl extends BaseReponse implements ProductService {
         existingProduct.setDirectSales(productDTO.isDirectSales());
         existingProduct.setFile(productDTO.getFile().getBytes());
 
-        String message = users.getFullName() + " đã sửa sản phẩm " + productDTO.getProductName() + " thành " + existingProduct.getProductName();
+        String message = users.getFullName() + " have edited product " + productDTO.getProductName() + " to " + existingProduct.getProductName();
         notificationService.saveNotification(message, users);
-        return productRepository.save(existingProduct);
+        productRepository.save(existingProduct);
+        return PRODUCT_UPDATED_SUCCESSFULLY;
     }
 
     @Override
@@ -124,11 +126,13 @@ public class ProductServiceImpl extends BaseReponse implements ProductService {
     }
 
     @Override
-    public ResponseEntity<?> deleteProduct(Long productId, Users users) {
-        productRepository.deleteProductById(productId);
-        String message = users.getFullName() + " đã xóa sản phẩm có ID: HH00" + productId;
+    public String deleteProduct(Long productId, Users users) {
+        Product product = productRepository.findById(productId)
+                        .orElseThrow(() -> new RuntimeException(PRODUCT_NOT_FOUND));
+        productRepository.deleteProductById(product.getProductId());
+        String message = users.getFullName() + " have successfully deleted product " + product.getProductName();
         notificationService.saveNotification(message, users);
-        return getResponseEntity("Product with id: " + productId + " deleted successfully");
+        return PRODUCT_DELETED_SUCCESSFULLY;
     }
 
     @Override
@@ -205,32 +209,28 @@ public class ProductServiceImpl extends BaseReponse implements ProductService {
     }
 
     @Override
-    public ResponseEntity<?> saveCategory(CategoryDTO categoryDTO) {
-        try {
+    public String saveCategory(CategoryDTO categoryDTO) {
             Category category = new Category();
             category.setCategoryName(categoryDTO.getCategoryName());
             categoryRepository.save(category);
-            return getResponseEntity("Category saved successfully");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
+            return CATEGORY_SAVED_SUCCESSFULLY;
     }
 
     @Override
     public String updateCategory(CategoryDTO categoryDTO, Long categoryId) {
         Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+                .orElseThrow(() -> new RuntimeException(CATEGORY_NOT_FOUND));
         category.setCategoryName(categoryDTO.getCategoryName());
         categoryRepository.save(category);
-        return "Category updated successfully";
+        return CATEGORY_UPDATED_SUCCESSFULLY;
     }
 
     @Override
     public String deleteCategory(Long categoryId) {
         Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+                .orElseThrow(() -> new RuntimeException(CATEGORY_NOT_FOUND));
         categoryRepository.deleteById(category.getCategoryId());
-        return "Category deleted successfully";
+        return CATEGORY_DELETED_SUCCESSFULLY;
 
     }
 
@@ -244,24 +244,24 @@ public class ProductServiceImpl extends BaseReponse implements ProductService {
         GroupProduct groupProduct = new GroupProduct();
         groupProduct.setGroupProductName(groupProductDTO.getGroupProductName());
         groupProductRepository.save(groupProduct);
-        return "GroupProduct saved successfully";
+        return GROUP_PRODUCT_SAVED_SUCCESSFULLY;
     }
 
     @Override
     public String updateGroupProduct(GroupProductDTO groupProductDTO, Long groupProductId) {
         GroupProduct groupProduct = groupProductRepository.findById(groupProductId)
-                .orElseThrow(() -> new RuntimeException("Group product not found"));
+                .orElseThrow(() -> new RuntimeException(GROUP_PRODUCT_NOT_FOUND));
         groupProduct.setGroupProductName(groupProductDTO.getGroupProductName());
         groupProductRepository.save(groupProduct);
-        return "GroupProduct updated successfully";
+        return GROUP_PRODUCT_UPDATED_SUCCESSFULLY;
     }
 
     @Override
     public String deleteGroupProduct(Long groupProductId) {
         GroupProduct groupProduct = groupProductRepository.findById(groupProductId)
-                .orElseThrow(() -> new RuntimeException("Group product not found"));
+                .orElseThrow(() -> new RuntimeException(GROUP_PRODUCT_NOT_FOUND));
         groupProductRepository.deleteById(groupProduct.getGroupProductId());
-        return "Group product deleted successfully";
+        return GROUP_PRODUCT_DELETED_SUCCESSFULLY;
     }
 
     @Override
@@ -274,24 +274,24 @@ public class ProductServiceImpl extends BaseReponse implements ProductService {
         Location location = new Location();
         location.setLocationName(locationDTO.getLocationName());
         locationRepository.save(location);
-        return "Location saved successfully";
+        return LOCATION_SAVED_SUCCESSFULLY;
     }
 
     @Override
     public String updateLocation(LocationDTO locationDTO, Long locationId) {
         Location location = locationRepository.findById(locationId)
-                .orElseThrow(() -> new RuntimeException("Location not found"));
+                .orElseThrow(() -> new RuntimeException(LOCATION_NOT_FOUND));
         location.setLocationName(locationDTO.getLocationName());
         locationRepository.save(location);
-        return "Location updated successfully";
+        return LOCATION_UPDATED_SUCCESSFULLY;
     }
 
     @Override
     public String deleteLocation(Long locationId) {
         Location location = locationRepository.findById(locationId)
-                .orElseThrow(() -> new RuntimeException("Location not found"));
+                .orElseThrow(() -> new RuntimeException(LOCATION_NOT_FOUND));
         locationRepository.deleteById(location.getLocationId());
-        return "Location deleted successfully";
+        return LOCATION_DELETED_SUCCESSFULLY;
     }
 
     @Override
@@ -304,24 +304,24 @@ public class ProductServiceImpl extends BaseReponse implements ProductService {
         Properties properties = new Properties();
         properties.setPropertiesName(propertiesDTO.getPropertiesName());
         propertiesRepository.save(properties);
-        return "Properties saved successfully";
+        return PROPERTIES_SAVED_SUCCESSFULLY;
     }
 
     @Override
     public String updateProperties(PropertiesDTO propertiesDTO, Long propertiesId) {
         Properties properties = propertiesRepository.findById(propertiesId)
-                .orElseThrow(() -> new RuntimeException("Properties not found"));
+                .orElseThrow(() -> new RuntimeException(PROPERTIES_NOT_FOUND));
         properties.setPropertiesName(propertiesDTO.getPropertiesName());
         propertiesRepository.save(properties);
-        return "Properties updated successfully";
+        return PROPERTIES_UPDATED_SUCCESSFULLY;
     }
 
     @Override
     public String deleteProperties(Long propertiesId) {
         Properties properties = propertiesRepository.findById(propertiesId)
-                .orElseThrow(() -> new RuntimeException("Properties not found"));
+                .orElseThrow(() -> new RuntimeException(PROPERTIES_NOT_FOUND));
         propertiesRepository.deleteById(properties.getPropertiesId());
-        return "Properties deleted successfully";
+        return PROPERTIES_DELETED_SUCCESSFULLY;
     }
 
     @Override
@@ -334,24 +334,24 @@ public class ProductServiceImpl extends BaseReponse implements ProductService {
         Trademark trademark = new Trademark();
         trademark.setTrademarkName(trademarkDTO.getTrademarkName());
         trademarkRepository.save(trademark);
-        return "Trademark saved successfully";
+        return TRADEMARK_SAVED_SUCCESSFULLY;
     }
 
     @Override
     public String updateTrademark(TrademarkDTO trademarkDTO, Long trademarkId) {
         Trademark trademark = trademarkRepository.findById(trademarkId)
-                .orElseThrow(() -> new RuntimeException("Trademark not found"));
+                .orElseThrow(() -> new RuntimeException(TRADEMARK_NOT_FOUND));
         trademark.setTrademarkName(trademarkDTO.getTrademarkName());
         trademarkRepository.save(trademark);
-        return "Trademark update successful";
+        return TRADEMARK_UPDATED_SUCCESSFULLY;
     }
 
     @Override
     public String deleteTrademark(Long trademarkId) {
         Trademark trademark = trademarkRepository.findById(trademarkId)
-                .orElseThrow(() -> new RuntimeException("Trademark not found"));
+                .orElseThrow(() -> new RuntimeException(TRADEMARK_NOT_FOUND));
         trademarkRepository.deleteById(trademark.getTrademarkId());
-        return "Trademark delete successful";
+        return TRADEMARK_DELETED_SUCCESSFULLY;
     }
 
     @Override
@@ -364,23 +364,23 @@ public class ProductServiceImpl extends BaseReponse implements ProductService {
         Unit unit = new Unit();
         unit.setUnitName(unitDTO.getUnitName());
         unitRepository.save(unit);
-        return "Unit saved successfully";
+        return UNIT_SAVED_SUCCESSFULLY;
     }
 
     @Override
     public String updateUnit(UnitDTO unitDTO, Long unitId) {
         Unit unit = unitRepository.findById(unitId)
-                .orElseThrow(() -> new RuntimeException("Unit not found"));
+                .orElseThrow(() -> new RuntimeException(UNIT_NOT_FOUND));
         unit.setUnitName(unitDTO.getUnitName());
         unitRepository.save(unit);
-        return "Unit updated successfully";
+        return UNIT_UPDATED_SUCCESSFULLY;
     }
 
     @Override
     public String deleteUnit(Long unitId) {
         Unit unit = unitRepository.findById(unitId)
-                .orElseThrow(() -> new RuntimeException("Unit not found"));
+                .orElseThrow(() -> new RuntimeException(UNIT_NOT_FOUND));
         unitRepository.deleteById(unit.getUnitId());
-        return "Unit deleted successfully";
+        return UNIT_DELETED_SUCCESSFULLY;
     }
 }

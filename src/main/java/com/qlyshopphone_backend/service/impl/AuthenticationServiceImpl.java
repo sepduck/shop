@@ -1,8 +1,7 @@
 package com.qlyshopphone_backend.service.impl;
-import static com.qlyshopphone_backend.constant.PathConstant.*;
+import static com.qlyshopphone_backend.constant.ErrorMessage.*;
 
 import com.qlyshopphone_backend.dto.UsersDTO;
-import com.qlyshopphone_backend.model.BaseReponse;
 import com.qlyshopphone_backend.model.Gender;
 import com.qlyshopphone_backend.model.Roles;
 import com.qlyshopphone_backend.model.Users;
@@ -13,8 +12,6 @@ import com.qlyshopphone_backend.service.AuthenticationService;
 import com.qlyshopphone_backend.service.NotificationService;
 import com.qlyshopphone_backend.service.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -29,7 +26,7 @@ import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
-public class AuthenticationServiceImpl extends BaseReponse implements AuthenticationService {
+public class AuthenticationServiceImpl implements AuthenticationService {
     private final JwtProvider provider;
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
@@ -41,24 +38,17 @@ public class AuthenticationServiceImpl extends BaseReponse implements Authentica
     private final Set<String> invalidatedTokens = new HashSet<>();
 
     @Override
-    public ResponseEntity<?> login(Users users) {
-       try {
-           Authentication authentication =
-                   authenticationManager
-                           .authenticate(new UsernamePasswordAuthenticationToken
+    public String login(Users users) {
+           Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken
                                    (users.getUsername(), users.getPassword()));
            SecurityContextHolder.getContext().setAuthentication(authentication);
-           String token = provider.generateToken(authentication);
-           return getResponseEntity(token);
-       }catch (Exception e) {
-           return getResponseEntity(e.getMessage());
-       }
+        return provider.generateToken(authentication);
     }
 
     @Override
-    public ResponseEntity<?> register(UsersDTO usersDTO) throws Exception {
+    public String register(UsersDTO usersDTO) throws Exception {
         Gender gender = genderRepository.findById(usersDTO.getGenderId())
-                .orElseThrow(() -> new RuntimeException("Gender not found"));
+                .orElseThrow(() -> new RuntimeException(GENDER_NOT_FOUND));
         Users users = new Users();
         users.setUsername(usersDTO.getUsername());
         users.setPassword(passwordEncoder.encode(usersDTO.getPassword()));
@@ -76,9 +66,10 @@ public class AuthenticationServiceImpl extends BaseReponse implements Authentica
         users.setFileUser(usersDTO.getFileUser().getBytes());
 
         Roles roles = roleRepository.findById(usersDTO.getRoleId())
-                .orElseThrow(() -> new RuntimeException("Role not found"));
+                .orElseThrow(() -> new RuntimeException(ROLE_NOT_FOUND));
         users.setRoles(List.of(roles));
-        return getResponseEntity(userRepository.save(users));
+        userRepository.save(users);
+        return YOU_HAVE_REGISTER_SUCCESSFULLY;
     }
     @Override
     public void invalidateToken(String token) {

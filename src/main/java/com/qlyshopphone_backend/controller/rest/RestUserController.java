@@ -1,4 +1,5 @@
 package com.qlyshopphone_backend.controller.rest;
+import static com.qlyshopphone_backend.constant.ErrorMessage.*;
 
 import static com.qlyshopphone_backend.constant.PathConstant.*;
 import com.qlyshopphone_backend.dto.PasswordChangeRequestDTO;
@@ -89,14 +90,14 @@ public class RestUserController {
         try {
             String authorizationHeader = request.getHeader("Authorization");
             if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Thiếu hoặc sai định dạng Authorization header");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(MISSING_OR_INCORRECT_AUTHORIZATION_HEADER_FORMAT);
             }
 
             String token = authorizationHeader.replace("Bearer ", "");
             authenticationService.invalidateToken(token);
-            return ResponseEntity.ok(ResponseEntity.ok("Đăng xuất thành công"));
+            return ResponseEntity.ok(ResponseEntity.ok(SUCCESSFULLY_LOGGED_OUT));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Có lỗi xảy ra trong quá trình đăng xuất");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(AN_ERROR_OCCURRED_DURING_LOGOUT);
         }
     }
 

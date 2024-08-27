@@ -1,4 +1,5 @@
 package com.qlyshopphone_backend.service.impl;
+import static com.qlyshopphone_backend.constant.ErrorMessage.*;
 
 import com.qlyshopphone_backend.dto.CartDTO;
 import com.qlyshopphone_backend.dto.CustomerInfoDTO;
@@ -47,11 +48,11 @@ public class CartServiceImpl implements CartService {
         Optional<Product> productOptional = productRepository.findById(cartDTO.getProductId());
         Optional<Users> usersOptional = userRepository.findById(cartDTO.getUserId());
         if (!productOptional.isPresent() || !usersOptional.isPresent()) { // Sửa || thành &&
-            return "Invalid product or user information";
+            return INTRODUCE_LOCAL_VARIABLE;
         }
         Cart cart = CartMapper.toEntity(cartDTO, productOptional.get(), usersOptional.get());
         ResponseEntity.ok(cartRepository.save(cart));
-        return "Successfully added to cart";
+        return SUCCESSFULLY_ADDED_TO_CART;
     }
 
     @Override
@@ -59,7 +60,7 @@ public class CartServiceImpl implements CartService {
             cartRepository.deleteByCartId(cartId);
             String message = users.getUsername() + " deleted the product in the cart with code: " + cartId;
             notificationService.saveNotification(message, users);
-            return "Successfully deleted the product from the cart";
+            return SUCCESSFULLY_DELETED_THE_PRODUCT_FROM_THE_CART;
     }
 
     @Override
@@ -75,25 +76,25 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public Cart findCartById(Long cartId) {
-        return cartRepository.findById(cartId).orElseThrow(() -> new RuntimeException("Cart not found"));
+        return cartRepository.findById(cartId).orElseThrow(() -> new RuntimeException(CART_NOT_FOUND));
     }
 
     @Override
     public String createCustomerInfo(CustomerInfoDTO customerInfoDTO) {
         Users users = userRepository.findById(customerInfoDTO.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException(USER_NOT_FOUND));
         CustomerInfo customerInfo = CustomerInfoMapper.infoEntity(customerInfoDTO, users);
 
         customerInfo.setUser(users);
         users.getCustomerInfo().add(customerInfo);
         customerInfoRepository.save(customerInfo);
-        return "Successfully created customer info";
+        return SUCCESSFULLY_CREATED_CUSTOMER_INFO;
     }
 
     @Override
     public CustomerInfoDTO updateCustomerInfo(Long customerId, CustomerInfoDTO customerInfoDTO) {
         CustomerInfo customerInfo = customerInfoRepository.findById(customerId)
-                .orElseThrow(() -> new RuntimeException("Customer Info not found"));
+                .orElseThrow(() -> new RuntimeException(CUSTOMER_INFO_NOT_FOUND));
         customerInfo.setCustomerName(customerInfoDTO.getCustomerName());
         customerInfo.setPhone(customerInfoDTO.getPhone());
         customerInfo.setAddress(customerInfoDTO.getAddress());
@@ -105,13 +106,13 @@ public class CartServiceImpl implements CartService {
     @Override
     public String deleteCustomerInfo(Long customerId) {
         customerInfoRepository.deleteById(customerId);
-        return "Successfully deleted delivery address information";
+        return SUCCESSFULLY_DELETED_DELIVERY_ADDRESS_INFORMATION;
     }
 
     @Override
     public CustomerInfo findById(Long customerInfoId) {
         return customerInfoRepository.findById(customerInfoId)
-                .orElseThrow(() -> new RuntimeException("Customer Info not found"));
+                .orElseThrow(() -> new RuntimeException(CUSTOMER_INFO_NOT_FOUND));
     }
 
     @Override

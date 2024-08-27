@@ -1,6 +1,7 @@
 package com.qlyshopphone_backend.controller.rest;
 import static com.qlyshopphone_backend.constant.PathConstant.*;
 
+import static com.qlyshopphone_backend.constant.ErrorMessage.*;
 import com.qlyshopphone_backend.dto.CartDTO;
 import com.qlyshopphone_backend.dto.CustomerInfoDTO;
 import com.qlyshopphone_backend.dto.PurchaseDTO;
@@ -14,12 +15,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -45,7 +42,7 @@ public class RestCartController {
     public ResponseEntity<?> addCartItem(@PathVariable("productId") Long productId, Principal principal) {
         Users users = userService.findByUsername(principal.getName());
         Product product = productService.findByProductId(productId).
-                orElseThrow(() -> new RuntimeException("Product not found"));
+                orElseThrow(() -> new RuntimeException(PRODUCT_NOT_FOUND));
         boolean productExistsInCart = false;
         // Kiểm tra nếu sản phẩm đã tồn tại trong giỏ hàng
         for (Cart cartItem : users.getCart()) {
@@ -64,7 +61,7 @@ public class RestCartController {
             users.getCart().add(cart);
         }
         userService.saveUser(users);
-        return ResponseEntity.ok().body("Product added successfully");
+        return ResponseEntity.ok().body(PRODUCT_ADDED_SUCCESSFULLY);
     }
 
     @GetMapping(LIST_CART)
@@ -108,7 +105,7 @@ public class RestCartController {
 
         // Kiểm tra sản phẩm trong giỏ hàng đã được bán chưa
         if (cart.isSold()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Product already sold");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(PRODUCT_ALREADY_SOLD);
         }
 
         Product product = cart.getProduct();
@@ -118,7 +115,7 @@ public class RestCartController {
             product.setInventory(product.getInventory() - cart.getQuantity());
             productService.createProduct(product);
         } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Product out of stock");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(PRODUCT_OUT_OF_STOCK);
         }
 
         // Đánh dấu giỏ hàng đã được bán
@@ -127,7 +124,7 @@ public class RestCartController {
 
         // Tìm kiếm thông tin khách hàng theo customerInfoId
         CustomerInfo customerInfo = customerInfoRepository.findById(customerInfoId)
-                .orElseThrow(() -> new RuntimeException("Customer info not found"));
+                .orElseThrow(() -> new RuntimeException(CUSTOMER_INFO_NOT_FOUND));
         // Tạo đối tượng Purchase và thiết lập các thuộc tính
         Purchase purchase = new Purchase();
         purchase.setUser(users);
@@ -156,9 +153,9 @@ public class RestCartController {
 
         cartService.saveUserStatistics(userStatistics);
 
-        String message = users.getFullName() + " đã đặt sản phẩm " + cart.getProduct().getProductName();
+        String message = users.getFullName() + " order " + cart.getProduct().getProductName() + " products";
         notificationService.saveNotification(message, users);
-        return ResponseEntity.ok().body("Cart sold successfully");
+        return ResponseEntity.ok().body(CART_SOLD_SUCCESSFULLY);
     }
 
 //     Endpoint để bán nhiều sản phẩm từ giỏ hàng
@@ -174,16 +171,16 @@ public class RestCartController {
 
         // Tìm kiếm thông tin khách hàng theo customerInfoId
         CustomerInfo customerInfo = customerInfoRepository.findById(customerInfoId)
-                .orElseThrow(() -> new RuntimeException("Customer info not found"));
+                .orElseThrow(() -> new RuntimeException(CUSTOMER_INFO_NOT_FOUND));
 
         for (Integer cardId : cardsId) {
             Optional<Cart> optionalCart = cartRepository.findById(Long.valueOf(cardId));
             if (!optionalCart.isPresent()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Cart not found: " + cardId);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CART_NOT_FOUND);
             }
             Cart cart = optionalCart.get();
             if (cart.isSold()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Product already sold: " + cardId);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(PRODUCT_ALREADY_SOLD);
             }
 
             Product product = cart.getProduct();
@@ -191,7 +188,7 @@ public class RestCartController {
                 product.setInventory(product.getInventory() - cart.getQuantity());
                 productService.createProduct(product);
             } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Product out of stock: " + cardId);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(PRODUCT_OUT_OF_STOCK);
             }
 
             cart.setSold(true);
@@ -226,7 +223,7 @@ public class RestCartController {
         userStatistics.setTotalItemBought(currentTotalItemsBought + purchase.getTotalAmount());
 
 
-        return ResponseEntity.ok().body("Cart sold successfully");
+        return ResponseEntity.ok().body(CART_SOLD_SUCCESSFULLY);
     }
 
     @GetMapping(SALE)
@@ -247,7 +244,7 @@ public class RestCartController {
             }
             return ResponseEntity.ok(productList);
         } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No items in cart");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(NO_ITEMS_IN_CART);
         }
     }
 
@@ -373,7 +370,7 @@ public class RestCartController {
     public ResponseEntity<?> createCustomerInfo(@RequestBody CustomerInfoDTO customerInfoDTO, Principal principal) {
         Users users = userService.findByUsername(principal.getName());
         if (users == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(USER_NOT_FOUND);
         }
         long userId = users.getUserId();
         customerInfoDTO.setUserId(userId);

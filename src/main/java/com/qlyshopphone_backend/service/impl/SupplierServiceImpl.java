@@ -1,4 +1,5 @@
 package com.qlyshopphone_backend.service.impl;
+import static com.qlyshopphone_backend.constant.ErrorMessage.*;
 
 import com.qlyshopphone_backend.dto.GroupSupplierDTO;
 import com.qlyshopphone_backend.dto.SupplierDTO;
@@ -17,7 +18,7 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
-public class SupplierServiceImpl extends BaseReponse implements SupplierService {
+public class SupplierServiceImpl implements SupplierService {
     private final SupplierRepository supplierRepository;
     private final GroupSupplierRepository groupSupplierRepository;
     private final ProductRepository productRepository;
@@ -46,9 +47,9 @@ public class SupplierServiceImpl extends BaseReponse implements SupplierService 
     @Override
     public String saveSuppliers(SupplierDTO supplierDTO, Users users) {
         GroupSupplier existingGroupSupplier = groupSupplierRepository.findById(supplierDTO.getGroupSupplierId())
-                .orElseThrow(() -> new RuntimeException("GroupSupplier not found"));
+                .orElseThrow(() -> new RuntimeException(GROUP_SUPPLIER_NOT_FOUND));
         Product existingProduct = productRepository.findById(supplierDTO.getProductId())
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new RuntimeException(PRODUCT_NOT_FOUND));
         Supplier supplier = new Supplier();
         supplier.setSupplierName(supplierDTO.getSupplierName());
         supplier.setPhoneNumber(supplierDTO.getPhoneNumber());
@@ -61,20 +62,20 @@ public class SupplierServiceImpl extends BaseReponse implements SupplierService 
         supplier.setProduct(existingProduct);
         supplierRepository.save(supplier);
 
-        String message = users.getFullName() + " đã thêm nhà cung cấp " + supplier.getSupplierName();
+        String message = users.getFullName() + " have successfully added supplier " + supplier.getSupplierName();
         notificationService.saveNotification(message, users);
-        return "Supplier saved successfully";
+        return SUPPLIER_SAVED_SUCCESSFULLY;
 
     }
 
     @Override
     public String updateSuppliers(Long supplierId, SupplierDTO supplierDTO, Users users) {
         Supplier existingSupplier = supplierRepository.findById(supplierId)
-                .orElseThrow(() -> new RuntimeException("Supplier not found"));
+                .orElseThrow(() -> new RuntimeException(SUPPLIER_NOT_FOUND));
         GroupSupplier existingGroupSupplier = groupSupplierRepository.findById(supplierDTO.getGroupSupplierId())
-                .orElseThrow(() -> new RuntimeException("GroupSupplier not found"));
+                .orElseThrow(() -> new RuntimeException(GROUP_SUPPLIER_NOT_FOUND));
         Product existingProduct = productRepository.findById(supplierDTO.getProductId())
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new RuntimeException(PRODUCT_NOT_FOUND));
         existingSupplier.setSupplierName(supplierDTO.getSupplierName());
         existingSupplier.setPhoneNumber(supplierDTO.getPhoneNumber());
         existingSupplier.setAddress(supplierDTO.getAddress());
@@ -85,18 +86,20 @@ public class SupplierServiceImpl extends BaseReponse implements SupplierService 
         existingSupplier.setGroupSupplier(existingGroupSupplier);
         existingSupplier.setProduct(existingProduct);
 
-        String message = users.getFullName() + " đã sửa nhà cung cấp " + existingSupplier.getSupplierName();
+        String message = users.getFullName() + " have edited product " + supplierDTO.getSupplierName() + " to " + existingSupplier.getSupplierName();
         notificationService.saveNotification(message, users);
         supplierRepository.save(existingSupplier);
-        return "Supplier updated successfully";
+        return SUPPLIER_UPDATED_SUCCESSFULLY;
     }
 
     @Override
     public String deleteSuppliers(Long supplierId, Users users) {
-        supplierRepository.deleteBySupplierId(supplierId);
-        String message = users.getFullName() + " đã xóa nhà cung cấp có ID: NCC00" + supplierId;
+        Supplier supplier = supplierRepository.findById(supplierId)
+                        .orElseThrow(() -> new RuntimeException(SUPPLIER_NOT_FOUND));
+        supplierRepository.deleteBySupplierId(supplier.getSupplierId());
+        String message = users.getFullName() + " have successfully deleted supplier " + supplier.getSupplierName();
         notificationService.saveNotification(message, users);
-        return "Supplier deleted successfully";
+        return SUPPLIER_DELETED_SUCCESSFULLY;
     }
 
     @Override
@@ -131,24 +134,24 @@ public class SupplierServiceImpl extends BaseReponse implements SupplierService 
         groupSupplier.setGroupSupplierName("Group supplier - " + groupSupplierDTO.getGroupSupplierName());
         groupSupplier.setNote(groupSupplierDTO.getNote());
         groupSupplierRepository.save(groupSupplier);
-        return "GroupSupplier saved successfully";
+        return GROUP_SUPPLIER_SAVED_SUCCESSFULLY;
     }
 
     @Override
     public String updateGroupSupplier(GroupSupplierDTO groupSupplierDTO, Long groupSupplierId) {
         GroupSupplier groupSupplier = groupSupplierRepository.findById(groupSupplierId)
-                .orElseThrow(() -> new RuntimeException("Group supplier not found"));
+                .orElseThrow(() -> new RuntimeException(GROUP_SUPPLIER_NOT_FOUND));
         groupSupplier.setGroupSupplierName(groupSupplierDTO.getGroupSupplierName());
         groupSupplier.setNote(groupSupplierDTO.getNote());
         groupSupplierRepository.save(groupSupplier);
-        return "GroupSupplier updated successfully";
+        return GROUP_SUPPLIER_UPDATED_SUCCESSFULLY;
     }
 
     @Override
     public String deleteGroupSupplier(Long groupSupplierId) {
         GroupSupplier groupSupplier = groupSupplierRepository.findById(groupSupplierId)
-                .orElseThrow(() -> new RuntimeException("Group supplier not found"));
+                .orElseThrow(() -> new RuntimeException(GROUP_SUPPLIER_NOT_FOUND));
         groupSupplierRepository.deleteById(groupSupplier.getGroupSupplierId());
-        return "GroupSupplier deleted successfully";
+        return GROUP_SUPPLIER_DELETED_SUCCESSFULLY;
     }
 }
