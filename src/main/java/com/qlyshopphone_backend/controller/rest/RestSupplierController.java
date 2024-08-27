@@ -1,6 +1,8 @@
 package com.qlyshopphone_backend.controller.rest;
+import static com.qlyshopphone_backend.constant.PathConstant.*;
 
 import com.github.javafaker.Faker;
+import com.qlyshopphone_backend.dto.GroupSupplierDTO;
 import com.qlyshopphone_backend.dto.SupplierDTO;
 import com.qlyshopphone_backend.exceptions.DataNotFoundException;
 import com.qlyshopphone_backend.model.Users;
@@ -21,110 +23,85 @@ public class RestSupplierController {
     private final SupplierService supplierService;
     private final UserService userService;
 
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_ACCOUNTANT')")
-    @GetMapping("/supplier")
+    @GetMapping(ADMIN_SUPPLIER)
     public ResponseEntity<?> getSupplier() {
-        return supplierService.getSupplier();
+        return ResponseEntity.ok(supplierService.getSupplier());
     }
-
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_ACCOUNTANT')")
-    @GetMapping("/suppliers")
+    
+    @GetMapping(ADMIN_SUPPLIERS)
     public ResponseEntity<?> getAllSuppliers() {
-        return supplierService.getAllSuppliers();
+        return ResponseEntity.ok(supplierService.getAllSuppliers());
     }
-
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_ACCOUNTANT')")
-    @PostMapping("/supplier")
+    
+    @PostMapping(ADMIN_SUPPLIER)
     public ResponseEntity<?> saveSuppliers(@RequestBody SupplierDTO supplierDTO,
                                            Principal principal) {
         Users users = userService.findByUsername(principal.getName());
         supplierDTO.setDeleteProduct(false);
-        return supplierService.saveSuppliers(supplierDTO, users);
+        return ResponseEntity.ok(supplierService.saveSuppliers(supplierDTO, users));
     }
 
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_ACCOUNTANT')")
-    @PutMapping("/supplier/{supplierId}")
-    public ResponseEntity<?> updateSupplier(@PathVariable int supplierId,
+    @PutMapping(ADMIN_SUPPLIER_ID)
+    public ResponseEntity<?> updateSupplier(@PathVariable Long id,
                                             @RequestBody SupplierDTO supplierDTO,
                                             Principal principal) throws Exception {
         Users users = userService.findByUsername(principal.getName());
-        return ResponseEntity.ok(supplierService.updateSuppliers(supplierId, supplierDTO, users));
+        return ResponseEntity.ok(ResponseEntity.ok(supplierService.updateSuppliers(id, supplierDTO, users)));
     }
-    // Delete ----------------------------------------------------------------------------------------------------------
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_ACCOUNTANT')")
-    @DeleteMapping("/supplier/{supplierId}")
-    public ResponseEntity<?> deleteSuppliers(@PathVariable int supplierId, Principal principal) {
+
+    @DeleteMapping(ADMIN_SUPPLIER_ID)
+    public ResponseEntity<?> deleteSuppliers(@PathVariable Long id, Principal principal) {
         Users users = userService.findByUsername(principal.getName());
-        return supplierService.deleteSuppliers(supplierId, users);
+        return ResponseEntity.ok(supplierService.deleteSuppliers(id, users));
     }
 
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_ACCOUNTANT')")
-    @GetMapping("/supplier/findById/{supplierId}")
-    public ResponseEntity<?> findBySuppliersId(@PathVariable int supplierId) {
-        return supplierService.findBySuppliersId(supplierId);
+    @GetMapping(ADMIN_SUPPLIERS_SEARCH_PHONE_NUMBER)
+    public ResponseEntity<?> searchAllByPhoneNumber(@PathVariable("number") String phoneNumber) {
+        return ResponseEntity.ok(supplierService.searchByPhoneNumber(phoneNumber));
     }
 
-    // Search by phone number ------------------------------------------------------------------------------------------
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_ACCOUNTANT', 'ROLE_USER')")
-    @GetMapping("/suppliers/search-phone/{phoneNumber}")
-    public ResponseEntity<?> searchAllByPhoneNumber(@PathVariable("phoneNumber") String phoneNumber) {
-        return supplierService.searchByPhoneNumber(phoneNumber);
+    @GetMapping(ADMIN_SUPPLIERS_SEARCH_TAX_CODE_NUMBER)
+    public ResponseEntity<?> searchAllByTaxCode(@PathVariable("number") String taxCode) {
+        return ResponseEntity.ok(supplierService.searchByTaxCode(taxCode));
     }
 
-    //  Search by Tax Code ---------------------------------------------------------------------------------------------
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_ACCOUNTANT', 'ROLE_USER')")
-    @GetMapping("/suppliers/search-tax-code/{taxCode}")
-    public ResponseEntity<?> searchAllByTaxCode(@PathVariable("taxCode") String taxCode) {
-        return supplierService.searchByTaxCode(taxCode);
+    @GetMapping(ADMIN_SUPPLIERS_SEARCH_NAME)
+    public ResponseEntity<?> searchSupplierName(@PathVariable("name") String supplierName) {
+        return ResponseEntity.ok(supplierService.searchBySupplierName(supplierName));
     }
 
-    //  Search by supplier name ----------------------------------------------------------------------------------------
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_ACCOUNTANT', 'ROLE_USER')")
-    @GetMapping("/suppliers/search-name/{supplierName}")
-    public ResponseEntity<?> searchSupplierName(@PathVariable("supplierName") String supplierName) {
-        return supplierService.searchBySupplierName(supplierName);
+    @GetMapping(ADMIN_SUPPLIERS_SEARCH_GROUP_SUPPLIER_NUMBER)
+    public ResponseEntity<?> searchByGroupSupplier(@PathVariable Long number){
+        return ResponseEntity.ok(supplierService.searchByGroupSupplier(number));
     }
 
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_ACCOUNTANT', 'ROLE_USER')")
-    @GetMapping("/suppliers/search-group-supplier/{groupSupplierId}")
-    public ResponseEntity<?> searchByGroupSupplier(@PathVariable int groupSupplierId){
-        return supplierService.searchByGroupSupplier(groupSupplierId);
-    }
-
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_ACCOUNTANT', 'ROLE_USER')")
-    @GetMapping("/suppliers/search-supplier-active/{number}")
+    @GetMapping(ADMIN_SUPPLIERS_SEARCH_SUPPLIER_ACTIVE_NUMBER)
     public ResponseEntity<?> searchActive(@PathVariable int number){
-        return supplierService.searchNoActive(number);
+        return ResponseEntity.ok(supplierService.searchNoActive(number));
+    }
+    
+    
+    @GetMapping(ADMIN_GROUP_SUPPLIER)
+    public ResponseEntity<?> getAllGroupSupplier() {
+        return ResponseEntity.ok(supplierService.getAllGroupSupplier());
     }
 
-    //  Fake data ------------------------------------------------------------------------------------------------------
-//    @PreAuthorize("hasRole('ROLE_ADMIN')")
-//    @PostMapping("/suppliers/generateFake")
-//    public ResponseEntity<String> generateFake() {
-//        Faker faker = new Faker();
-//        for (int i = 0; i < 100; i++) {
-//            String supplier = faker.name().fullName();
-//            String taxCode = String.valueOf(faker.number().numberBetween(10, 10));
-//            if (supplierService.existsBySupplierNameAndTaxCode(supplier, taxCode)) {
-//                continue;
-//            }
-//            SupplierDTO supplierDTO = SupplierDTO.builder()
-//                    .supplierName(supplier)
-//                    .phoneNumber(faker.phoneNumber().phoneNumber())
-//                    .address(faker.address().fullAddress())
-//                    .email(faker.internet().emailAddress())
-//                    .company(faker.company().name())
-//                    .taxCode(taxCode)
-//                    .groupSupplierId(faker.number().numberBetween(1, 100))
-//                    .productId(faker.number().numberBetween(1, 17))
-//                    .build();
-//            try {
-//                supplierService.saveSuppliers(supplierDTO);
-//            } catch (Exception e) {
-//                return ResponseEntity.badRequest().body(e.getMessage());
-//            }
-//
-//        }
-//        return ResponseEntity.ok("Fake orders generated");
-//    }
+    
+    @PostMapping(ADMIN_GROUP_SUPPLIER)
+    public ResponseEntity<?> saveGroupSupplier(@RequestBody GroupSupplierDTO groupSupplierDTO) {
+        return ResponseEntity.ok(supplierService.saveGroupSupplier(groupSupplierDTO));
+    }
+
+    
+    @PutMapping(ADMIN_GROUP_SUPPLIER_ID)
+    public ResponseEntity<?> updateGroupSupplier(@RequestBody GroupSupplierDTO groupSupplierDTO,
+                                                 @PathVariable Long id) {
+        return ResponseEntity.ok(supplierService.updateGroupSupplier(groupSupplierDTO,id));
+    }
+
+    @DeleteMapping(ADMIN_GROUP_SUPPLIER_ID)
+    public ResponseEntity<?> deleteGroupSupplier(@PathVariable Long id) {
+        return ResponseEntity.ok(supplierService.deleteGroupSupplier(id));
+    }
+
 }

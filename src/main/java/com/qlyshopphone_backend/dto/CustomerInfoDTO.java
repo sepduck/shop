@@ -4,10 +4,10 @@ import lombok.Data;
 
 @Data
 public class CustomerInfoDTO {
-    private Integer customerId;
+    private Long customerId;
     private String customerName;
     private String phone;
     private String address;
     private boolean deleteCustomerInfo;
-    private Integer userId;
+    private Long userId;
 }

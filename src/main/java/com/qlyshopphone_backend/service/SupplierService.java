@@ -1,31 +1,41 @@
 package com.qlyshopphone_backend.service;
 
+import com.qlyshopphone_backend.dto.GroupSupplierDTO;
 import com.qlyshopphone_backend.dto.SupplierDTO;
-import com.qlyshopphone_backend.exceptions.DataNotFoundException;
-import com.qlyshopphone_backend.model.Supplier;
+import com.qlyshopphone_backend.model.GroupSupplier;
 import com.qlyshopphone_backend.model.Users;
 import org.springframework.http.ResponseEntity;
 
+import java.util.List;
+import java.util.Map;
+
 public interface SupplierService {
-    ResponseEntity<?> getAllSuppliers();
+    List<Map<String, Object>> getAllSuppliers();
 
-    ResponseEntity<?> saveSuppliers(SupplierDTO supplierDTO, Users users);
+    String saveSuppliers(SupplierDTO supplierDTO, Users users);
 
-    Supplier updateSuppliers(int supplierId, SupplierDTO supplierDTO, Users users) throws Exception;
+    String updateSuppliers(Long supplierId, SupplierDTO supplierDTO, Users users) throws Exception;
 
-    ResponseEntity<?> deleteSuppliers(int supplierId, Users users);
+    String deleteSuppliers(Long supplierId, Users users);
 
-    ResponseEntity<?> findBySuppliersId(int supplierId);
+    List<Map<String, Object>> searchByPhoneNumber(String phoneNumber);
 
-    ResponseEntity<?> searchByPhoneNumber(String phoneNumber);
+    List<Map<String, Object>> searchByTaxCode(String taxCode);
 
-    ResponseEntity<?> searchByTaxCode(String taxCode);
+    List<Map<String, Object>> searchBySupplierName(String supplierName);
 
-    ResponseEntity<?> searchBySupplierName(String supplierName);
+    List<Map<String, Object>> searchByGroupSupplier(Long groupSupplierId);
 
-    ResponseEntity<?> searchByGroupSupplier(int groupSupplierId);
+    List<Map<String, Object>> getSupplier();
 
-    ResponseEntity<?> getSupplier();
+    List<Map<String, Object>> searchNoActive(int number);
 
-    ResponseEntity<?> searchNoActive(int number);
+    List<GroupSupplier> getAllGroupSupplier();
+
+    String saveGroupSupplier(GroupSupplierDTO groupSupplierDTO);
+
+    String updateGroupSupplier(GroupSupplierDTO groupSupplierDTO, Long groupSupplierId);
+
+    String deleteGroupSupplier(Long groupSupplierId);
+
 }

@@ -1,4 +1,5 @@
 package com.qlyshopphone_backend.controller.rest;
+import static com.qlyshopphone_backend.constant.PathConstant.*;
 
 import com.qlyshopphone_backend.dto.NotificationDTO;
 import com.qlyshopphone_backend.service.NotificationService;
@@ -18,8 +19,7 @@ import java.util.List;
 public class RestNotificationController {
     private final NotificationService notificationService;
 
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_ACCOUNTANT')")
-    @GetMapping("/notification")
+    @GetMapping(ADMIN_NOTIFICATION)
     public ResponseEntity<?> getNotification() {
         List<NotificationDTO> notificationDTOS = notificationService.getNotifications();
         if (notificationDTOS.isEmpty()) {

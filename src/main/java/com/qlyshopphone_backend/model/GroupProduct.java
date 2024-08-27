@@ -11,7 +11,7 @@ public class GroupProduct {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "group_product_id")
-    private Integer groupProductId;
+    private Long groupProductId;
 
     @Column(name = "group_product_name", length = 50, nullable = false)
     private String groupProductName;

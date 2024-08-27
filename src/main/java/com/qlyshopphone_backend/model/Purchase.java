@@ -14,7 +14,7 @@ public class Purchase {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "purchase_id")
-    private Integer purchaseId;
+    private Long purchaseId;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -28,7 +28,7 @@ public class Purchase {
     private BigDecimal totalPrice;
 
     @Column(name = "total_amount", nullable = false)
-    private Integer totalAmount;
+    private Long totalAmount;
 
     @Column(name = "purchase_date", nullable = false)
     private LocalDateTime purchaseDate;

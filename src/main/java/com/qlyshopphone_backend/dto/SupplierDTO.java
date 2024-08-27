@@ -16,6 +16,6 @@ public class SupplierDTO {
     private String company;
     private String taxCode;
     private boolean deleteProduct;
-    private Integer groupSupplierId;
-    private Integer productId;
+    private Long groupSupplierId;
+    private Long productId;
 }

@@ -1,5 +1,8 @@
 package com.qlyshopphone_backend.config;
 
+import static com.qlyshopphone_backend.constant.PathConstant.*;
+
+import com.qlyshopphone_backend.model.Roles;
 import com.qlyshopphone_backend.service.impl.UserSecurityDetailService;
 import com.qlyshopphone_backend.service.jwt.JwtEntryPoint;
 import com.qlyshopphone_backend.service.jwt.JwtFilter;
@@ -31,8 +34,9 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable).cors(Customizer.withDefaults())
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/login", "/register")
+                        .requestMatchers(API_V1_LOGIN, API_V1_REGISTER)
                         .permitAll()
+                        .requestMatchers(API_V1_ADMIN + "/**").hasRole("ADMIN")
                         .anyRequest()
                         .authenticated())
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(entryPoint));

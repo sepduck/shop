@@ -1,9 +1,18 @@
 package com.qlyshopphone_backend.controller.rest;
+import static com.qlyshopphone_backend.constant.PathConstant.*;
 
 import com.qlyshopphone_backend.dto.CartDTO;
+import com.qlyshopphone_backend.dto.CustomerInfoDTO;
+import com.qlyshopphone_backend.dto.PurchaseDTO;
 import com.qlyshopphone_backend.mapper.CartMapper;
+import com.qlyshopphone_backend.mapper.CustomerInfoMapper;
 import com.qlyshopphone_backend.model.*;
+import com.qlyshopphone_backend.repository.CartRepository;
+import com.qlyshopphone_backend.repository.CustomerInfoRepository;
 import com.qlyshopphone_backend.service.*;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,20 +31,18 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping()
+@RequestMapping(API_V1)
 @RequiredArgsConstructor
 public class RestCartController {
-    private static final Logger log = LoggerFactory.getLogger(RestCartController.class);
     private final UserService userService;
     private final ProductService productService;
     private final CartService cartService;
-    private final UserStatisticsService userStatisticsService;
-    private final CustomerInfoService customerInfoService;
-    private final PurchaseService purchaseService;
     private final NotificationService notificationService;
+    private final CustomerInfoRepository customerInfoRepository;
+    private final CartRepository cartRepository;
 
-    @PostMapping("/cart/add/{productId}")
-    public ResponseEntity<?> addCartItem(@PathVariable("productId") int productId, Principal principal) {
+    @PostMapping(CART_ADD_PRODUCT_ID)
+    public ResponseEntity<?> addCartItem(@PathVariable("productId") Long productId, Principal principal) {
         Users users = userService.findByUsername(principal.getName());
         Product product = productService.findByProductId(productId).
                 orElseThrow(() -> new RuntimeException("Product not found"));
@@ -52,15 +59,15 @@ public class RestCartController {
         if (!productExistsInCart) {
             Cart cart = new Cart();
             cart.setProduct(product);
-            cart.setQuantity(1);
+            cart.setQuantity(1L);
             cart.setUser(users);
             users.getCart().add(cart);
         }
         userService.saveUser(users);
         return ResponseEntity.ok().body("Product added successfully");
     }
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_ACCOUNTANT', 'ROLE_USER')")
-    @GetMapping("/list-cart")
+
+    @GetMapping(LIST_CART)
     public ResponseEntity<?> viewCart(Principal principal) {
         // Lấy thông tin người dùng từ userService
         Users user = userService.findByUsername(principal.getName());
@@ -81,19 +88,18 @@ public class RestCartController {
         return ResponseEntity.ok().body(cartDTOS);
     }
 
-    @DeleteMapping("/delete-cart/{cartId}")
-    public ResponseEntity<?> deleteCartItem(@PathVariable("cartId") int cartId,
+    @DeleteMapping(DELETE_CART_CART_ID)
+    public ResponseEntity<?> deleteCartItem(@PathVariable("cartId") Long cartId,
                                             Principal principal) {
         Users user = userService.findByUsername(principal.getName());
-        return cartService.deleteCart(cartId, user);
+        return ResponseEntity.ok(cartService.deleteCart(cartId, user));
     }
 
-    @PostMapping("/cart/sell/{cardId}/{customerInfoId}")
-    public ResponseEntity<?> sellCartItem(@PathVariable("cardId") int cardId,
-                                          @PathVariable("customerInfoId") int customerInfoId) {
+    @PostMapping(CART_SELL_CART_ID_CUSTOMER_INFO_ID)
+    public ResponseEntity<?> sellCartItem(@PathVariable("cardId") Long cardId,
+                                          @PathVariable("customerInfoId") Long customerInfoId) {
         // Tìm kiếm giỏ hàng theo id
-        Cart cart = cartService.findCartById(cardId)
-                .orElseThrow(() -> new RuntimeException("Cart not found"));
+        Cart cart = cartService.findCartById(cardId);
 
         // Lấy tên người dùng từ Authentication context
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -120,7 +126,8 @@ public class RestCartController {
         cartService.saveCart(CartMapper.toDto(cart));
 
         // Tìm kiếm thông tin khách hàng theo customerInfoId
-        CustomerInfo customerInfo = customerInfoService.findById(customerInfoId);
+        CustomerInfo customerInfo = customerInfoRepository.findById(customerInfoId)
+                .orElseThrow(() -> new RuntimeException("Customer info not found"));
         // Tạo đối tượng Purchase và thiết lập các thuộc tính
         Purchase purchase = new Purchase();
         purchase.setUser(users);
@@ -131,9 +138,9 @@ public class RestCartController {
         purchase.setPurchaseDate(LocalDateTime.now());
 
         // Lưu giao dịch mua hàng
-        purchaseService.createPurchase(purchase);
+        cartService.createPurchase(purchase);
 
-        Optional<UserStatistics> userStatisticsOptional = userStatisticsService.findUserStatisticsByUserId(users.getUserId());
+        Optional<UserStatistics> userStatisticsOptional = cartService.findUserStatisticsByUserId(users.getUserId());
         UserStatistics userStatistics;
         if (userStatisticsOptional.isPresent()) {
             userStatistics = userStatisticsOptional.get();
@@ -144,10 +151,10 @@ public class RestCartController {
         BigDecimal currentTotalAmountPaid = userStatistics.getTotalAmountPaid() != null ? userStatistics.getTotalAmountPaid() : BigDecimal.ZERO;
         userStatistics.setTotalAmountPaid(currentTotalAmountPaid.add(totalPrice));
 
-        int currentTotalItemsBought = userStatistics.getTotalItemBought() != null ? userStatistics.getTotalItemBought() : 0;
+        long currentTotalItemsBought = userStatistics.getTotalItemBought() != null ? userStatistics.getTotalItemBought() : 0;
         userStatistics.setTotalItemBought(currentTotalItemsBought + purchase.getTotalAmount());
 
-        userStatisticsService.saveUserStatistics(userStatistics);
+        cartService.saveUserStatistics(userStatistics);
 
         String message = users.getFullName() + " đã đặt sản phẩm " + cart.getProduct().getProductName();
         notificationService.saveNotification(message, users);
@@ -155,21 +162,22 @@ public class RestCartController {
     }
 
 //     Endpoint để bán nhiều sản phẩm từ giỏ hàng
-    @PostMapping("/cart/sells/{customerInfoId}")
+    @PostMapping(CART_SELLS_CUSTOMER_INFO_ID)
     public ResponseEntity<?> sellCart(@RequestBody List<Integer> cardsId,
-                                      @PathVariable("customerInfoId") int customerInfoId) {
+                                      @PathVariable("customerInfoId") long customerInfoId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
 
         Users users = userService.findByUsername(username);
         BigDecimal totalPrice = BigDecimal.ZERO;
-        int totalItems = 0;
+        long totalItems = 0;
 
         // Tìm kiếm thông tin khách hàng theo customerInfoId
-        CustomerInfo customerInfo = customerInfoService.findById(customerInfoId);
+        CustomerInfo customerInfo = customerInfoRepository.findById(customerInfoId)
+                .orElseThrow(() -> new RuntimeException("Customer info not found"));
 
         for (Integer cardId : cardsId) {
-            Optional<Cart> optionalCart = cartService.findCartById(cardId);
+            Optional<Cart> optionalCart = cartRepository.findById(Long.valueOf(cardId));
             if (!optionalCart.isPresent()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Cart not found: " + cardId);
             }
@@ -200,10 +208,10 @@ public class RestCartController {
         purchase.setTotalAmount(totalItems);
         purchase.setTotalPrice(totalPrice);
         purchase.setPurchaseDate(LocalDateTime.now());
-        purchaseService.createPurchase(purchase);
+        cartService.createPurchase(purchase);
 
         // Update UserStatistics
-        Optional<UserStatistics> userStatisticsOptional = userStatisticsService.findUserStatisticsByUserId(users.getUserId());
+        Optional<UserStatistics> userStatisticsOptional = cartService.findUserStatisticsByUserId(users.getUserId());
         UserStatistics userStatistics;
         if (userStatisticsOptional.isPresent()) {
             userStatistics = userStatisticsOptional.get();
@@ -214,12 +222,176 @@ public class RestCartController {
         BigDecimal currentTotalAmountPaid = userStatistics.getTotalAmountPaid() != null ? userStatistics.getTotalAmountPaid() : BigDecimal.ZERO;
         userStatistics.setTotalAmountPaid(currentTotalAmountPaid.add(totalPrice));
 
-        int currentTotalItemsBought = userStatistics.getTotalItemBought() != null ? userStatistics.getTotalItemBought() : 0;
+        long currentTotalItemsBought = userStatistics.getTotalItemBought() != null ? userStatistics.getTotalItemBought() : 0;
         userStatistics.setTotalItemBought(currentTotalItemsBought + purchase.getTotalAmount());
 
 
         return ResponseEntity.ok().body("Cart sold successfully");
     }
 
+    @GetMapping(SALE)
+    public ResponseEntity<?> listOfProduct(HttpServletRequest request) {
+        HttpSession session = request.getSession();
+        ArrayList<Integer> list = (ArrayList<Integer>) session.getAttribute("list");
+        return null;
+    }
+    @GetMapping(CART_VIEW)
+    public ResponseEntity<?> listCart(HttpServletRequest request, HttpServletResponse response) {
+        HttpSession session = request.getSession();
+        ArrayList<Integer> list = (ArrayList<Integer>) session.getAttribute("list");
+        ArrayList<Map<String, Object>> productList = new ArrayList<>();
+        if (list != null && !list.isEmpty()) {
+            for (long id : list) {
+                Map<String, Object> map = productService.getProductDetailId(id);
+                productList.add(map);
+            }
+            return ResponseEntity.ok(productList);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No items in cart");
+        }
+    }
+
+
+    // Thống kê doanh thu bán trong ngày
+    @GetMapping(ADMIN_TODAY_PURCHASES)
+    public ResponseEntity<?> getTodayPurchases() {
+        List<PurchaseDTO> todayPurchases = cartService.getTodayPurchases();
+        if (todayPurchases.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+
+        BigDecimal totalPrice = cartService.calculateTotalPrice(todayPurchases);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("purchases", todayPurchases);
+        response.put("totalPrice", totalPrice);
+
+        return ResponseEntity.ok(response);
+    }
+
+    // Thống kê doanh thu trong 30 ngày tính từ thời điểm hiện tại
+    @GetMapping(ADMIN_LAST_30_DAYS_PURCHASES)
+    public ResponseEntity<?> getLast30DaysPurchases() {
+        List<PurchaseDTO> getPurchaseLast30Days = cartService.getPurchaseBetweenDates();
+        if (getPurchaseLast30Days.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+
+        BigDecimal totalPrice = cartService.calculateTotalPrice(getPurchaseLast30Days);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("purchases", getPurchaseLast30Days);
+        response.put("totalPrice", totalPrice);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping(ADMIN_DAILY_SALES_TOTAL_PRICE_LAST_30_DAYS)
+    public ResponseEntity<?> getDailySalesTotalPriceLast30Days() {
+        List<BigDecimal> dailySaleTotalPrice = cartService.getDailySalesTotalPriceLast30Days();
+        if (dailySaleTotalPrice.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(dailySaleTotalPrice);
+    }
+
+
+
+    // Phần trăm thay đổi tổng tiền bán hàng từ ngày hôm qua đến hôm nay
+    @GetMapping("/admin/sales-percentage-change")
+    public ResponseEntity<?> getSalesPercentageChange() {
+        BigDecimal percentageChange = cartService.getPercentageChangeFromYesterdayToToday();
+        return ResponseEntity.ok(percentageChange);
+    }
+
+    @GetMapping(ADMIN_SALES_MONTH_PERCENTAGE_CHANGE)
+    public ResponseEntity<?> getSalesMonthPercentageChange() {
+        BigDecimal percentageChange = cartService.getPercentageChangeFromLastMonthToThisMonth();
+        return ResponseEntity.ok(percentageChange);
+    }
+
+    @GetMapping(CART_SESSION)
+    public ResponseEntity<?> viewSessionCartAndCustomerInfo(Principal principal, HttpSession session) {
+        Users user = userService.findByUsername(principal.getName());
+        if (user == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        // Lấy thông tin khách hàng từ session
+        CustomerInfoDTO customerInfo = (CustomerInfoDTO) session.getAttribute("customerInfo");
+        if (customerInfo == null) {
+            List<CustomerInfoDTO> customerInfoList = user.getCustomerInfo()
+                    .stream()
+                    .filter(info -> !info.isDeleteCustomerInfo())
+                    .map(CustomerInfoMapper::infoDTO)
+                    .collect(Collectors.toList());
+            if (!customerInfoList.isEmpty()) {
+                customerInfo = customerInfoList.get(0);
+                session.setAttribute("customerInfo", customerInfo);
+            }
+        }
+        // Lấy thông tin giỏ hàng từ session
+        List<CartDTO> cartDTOS = (List<CartDTO>) session.getAttribute("cartItems");
+        if (cartDTOS == null) {
+            cartDTOS = user.getCart()
+                    .stream()
+                    .filter(cart -> !cart.isSold())
+                    .map(CartMapper::toDto)
+                    .collect(Collectors.toList());
+            session.setAttribute("cartItems", cartDTOS);
+        }
+
+        return ResponseEntity.ok().body(new SessionCartResponse(customerInfo, cartDTOS));
+    }
+    static class SessionCartResponse {
+        private CustomerInfoDTO customerInfo;
+        private List<CartDTO> cartItems;
+
+        public SessionCartResponse(CustomerInfoDTO customerInfo, List<CartDTO> cartItems) {
+            this.customerInfo = customerInfo;
+            this.cartItems = cartItems;
+        }
+
+        // Getters and setters
+    }
+
+    @GetMapping(CUSTOMER_INFO)
+    public ResponseEntity<?> viewCustomerInfo(Principal principal) {
+        Users user = userService.findByUsername(principal.getName());
+        if (user == null) {
+            return ResponseEntity.notFound().build();
+        }
+        List<CustomerInfoDTO> customerInfoDTOS = user.getCustomerInfo()
+                .stream()
+                .filter(customerInfo -> !customerInfo.isDeleteCustomerInfo())
+                .map(CustomerInfoMapper::infoDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(customerInfoDTOS);
+    }
+
+    @PostMapping(CUSTOMER_INFO)
+    public ResponseEntity<?> createCustomerInfo(@RequestBody CustomerInfoDTO customerInfoDTO, Principal principal) {
+        Users users = userService.findByUsername(principal.getName());
+        if (users == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found");
+        }
+        long userId = users.getUserId();
+        customerInfoDTO.setUserId(userId);
+
+        // Gọi service để tạo và lưu CustomerInfo
+        return ResponseEntity.ok(cartService.createCustomerInfo(customerInfoDTO));
+    }
+
+    @PutMapping(CUSTOMER_INFO_ID)
+    public ResponseEntity<?> updateCustomerInfo(@PathVariable("customerInfoId") Long customerInfoId,
+                                                @RequestBody CustomerInfoDTO customerInfoDTO) {
+        return ResponseEntity.ok(cartService.updateCustomerInfo(customerInfoId, customerInfoDTO));
+    }
+
+    @DeleteMapping(CUSTOMER_INFO_ID)
+    public ResponseEntity<?> deleteCustomerInfo(@PathVariable("customerInfoId") Long customerInfoId) {
+        cartService.deleteCustomerInfo(customerInfoId);
+        return ResponseEntity.noContent().build();
+    }
 }
 

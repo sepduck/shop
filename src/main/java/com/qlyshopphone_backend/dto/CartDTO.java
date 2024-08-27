@@ -7,12 +7,12 @@ import java.math.BigDecimal;
 
 @Data
 public class CartDTO {
-    private Integer cartId;
-    private Integer productId;
+    private Long cartId;
+    private Long productId;
     private String productName;
     private BigDecimal price;
-    private Integer userId;
-    private Integer quantity;
+    private Long userId;
+    private Long quantity;
     private boolean sold;
     private boolean deleteCart;
     private MultipartFile file;

@@ -27,29 +27,29 @@ public class ProductDTO {
 
     @NotNull(message = "Số lượng tồn kho không được để trống")
     @DecimalMin(value = "0.0", inclusive = false, message = "Số lượng tồn kho phải lớn hơn 0")
-    private Integer inventory;
+    private Long inventory;
 
     @NotNull(message = "Nhóm sản phẩm không được để trống")
-    private Integer groupProductId;
+    private Long groupProductId;
 
     @NotNull(message = "Thương hiệu không được để trống")
-    private Integer trademarkId;
+    private Long trademarkId;
 
     @NotNull(message = "Vị trí không được để trống")
-    private Integer locationId;
+    private Long locationId;
 
     @NotNull(message = "Trọng lượng không được để trống")
     @DecimalMin(value = "0.0", inclusive = false, message = "Trọng lượng phải lớn hơn 0")
     private BigDecimal weight;
 
     @NotNull(message = "Thuộc tính không được để trống")
-    private Integer propertiesId;
+    private Long propertiesId;
 
     @NotNull(message = "Danh mục không được để trống")
-    private Integer categoryId;
+    private Long categoryId;
 
     @NotNull(message = "Đơn vị không được để trống")
-    private Integer unitId;
+    private Long unitId;
 
     private boolean directSales;
     private boolean deleteProduct;
