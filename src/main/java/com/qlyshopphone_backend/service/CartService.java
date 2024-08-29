@@ -1,23 +1,36 @@
 package com.qlyshopphone_backend.service;
 
-import com.qlyshopphone_backend.dto.CartDTO;
-import com.qlyshopphone_backend.dto.PurchaseDTO;
-import com.qlyshopphone_backend.model.Cart;
-import com.qlyshopphone_backend.model.Users;
+import com.qlyshopphone_backend.dto.*;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.http.ResponseEntity;
 
+import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 
 public interface CartService {
-    void addToCart(HttpSession session, CartDTO cartDTO);
+    String addProductToCart(Long productId);
 
-    ResponseEntity<?> saveCart(CartDTO cartDTO);
+    List<CartDTO> getUserCart();
 
-    ResponseEntity<?> deleteCart(int cartId, Users users);
+    String deleteCart(Long cartId);
 
-    List<CartDTO> getCart(HttpSession session);
+    String sellMultipleProducts(PayForCartItemsRequest request);
 
-    Optional<Cart> findCartById(int cartId);
+    Map<String, Object> getTodayPurchasesReport();
+
+    Map<String, Object> generateLast30DaysRevenueStatistics();
+
+    List<BigDecimal> calculateDailySalesForLast30Days();
+
+    List<CustomerInfoDTO> getCustomerInfo();
+
+    String createCustomerInfo(CustomerInfoDTO customerInfoDTO);
+
+    String updateCustomerInfo(Long customerId, CustomerInfoDTO customerInfoDTO);
+
+    String deleteCustomerInfo(Long customerId);
+
+    BigDecimal getPercentageChangeFromYesterdayToToday();
+
+    BigDecimal getPercentageChangeFromLastMonthToThisMonth();
 }

@@ -18,14 +18,12 @@ public class JwtProvider {
         Map<String, Object> map = new HashMap<>();
         map.put("roles", authentication.getAuthorities());
         UserSecurityDetails userSecurityDetails = (UserSecurityDetails) authentication.getPrincipal();
-        String token = Jwts.builder()
-                .setId("ducnhung")
+        return Jwts.builder().setId("ducnhung")
                 .setExpiration(new Date(new Date().getTime() + 1000000))
                 .setSubject(userSecurityDetails.getUsername())
                 .addClaims(map)
                 .signWith(SignatureAlgorithm.HS512, privateKey)
                 .compact();
-        return token;
     }
 
     public Boolean validateToken(String token) {

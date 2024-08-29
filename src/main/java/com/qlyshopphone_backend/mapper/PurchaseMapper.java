@@ -2,7 +2,9 @@ package com.qlyshopphone_backend.mapper;
 
 import com.qlyshopphone_backend.dto.PurchaseDTO;
 import com.qlyshopphone_backend.model.Purchase;
+import lombok.Data;
 
+@Data
 public class PurchaseMapper {
     public static PurchaseDTO toDto(Purchase purchase) {
         PurchaseDTO purchaseDTO = new PurchaseDTO();

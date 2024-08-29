@@ -7,7 +7,6 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 
 @Repository
-public interface NotificationRepository extends JpaRepository<Notification, Integer> {
-
+public interface NotificationRepository extends JpaRepository<Notification, Long> {
     void deleteByTimestampBefore(LocalDateTime cutofDate);
 }

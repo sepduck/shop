@@ -1,7 +1,9 @@
 package com.qlyshopphone_backend.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
@@ -9,11 +11,13 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
 public class UserStatistics {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_statistics_id")
-    private Integer userStatisticsId;
+    private Long userStatisticsId;
 
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -23,5 +27,9 @@ public class UserStatistics {
     private BigDecimal totalAmountPaid;
 
     @Column(name = "total_item_bought", nullable = false)
-    private Integer totalItemBought;
+    private Long totalItemBought;
+
+    public UserStatistics(Users user) {
+        this.user = user;
+    }
 }

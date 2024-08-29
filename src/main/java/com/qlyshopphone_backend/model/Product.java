@@ -13,7 +13,7 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "product_id")
-    private Integer productId;
+    private Long productId;
 
     @Column(name = "product_name", length = 50, nullable = false)
     private String productName;
@@ -25,7 +25,7 @@ public class Product {
     private BigDecimal capitalPrice;
 
     @Column(name = "inventory", nullable = false)
-    private Integer inventory;
+    private Long inventory;
     @ManyToOne
     @JoinColumn(name = "group_product_id", nullable = false)
     private GroupProduct groupProduct;

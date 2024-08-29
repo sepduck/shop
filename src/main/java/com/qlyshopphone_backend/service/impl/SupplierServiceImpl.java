@@ -1,152 +1,152 @@
 package com.qlyshopphone_backend.service.impl;
+import static com.qlyshopphone_backend.constant.ErrorMessage.*;
 
-import com.qlyshopphone_backend.dao.SupplierDAO;
+import com.qlyshopphone_backend.dto.GroupSupplierDTO;
 import com.qlyshopphone_backend.dto.SupplierDTO;
-import com.qlyshopphone_backend.exceptions.DataNotFoundException;
 import com.qlyshopphone_backend.model.*;
 import com.qlyshopphone_backend.repository.GroupSupplierRepository;
 import com.qlyshopphone_backend.repository.ProductRepository;
 import com.qlyshopphone_backend.repository.SupplierRepository;
+import com.qlyshopphone_backend.service.AuthenticationService;
 import com.qlyshopphone_backend.service.NotificationService;
 import com.qlyshopphone_backend.service.SupplierService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 @Service
-public class SupplierServiceImpl extends BaseReponse implements SupplierService {
-    @Autowired
-    private SupplierRepository supplierRepository;
-    @Autowired
-    private GroupSupplierRepository groupSupplierRepository;
-    @Autowired
-    private ProductRepository productRepository;
-    @Autowired
-    private SupplierDAO supplierDAO;
-    @Autowired
-    private NotificationService notificationService;
-
+@RequiredArgsConstructor
+public class SupplierServiceImpl implements SupplierService {
+    private final SupplierRepository supplierRepository;
+    private final GroupSupplierRepository groupSupplierRepository;
+    private final ProductRepository productRepository;
+    private final NotificationService notificationService;
+    private final AuthenticationService authenticationService;
     @Override
-    public ResponseEntity<?> getSupplier() {
-        return getResponseEntity(supplierRepository.getSuppliers());
+    public List<Map<String, Object>> getSupplier() {
+        return supplierRepository.getSuppliers();
     }
 
     @Override
-    public ResponseEntity<?> searchNoActive(int number) {
-        switch (number) {
-            case 1:
-                return getResponseEntity(supplierRepository.getSuppliers());
-            case 2:
-                return getResponseEntity(supplierRepository.getAllSuppliers());
-            case 3:
-                return getResponseEntity(supplierRepository.searchNoActive());
-            default:
-                return getResponseEntity("Supplier not found");
-        }
+    public List<Map<String, Object>> searchNoActive(int number) {
+        return switch (number) {
+            case 1 -> supplierRepository.getSuppliers();
+            case 2 -> supplierRepository.getAllSuppliers();
+            case 3 -> supplierRepository.searchNoActive();
+            default -> new ArrayList<>();
+        };
     }
 
     @Override
-    public ResponseEntity<?> getAllSuppliers() {
-        return getResponseEntity(supplierRepository.getAllSuppliers());
+    public List<Map<String, Object>> getAllSuppliers() {
+        return supplierRepository.getAllSuppliers();
     }
 
     @Override
-    public ResponseEntity<?> saveSuppliers(SupplierDTO supplierDTO, Users users) {
-        try {
-            GroupSupplier existingGroupSupplier = groupSupplierRepository.findById(supplierDTO.getGroupSupplierId())
-                    .orElseThrow(() -> new DataNotFoundException("GroupSupplier not found"));
-            Product existingProduct = productRepository.findById(supplierDTO.getProductId())
-                    .orElseThrow(() -> new DataNotFoundException("Product not found"));
-            Supplier supplier = new Supplier();
-            supplier.setSupplierName(supplierDTO.getSupplierName());
-            supplier.setPhoneNumber(supplierDTO.getPhoneNumber());
-            supplier.setAddress(supplierDTO.getAddress());
-            supplier.setEmail(supplierDTO.getEmail());
-            supplier.setCompany(supplierDTO.getCompany());
-            supplier.setTaxCode(supplierDTO.getTaxCode());
-            supplier.setDeleteSupplier(supplierDTO.isDeleteProduct());
-            supplier.setGroupSupplier(existingGroupSupplier);
-            supplier.setProduct(existingProduct);
-            supplierRepository.save(supplier);
+    public String saveSuppliers(SupplierDTO supplierDTO) {
+        Users users = authenticationService.getAuthenticatedUser();
+        Supplier supplier = new Supplier();
+        updateSupplierProperties(supplier, supplierDTO);
 
-            String message = users.getFullName() + " đã thêm nhà cung cấp " + supplier.getSupplierName();
-            notificationService.saveNotification(message, users);
-            return getResponseEntity("Supplier saved successfully");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Supplier save failed");
-        }
-    }
-
-    @Override
-    public Supplier updateSuppliers(int supplierId, SupplierDTO supplierDTO, Users users) throws Exception{
-        Supplier existingSupplier = supplierRepository.findById(supplierId)
-                .orElseThrow(() -> new RuntimeException("Supplier not found"));
-        GroupSupplier existingGroupSupplier = groupSupplierRepository.findById(supplierDTO.getGroupSupplierId())
-                .orElseThrow(() -> new DataNotFoundException("GroupSupplier not found"));
-        Product existingProduct = productRepository.findById(supplierDTO.getProductId())
-                .orElseThrow(() -> new DataNotFoundException("Product not found"));
-        existingSupplier.setSupplierName(supplierDTO.getSupplierName());
-        existingSupplier.setPhoneNumber(supplierDTO.getPhoneNumber());
-        existingSupplier.setAddress(supplierDTO.getAddress());
-        existingSupplier.setEmail(supplierDTO.getEmail());
-        existingSupplier.setCompany(supplierDTO.getCompany());
-        existingSupplier.setTaxCode(supplierDTO.getTaxCode());
-        existingSupplier.setDeleteSupplier(supplierDTO.isDeleteProduct());
-        existingSupplier.setGroupSupplier(existingGroupSupplier);
-        existingSupplier.setProduct(existingProduct);
-
-        String message = users.getFullName() + " đã sửa nhà cung cấp " + existingSupplier.getSupplierName();
+        String message = users.getFullName() + " have successfully added supplier " + supplier.getSupplierName();
         notificationService.saveNotification(message, users);
-        return supplierRepository.save(existingSupplier);
+        supplierRepository.save(supplier);
+        return SUPPLIER_SAVED_SUCCESSFULLY;
+
     }
 
     @Override
-    public ResponseEntity<?> deleteSuppliers(int supplierId, Users users) {
-        try {
-            supplierDAO.deleteSupplier(supplierId);
-            String message = users.getFullName() + " đã xóa nhà cung cấp có ID: NCC00" + supplierId;
-            notificationService.saveNotification(message, users);
-            return getResponseEntity("Supplier deleted successfully");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Supplier delete failed");
-        }
+    public String updateSuppliers(Long supplierId, SupplierDTO supplierDTO) {
+        Users users = authenticationService.getAuthenticatedUser();
+        Supplier supplier = supplierRepository.findById(supplierId)
+                .orElseThrow(() -> new RuntimeException(SUPPLIER_NOT_FOUND));
+        updateSupplierProperties(supplier, supplierDTO);
+        String message = users.getFullName() + " have edited product " + supplierDTO.getSupplierName() + " to " + supplier.getSupplierName();
+        notificationService.saveNotification(message, users);
+        supplierRepository.save(supplier);
+        return SUPPLIER_UPDATED_SUCCESSFULLY;
+    }
+
+    private void updateSupplierProperties(Supplier supplier, SupplierDTO supplierDTO) {
+        GroupSupplier existingGroupSupplier = groupSupplierRepository.findById(supplierDTO.getGroupSupplierId())
+                .orElseThrow(() -> new RuntimeException(GROUP_SUPPLIER_NOT_FOUND));
+        Product existingProduct = productRepository.findById(supplierDTO.getProductId())
+                .orElseThrow(() -> new RuntimeException(PRODUCT_NOT_FOUND));
+        supplier.setSupplierName(supplierDTO.getSupplierName());
+        supplier.setPhoneNumber(supplierDTO.getPhoneNumber());
+        supplier.setAddress(supplierDTO.getAddress());
+        supplier.setEmail(supplierDTO.getEmail());
+        supplier.setCompany(supplierDTO.getCompany());
+        supplier.setTaxCode(supplierDTO.getTaxCode());
+        supplier.setDeleteSupplier(supplierDTO.isDeleteProduct());
+        supplier.setGroupSupplier(existingGroupSupplier);
+        supplier.setProduct(existingProduct);
     }
 
     @Override
-    public ResponseEntity<?> findBySuppliersId(int supplierId) {
-        return getResponseEntity(supplierRepository.findById(supplierId));
+    public String deleteSuppliers(Long supplierId) {
+        Users users = authenticationService.getAuthenticatedUser();
+        Supplier supplier = supplierRepository.findById(supplierId)
+                        .orElseThrow(() -> new RuntimeException(SUPPLIER_NOT_FOUND));
+        supplierRepository.deleteBySupplierId(supplier.getSupplierId());
+        String message = users.getFullName() + " have successfully deleted supplier " + supplier.getSupplierName();
+        notificationService.saveNotification(message, users);
+        return SUPPLIER_DELETED_SUCCESSFULLY;
     }
 
     @Override
-    public ResponseEntity<?> searchByPhoneNumber(String phoneNumber) {
-        try {
-            return getResponseEntity(supplierRepository.searchAllByPhoneNumber(phoneNumber));
-        } catch (Exception e) {
-            return getResponseEntity("Supplier not found");
-        }
+    public List<Map<String, Object>> searchByPhoneNumber(String phoneNumber) {
+        return supplierRepository.searchAllByPhoneNumber(phoneNumber);
     }
 
     @Override
-    public ResponseEntity<?> searchByTaxCode(String taxCode) {
-        try {
-            return getResponseEntity(supplierRepository.searchAllByTaxCode(taxCode));
-        } catch (Exception e) {
-            return getResponseEntity("Supplier not found");
-        }
+    public List<Map<String, Object>> searchByTaxCode(String taxCode) {
+
+        return supplierRepository.searchAllByTaxCode(taxCode);
     }
 
     @Override
-    public ResponseEntity<?> searchBySupplierName(String supplierName) {
-        try {
-            return getResponseEntity(supplierRepository.searchAllBySupplierNameLike(supplierName));
-        } catch (Exception e) {
-            return getResponseEntity("Supplier not found");
-        }
+    public List<Map<String, Object>> searchBySupplierName(String supplierName) {
+        return supplierRepository.searchAllBySupplierNameLike(supplierName);
     }
 
     @Override
-    public ResponseEntity<?> searchByGroupSupplier(int groupSupplierId) {
-        return getResponseEntity(supplierRepository.searchByGroupSupplierId(groupSupplierId));
+    public List<Map<String, Object>> searchByGroupSupplier(Long groupSupplierId) {
+        return supplierRepository.searchByGroupSupplierId(groupSupplierId);
+    }
+
+    @Override
+    public List<GroupSupplier> getAllGroupSupplier() {
+        return groupSupplierRepository.findAll();
+    }
+
+    @Override
+    public String saveGroupSupplier(GroupSupplierDTO groupSupplierDTO) {
+        GroupSupplier groupSupplier = new GroupSupplier();
+        groupSupplier.setGroupSupplierName("Group supplier - " + groupSupplierDTO.getGroupSupplierName());
+        groupSupplier.setNote(groupSupplierDTO.getNote());
+        groupSupplierRepository.save(groupSupplier);
+        return GROUP_SUPPLIER_SAVED_SUCCESSFULLY;
+    }
+
+    @Override
+    public String updateGroupSupplier(GroupSupplierDTO groupSupplierDTO, Long groupSupplierId) {
+        GroupSupplier groupSupplier = groupSupplierRepository.findById(groupSupplierId)
+                .orElseThrow(() -> new RuntimeException(GROUP_SUPPLIER_NOT_FOUND));
+        groupSupplier.setGroupSupplierName(groupSupplierDTO.getGroupSupplierName());
+        groupSupplier.setNote(groupSupplierDTO.getNote());
+        groupSupplierRepository.save(groupSupplier);
+        return GROUP_SUPPLIER_UPDATED_SUCCESSFULLY;
+    }
+
+    @Override
+    public String deleteGroupSupplier(Long groupSupplierId) {
+        GroupSupplier groupSupplier = groupSupplierRepository.findById(groupSupplierId)
+                .orElseThrow(() -> new RuntimeException(GROUP_SUPPLIER_NOT_FOUND));
+        groupSupplierRepository.deleteById(groupSupplier.getGroupSupplierId());
+        return GROUP_SUPPLIER_DELETED_SUCCESSFULLY;
     }
 }

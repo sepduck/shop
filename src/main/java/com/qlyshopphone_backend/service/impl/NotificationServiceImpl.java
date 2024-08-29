@@ -2,12 +2,11 @@ package com.qlyshopphone_backend.service.impl;
 
 import com.qlyshopphone_backend.dto.NotificationDTO;
 import com.qlyshopphone_backend.mapper.NotificationMapper;
-import com.qlyshopphone_backend.model.BaseReponse;
 import com.qlyshopphone_backend.model.Notification;
 import com.qlyshopphone_backend.model.Users;
 import com.qlyshopphone_backend.repository.NotificationRepository;
 import com.qlyshopphone_backend.service.NotificationService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -17,9 +16,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class NotificationServiceImpl extends BaseReponse implements NotificationService {
-    @Autowired
-    private NotificationRepository notificationRepository;
+@RequiredArgsConstructor
+public class NotificationServiceImpl implements NotificationService {
+    private final NotificationRepository notificationRepository;
 
     @Override
     public List<NotificationDTO> getNotifications() {

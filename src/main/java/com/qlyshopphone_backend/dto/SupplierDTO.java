@@ -1,4 +1,5 @@
 package com.qlyshopphone_backend.dto;
+import static com.qlyshopphone_backend.constant.ErrorMessage.*;
 
 import lombok.*;
 
@@ -16,6 +17,6 @@ public class SupplierDTO {
     private String company;
     private String taxCode;
     private boolean deleteProduct;
-    private Integer groupSupplierId;
-    private Integer productId;
+    private Long groupSupplierId;
+    private Long productId;
 }

@@ -11,7 +11,7 @@ public class GroupSupplier {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "group_supplier_id")
-    private Integer groupSupplierId;
+    private Long groupSupplierId;
 
     @Column(name = "group_supplier_name", length = 50, nullable = false)
     private String  groupSupplierName;

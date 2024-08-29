@@ -1,45 +1,84 @@
 package com.qlyshopphone_backend.service;
 
-import com.qlyshopphone_backend.dto.ProductDTO;
-import com.qlyshopphone_backend.model.Product;
-import com.qlyshopphone_backend.model.Users;
+import com.qlyshopphone_backend.dto.*;
+import com.qlyshopphone_backend.model.*;
 import org.springframework.http.ResponseEntity;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 public interface ProductService {
-    ResponseEntity<?> getAllProducts();
+    List<Map<String, Object>> getAllProducts();
 
-    void createProduct(Product product);
+    String saveProduct(ProductDTO productDTO) throws Exception;
 
-    Product saveProduct(ProductDTO productDTO, Users users) throws Exception;
+    String updateProduct(Long productId, ProductDTO productDTO) throws Exception;
 
-    Product updateProduct(int productId, ProductDTO productDTO, Users users) throws Exception;
+    String deleteProduct(Long productId);
 
-    ResponseEntity<?> findByIdProduct(int productId);
+    List<Map<String, Object>> searchAllByProductName(String productName);
 
-    Optional<Product> findByProductId(int productId);
+    List<Map<String, Object>> searchAllByProductId(Long productId);
 
-    ResponseEntity<?> deleteProduct(int productId, Users users);
+    List<Map<String, Object>> searchGroupProductId(Long groupProductId);
 
-    ResponseEntity<?> searchAllByProductName(String productName);
+    List<Map<String, Object>> searchInventory(int number);
 
-    ResponseEntity<?> searchAllByProductId(int productId);
+    List<Map<String, Object>> searchActive(int number);
 
-    ResponseEntity<?> searchGroupProductId( int groupProductId);
+    List<Map<String, Object>> searchDirectSales(int number);
 
-    ResponseEntity<?> searchInventory(int number);
+    List<Map<String, Object>> searchByLocationId( Long locationId);
 
-    ResponseEntity<?> searchActive(int number);
+    List<Map<String, Object>> searchCategory(int number);
 
-    ResponseEntity<?> searchDirectSales(int number);
+    List<Category> getAllCategory();
 
-    ResponseEntity<?> searchByLocationId( int locationId);
+    String saveCategory(CategoryDTO categoryDTO);
 
-    ResponseEntity<?> searchCategory(int number);
+    String updateCategory(CategoryDTO categoryDTO, Long categoryId);
 
-    Map<String, Object> getProductDetailId(int productId);
+    String deleteCategory(Long categoryId);
 
+    List<GroupProduct> getAllGroupProduct();
+
+    String saveGroupProduct(GroupProductDTO groupProductDTO);
+
+    String updateGroupProduct(GroupProductDTO groupProductDTO, Long groupProductId);
+
+    String deleteGroupProduct(Long groupProductId);
+
+    List<Location> getAllLocation();
+
+    String saveLocation(LocationDTO locationDTO);
+
+    String updateLocation(LocationDTO locationDTO, Long locationId);
+
+    String deleteLocation(Long locationId);
+
+    List<Properties> getAllProperties();
+
+    String saveProperties(PropertiesDTO propertiesDTO);
+
+    String updateProperties(PropertiesDTO propertiesDTO, Long propertiesId);
+
+    String deleteProperties(Long propertiesId);
+
+    List<Trademark> getAllTrademarks();
+
+    String saveTrademark(TrademarkDTO trademarkDTO);
+
+    String updateTrademark(TrademarkDTO trademarkDTO, Long trademarkId);
+
+    String deleteTrademark(Long trademarkId);
+
+    List<Unit> getAllUnits();
+
+    String saveUnit(UnitDTO unitDTO);
+
+    String updateUnit(UnitDTO unitDTO, Long unitId);
+
+    String deleteUnit(Long unitId);
 
 }

@@ -1,4 +1,5 @@
 package com.qlyshopphone_backend.dto;
+import static com.qlyshopphone_backend.constant.ErrorMessage.*;
 
 import lombok.Data;
 
@@ -7,10 +8,10 @@ import java.time.LocalDateTime;
 
 @Data
 public class PurchaseDTO {
-    private Integer purchaseId;
-    private Integer userId;
-    private Integer customerInfoId;
+    private Long purchaseId;
+    private Long userId;
+    private Long customerInfoId;
     private BigDecimal totalPrice;
-    private Integer totalAmount;
+    private Long totalAmount;
     private LocalDateTime purchaseDate;
 }

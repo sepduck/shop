@@ -1,4 +1,5 @@
 package com.qlyshopphone_backend.dto;
+import static com.qlyshopphone_backend.constant.ErrorMessage.*;
 
 import jakarta.persistence.Column;
 import lombok.*;
@@ -13,13 +14,13 @@ import java.util.Date;
 @NoArgsConstructor
 @Builder
 public class UsersDTO {
-    private Integer userId;
+    private Long userId;
     @Column(name = "username", unique = true)
     private String username;
     private String password;
     private String phoneNumber;
     private String idCard;
-    private Integer genderId;
+    private Long genderId;
     private String genderName;
     private String facebook;
     private String email;
@@ -29,7 +30,7 @@ public class UsersDTO {
     private Date birthday;
     private boolean deleteUser;
     private boolean employee;
-    private Integer roleId;
+    private Long roleId;
     private String thumbnail;
     private MultipartFile fileUser;
 }

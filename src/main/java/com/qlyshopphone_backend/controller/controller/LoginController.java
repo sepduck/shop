@@ -1,40 +1,31 @@
 package com.qlyshopphone_backend.controller.controller;
+import static com.qlyshopphone_backend.constant.PathConstant.*;
 
 import com.qlyshopphone_backend.dto.UsersDTO;
 import com.qlyshopphone_backend.model.Users;
 import com.qlyshopphone_backend.service.AuthenticationService;
-import com.qlyshopphone_backend.service.NotificationService;
 import com.qlyshopphone_backend.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin("*")
-@Controller
+@RestController
+@RequestMapping(API_V1)
+@RequiredArgsConstructor
 public class LoginController {
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private AuthenticationService authenticationService;
+    private final AuthenticationService authenticationService;
 
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Users users) {
-        return authenticationService.login(users);
+    @PostMapping(LOGIN)
+    public ResponseEntity<String> login(@RequestBody Users users) {
+        return ResponseEntity.ok(authenticationService.login(users));
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<?> register(@ModelAttribute UsersDTO usersDTO) throws Exception {
+    @PostMapping(REGISTER)
+    public ResponseEntity<String> register(@ModelAttribute UsersDTO usersDTO) throws Exception {
         usersDTO.setEmployee(false);
         usersDTO.setDeleteUser(false);
-        usersDTO.setRoleId(3);
-        return authenticationService.register(usersDTO);
-    }
-
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping("/findById")
-    public ResponseEntity<?> findById(@RequestParam int id) {
-        return userService.findByUserId(id);
+        usersDTO.setRoleId(3L);
+        return ResponseEntity.ok(authenticationService.register(usersDTO));
     }
 }
