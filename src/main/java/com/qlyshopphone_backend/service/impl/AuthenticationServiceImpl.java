@@ -9,7 +9,6 @@ import com.qlyshopphone_backend.repository.GenderRepository;
 import com.qlyshopphone_backend.repository.RoleRepository;
 import com.qlyshopphone_backend.repository.UserRepository;
 import com.qlyshopphone_backend.service.AuthenticationService;
-import com.qlyshopphone_backend.service.NotificationService;
 import com.qlyshopphone_backend.service.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,9 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -33,9 +30,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final GenderRepository genderRepository;
-    private final NotificationService notificationService;
-
-    private final Set<String> invalidatedTokens = new HashSet<>();
 
     @Override
     public String login(Users users) {
@@ -71,12 +65,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         userRepository.save(users);
         return YOU_HAVE_REGISTER_SUCCESSFULLY;
     }
+
     @Override
-    public void invalidateToken(String token) {
-        invalidatedTokens.add(token);
-    }
-    @Override
-    public boolean isTokenInvalidated(String token) {
-        return invalidatedTokens.contains(token);
+    public Users getAuthenticatedUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        return userRepository.findByUsername(username);
     }
 }

@@ -8,7 +8,5 @@ public interface AuthenticationService {
 
     String register(UsersDTO usersDTO) throws Exception;
 
-    void invalidateToken(String token);
-
-    boolean isTokenInvalidated(String token);
+    Users getAuthenticatedUser();
 }

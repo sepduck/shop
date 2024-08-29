@@ -5,16 +5,16 @@ import com.qlyshopphone_backend.dto.*;
 import com.qlyshopphone_backend.exceptions.DataNotFoundException;
 import com.qlyshopphone_backend.model.*;
 import com.qlyshopphone_backend.repository.*;
+import com.qlyshopphone_backend.service.AuthenticationService;
 import com.qlyshopphone_backend.service.NotificationService;
 import com.qlyshopphone_backend.service.ProductService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 
 @Service
@@ -28,6 +28,7 @@ public class ProductServiceImpl implements ProductService {
     private final UnitRepository unitRepository;
     private final CategoryRepository categoryRepository;
     private final NotificationService notificationService;
+    private final AuthenticationService authenticationService;
 
     @Override
     public List<Map<String, Object>> getAllProducts() {
@@ -35,27 +36,44 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void createProduct(Product product) {
+    public String saveProduct(ProductDTO productDTO) throws Exception {
+        Users users = authenticationService.getAuthenticatedUser();
+        Product product = new Product();
+        updateProductProperties(product, productDTO);
+
+        sendProductNotification(users, "successfully added", product.getProductName(), null);
         productRepository.save(product);
+        return PRODUCT_CREATED_SUCCESSFULLY;
     }
 
     @Override
-    public String saveProduct(ProductDTO productDTO, Users users) throws Exception {
+    public String updateProduct(Long productId, ProductDTO productDTO) throws Exception {
+        Users users = authenticationService.getAuthenticatedUser();
+        Product existingProduct = productRepository.findById(productId)
+                .orElseThrow(() -> new DataNotFoundException(PRODUCT_NOT_FOUND));
+
+        updateProductProperties(existingProduct, productDTO);
+
+        sendProductNotification(users, "edited", productDTO.getProductName(), existingProduct.getProductName());
+        productRepository.save(existingProduct);
+        return PRODUCT_UPDATED_SUCCESSFULLY;
+    }
+
+
+    private void updateProductProperties(Product product, ProductDTO productDTO) throws IOException {
         GroupProduct existingGroupProduct = groupProductRepository.findById(productDTO.getGroupProductId())
-                .orElseThrow(() -> new DataNotFoundException(GROUP_PRODUCT_NOT_FOUND));
+                .orElseThrow(() -> new RuntimeException(GROUP_PRODUCT_NOT_FOUND));
         Trademark existingTrademark = trademarkRepository.findById(productDTO.getTrademarkId())
-                .orElseThrow(() -> new DataNotFoundException(TRADEMARK_NOT_FOUND));
+                .orElseThrow(() -> new RuntimeException(TRADEMARK_NOT_FOUND));
         Location existingLocation = locationRepository.findById(productDTO.getLocationId())
-                .orElseThrow(() -> new DataNotFoundException(LOCATION_NOT_FOUND));
+                .orElseThrow(() -> new RuntimeException(LOCATION_NOT_FOUND));
         Properties existingProperties = propertiesRepository.findById(productDTO.getPropertiesId())
-                .orElseThrow(() -> new DataNotFoundException(PROPERTIES_NOT_FOUND));
+                .orElseThrow(() -> new RuntimeException(PROPERTIES_NOT_FOUND));
         Unit existingUnit = unitRepository.findById(productDTO.getUnitId())
-                .orElseThrow(() -> new DataNotFoundException(UNIT_NOT_FOUND));
+                .orElseThrow(() -> new RuntimeException(UNIT_NOT_FOUND));
         Category existingCategory = categoryRepository.findById(productDTO.getCategoryId())
-                .orElseThrow(() -> new DataNotFoundException(CATEGORY_NOT_FOUND));
+                .orElseThrow(() -> new RuntimeException(CATEGORY_NOT_FOUND));
 
-
-        Product product = new Product();
         product.setProductName(productDTO.getProductName());
         product.setPrice(productDTO.getPrice());
         product.setCapitalPrice(productDTO.getCapitalPrice());
@@ -70,63 +88,17 @@ public class ProductServiceImpl implements ProductService {
         product.setCategory(existingCategory);
         product.setDirectSales(productDTO.isDirectSales());
         product.setFile(productDTO.getFile().getBytes());
+    }
 
-        // Tạo thông báo
-        String message = users.getFullName() + " have successfully added product " + product.getProductName();
+    private void sendProductNotification(Users users, String action, String productName, String newProductName) {
+        String message = String.format("%s have %s product %s%s", users.getFullName(), action, productName,
+                newProductName != null ? " to " + newProductName : "");
         notificationService.saveNotification(message, users);
-        productRepository.save(product);
-        return PRODUCT_CREATED_SUCCESSFULLY;
     }
 
     @Override
-    public String updateProduct(Long productId, ProductDTO productDTO, Users users) throws Exception {
-        Product existingProduct = productRepository.findById(productId)
-                .orElseThrow(() -> new DataNotFoundException(PRODUCT_NOT_FOUND));
-        GroupProduct existingGroupProduct = groupProductRepository.findById(productDTO.getGroupProductId())
-                .orElseThrow(() -> new DataNotFoundException(GROUP_PRODUCT_NOT_FOUND));
-        Trademark existingTrademark = trademarkRepository.findById(productDTO.getTrademarkId())
-                .orElseThrow(() -> new DataNotFoundException(TRADEMARK_NOT_FOUND));
-        Location existingLocation = locationRepository.findById(productDTO.getLocationId())
-                .orElseThrow(() -> new DataNotFoundException(LOCATION_NOT_FOUND));
-        Properties existingProperties = propertiesRepository.findById(productDTO.getPropertiesId())
-                .orElseThrow(() -> new DataNotFoundException(PROPERTIES_NOT_FOUND));
-        Unit existingUnit = unitRepository.findById(productDTO.getUnitId())
-                .orElseThrow(() -> new DataNotFoundException(UNIT_NOT_FOUND));
-        Category existingCategory = categoryRepository.findById(productDTO.getCategoryId())
-                .orElseThrow(() -> new DataNotFoundException(CATEGORY_NOT_FOUND));
-        existingProduct.setProductName(productDTO.getProductName());
-        existingProduct.setPrice(productDTO.getPrice());
-        existingProduct.setCapitalPrice(productDTO.getCapitalPrice());
-        existingProduct.setInventory(productDTO.getInventory());
-        existingProduct.setGroupProduct(existingGroupProduct);
-        existingProduct.setLocation(existingLocation);
-        existingProduct.setTrademark(existingTrademark);
-        existingProduct.setWeight(productDTO.getWeight());
-        existingProduct.setProperties(existingProperties);
-        existingProduct.setUnit(existingUnit);
-        existingProduct.setDeleteProduct(productDTO.isDeleteProduct());
-        existingProduct.setCategory(existingCategory);
-        existingProduct.setDirectSales(productDTO.isDirectSales());
-        existingProduct.setFile(productDTO.getFile().getBytes());
-
-        String message = users.getFullName() + " have edited product " + productDTO.getProductName() + " to " + existingProduct.getProductName();
-        notificationService.saveNotification(message, users);
-        productRepository.save(existingProduct);
-        return PRODUCT_UPDATED_SUCCESSFULLY;
-    }
-
-    @Override
-    public ResponseEntity<?> findByIdProduct(Long productId) {
-        return ResponseEntity.ok().body(productRepository.findById(productId));
-    }
-
-    @Override
-    public Optional<Product> findByProductId(Long productId) {
-        return productRepository.findById(productId);
-    }
-
-    @Override
-    public String deleteProduct(Long productId, Users users) {
+    public String deleteProduct(Long productId) {
+        Users users = authenticationService.getAuthenticatedUser();
         Product product = productRepository.findById(productId)
                         .orElseThrow(() -> new RuntimeException(PRODUCT_NOT_FOUND));
         productRepository.deleteProductById(product.getProductId());
@@ -154,10 +126,10 @@ public class ProductServiceImpl implements ProductService {
     public List<Map<String, Object>> searchInventory(int number) {
         return switch (number) {
             case 1 -> productRepository.getAllProducts();
-            case 2 -> productRepository.searchBelowInventoryThreshold(); // Dưới định mức tồn
-            case 3 -> productRepository.searchExceedingInventoryLimit(); // Vượt định mức tồn
-            case 4 -> productRepository.searchStockAvailable(); // Còn hàng trong kho
-            case 5 -> productRepository.searchNoInventoryAvailable(); // Hết hàng trong kho
+            case 2 -> productRepository.searchBelowInventoryThreshold();
+            case 3 -> productRepository.searchExceedingInventoryLimit();
+            case 4 -> productRepository.searchStockAvailable();
+            case 5 -> productRepository.searchNoInventoryAvailable();
             default -> new ArrayList<>();
         };
     }
@@ -165,9 +137,9 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<Map<String, Object>> searchActive(int number) {
         return switch (number) {
-            case 1 -> productRepository.searchActive(); // Hàng đang kinh doanh
-            case 2 -> productRepository.searchNoActive(); // Hàng ngưng kinh doanh
-            case 3 -> productRepository.getAllProducts(); // Tất cả hàng
+            case 1 -> productRepository.searchActive();
+            case 2 -> productRepository.searchNoActive();
+            case 3 -> productRepository.getAllProducts();
             default -> new ArrayList<>();
         };
     }
@@ -175,9 +147,9 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<Map<String, Object>> searchDirectSales(int number) {
         return switch (number) {
-            case 1 -> productRepository.getAllProducts(); // Tất cả
-            case 2 -> productRepository.searchDirectSales(); // Được bán trực tiếp
-            case 3 -> productRepository.searchNoDirectSales(); // Không bán trực tiếp
+            case 1 -> productRepository.getAllProducts();
+            case 2 -> productRepository.searchDirectSales();
+            case 3 -> productRepository.searchNoDirectSales();
             default -> new ArrayList<>();
         };
     }
@@ -196,11 +168,6 @@ public class ProductServiceImpl implements ProductService {
             case 4 -> productRepository.searchCategory3();
             default -> new ArrayList<>();
         };
-    }
-
-    @Override
-    public Map<String, Object> getProductDetailId(Long productId) {
-        return productRepository.getDetailProductId(productId);
     }
 
     @Override

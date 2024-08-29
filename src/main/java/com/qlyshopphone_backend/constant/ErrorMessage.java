@@ -17,6 +17,7 @@ public class ErrorMessage {
 
     public static final String CUSTOMER_INFO_NOT_FOUND = "Customer info not found";
     public static final String SUCCESSFULLY_CREATED_CUSTOMER_INFO = "Successfully created customer info";
+    public static final String SUCCESSFULLY_UPDATED_CUSTOMER_INFO = "Successfully updated customer info";
     public static final String SUCCESSFULLY_DELETED_DELIVERY_ADDRESS_INFORMATION = "Successfully deleted delivery address information";
 
     public static final String CART_SOLD_SUCCESSFULLY = "Cart sold successfully";

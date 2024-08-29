@@ -1,4 +1,5 @@
 package com.qlyshopphone_backend.service.impl;
+
 import static com.qlyshopphone_backend.constant.ErrorMessage.*;
 
 import com.qlyshopphone_backend.dto.PasswordChangeRequestDTO;
@@ -7,6 +8,7 @@ import com.qlyshopphone_backend.model.Gender;
 import com.qlyshopphone_backend.model.Users;
 import com.qlyshopphone_backend.repository.GenderRepository;
 import com.qlyshopphone_backend.repository.UserRepository;
+import com.qlyshopphone_backend.service.AuthenticationService;
 import com.qlyshopphone_backend.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -14,7 +16,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,6 +28,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final GenderRepository genderRepository;
+    private final AuthenticationService authenticationService;
 
     @Override
     public List<Map<String, Object>> getAllUsers() {
@@ -31,22 +36,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void saveUser(Users user) {
-        userRepository.save(user);
-    }
-
-    @Override
-    public String updatePassword(String username, PasswordChangeRequestDTO passwordChangeRequestDTO) {
-            Users existingUser = userRepository.findByUsername(username);
-            if (!checkPasswordPresent(existingUser, passwordChangeRequestDTO.getOldPassword())) {
-                throw new RuntimeException(OLD_PASSWORD_DOSE_NOT_MATCH);
-            }
-            if (!passwordChangeRequestDTO.getNewPassword().equals(passwordChangeRequestDTO.getConfirmPassword())) {
-                throw new RuntimeException(NEW_PASSWORD_DOSE_NOT_MATCH);
-            }
-            existingUser.setPassword(passwordEncoder.encode(passwordChangeRequestDTO.getNewPassword()));
-            userRepository.save(existingUser);
-            return SUCCESSFULLY_UPDATED_PASSWORD;
+    public String updatePassword(PasswordChangeRequestDTO passwordChangeRequestDTO) {
+        Users users = authenticationService.getAuthenticatedUser();
+        if (!checkPasswordPresent(users, passwordChangeRequestDTO.getOldPassword())) {
+            throw new RuntimeException(OLD_PASSWORD_DOSE_NOT_MATCH);
+        }
+        if (!passwordChangeRequestDTO.getNewPassword().equals(passwordChangeRequestDTO.getConfirmPassword())) {
+            throw new RuntimeException(NEW_PASSWORD_DOSE_NOT_MATCH);
+        }
+        users.setPassword(passwordEncoder.encode(passwordChangeRequestDTO.getNewPassword()));
+        userRepository.save(users);
+        return SUCCESSFULLY_UPDATED_PASSWORD;
 
 
     }
@@ -57,61 +57,74 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public String updateUser(Long userId, UsersDTO usersDTO) throws Exception {
-        Users existingUsers = userRepository.findById(userId)
+    public String updateUser(Long userId, UsersDTO usersDTO) {
+        Users users = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException(USER_NOT_FOUND));
-        Gender existingGender = genderRepository.findById(usersDTO.getGenderId())
-                .orElseThrow(() -> new RuntimeException(GENDER_NOT_FOUND));
-        existingUsers.setFullName(usersDTO.getFullName());
-        existingUsers.setPhoneNumber(usersDTO.getPhoneNumber());
-        existingUsers.setEmail(usersDTO.getEmail());
-        existingUsers.setGender(existingGender);
-        existingUsers.setBirthday(usersDTO.getBirthday());
-        existingUsers.setAddress(usersDTO.getAddress());
-        existingUsers.setIdCard(usersDTO.getIdCard());
-        existingUsers.setFacebook(usersDTO.getFacebook());
-        existingUsers.setFileUser(usersDTO.getFileUser().getBytes());
-        userRepository.save(existingUsers);
+        updateUserProperties(users, usersDTO);
+        userRepository.save(users);
         return USER_UPDATED_SUCCESSFULLY;
     }
 
     @Transactional
     @Override
-    public String updateUserInfo(String username, UsersDTO usersDTO) {
-        Users existingUsers = userRepository.findByUsername(username);
-        Gender existingGender = genderRepository.findById(usersDTO.getGenderId())
-                .orElseThrow(() -> new RuntimeException(GENDER_NOT_FOUND));
-        existingUsers.setFullName(usersDTO.getFullName());
-        existingUsers.setPhoneNumber(usersDTO.getPhoneNumber());
-        existingUsers.setEmail(usersDTO.getEmail());
-        existingUsers.setGender(existingGender);
-        existingUsers.setBirthday(usersDTO.getBirthday());
-        existingUsers.setAddress(usersDTO.getAddress());
-        existingUsers.setIdCard(usersDTO.getIdCard());
-        existingUsers.setFacebook(usersDTO.getFacebook());
-        userRepository.save(existingUsers);
+    public String updateUserInfo(UsersDTO usersDTO) {
+        Users users = authenticationService.getAuthenticatedUser();
+        updateUserProperties(users, usersDTO);
+        userRepository.save(users);
         return UNIT_UPDATED_SUCCESSFULLY;
     }
 
-    @Override
-    public String updateUserInfoFile(String username, UsersDTO usersDTO) throws IOException {
-        Users existing = userRepository.findByUsername(username);
-        existing.setFileUser(usersDTO.getFileUser().getBytes());
-        userRepository.save(existing);
-        return USER_UPDATED_SUCCESSFULLY;
+    private void updateUserProperties(Users users, UsersDTO usersDTO) {
+        Gender gender = genderRepository.findById(usersDTO.getGenderId())
+                .orElseThrow(() -> new RuntimeException(GENDER_NOT_FOUND));
+        users.setFullName(usersDTO.getFullName());
+        users.setPhoneNumber(usersDTO.getPhoneNumber());
+        users.setEmail(usersDTO.getEmail());
+        users.setGender(gender);
+        users.setBirthday(usersDTO.getBirthday());
+        users.setAddress(usersDTO.getAddress());
+        users.setIdCard(usersDTO.getIdCard());
+        users.setFacebook(usersDTO.getFacebook());
     }
 
     @Override
-    public Users findByUsername(String username) {
-        return userRepository.findByUsername(username);
+    public String updateUserInfoFile(UsersDTO usersDTO) throws IOException {
+        Users users = authenticationService.getAuthenticatedUser();
+        users.setFileUser(usersDTO.getFileUser().getBytes());
+        userRepository.save(users);
+        return USER_UPDATED_SUCCESSFULLY;
     }
 
     @Override
     public String deleteUser(Long userId) {
         Users users = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException(USER_NOT_FOUND));
-            userRepository.deleteById(users.getUserId());
-            return USER_DELETED_SUCCESSFULLY;
+        userRepository.deleteById(users.getUserId());
+        return USER_DELETED_SUCCESSFULLY;
+    }
+
+    @Override
+    public Map<String, Object> getUserInfo() {
+        Users user = authenticationService.getAuthenticatedUser();
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        String formattedStartDay = user.getStartDay().format(formatter);
+
+        Map<String, Object> userInfo = new HashMap<>();
+        userInfo.put("userId", user.getUserId());
+        userInfo.put("username", user.getUsername());
+        userInfo.put("password", user.getPassword());
+        userInfo.put("phoneNumber", user.getPhoneNumber());
+        userInfo.put("idCard", user.getIdCard());
+        userInfo.put("genderName", user.getGender().getGenderName());
+        userInfo.put("facebook", user.getFacebook());
+        userInfo.put("email", user.getEmail());
+        userInfo.put("address", user.getAddress());
+        userInfo.put("fullName", user.getFullName());
+        userInfo.put("birthday", user.getBirthday());
+        userInfo.put("startDay", formattedStartDay);
+        userInfo.put("fileUser", user.getFileUser());
+        return userInfo;
     }
 
     @Override
@@ -165,13 +178,14 @@ public class UserServiceImpl implements UserService {
             default -> new ArrayList<>();
         };
     }
+
     @Override
     public List<Map<String, Object>> getAllEmployees() {
         return userRepository.getEmployeeList();
     }
 
     @Override
-    public String saveEmployeeRoles(Long userId){
+    public String saveEmployeeRoles(Long userId) {
 //        userDAO.updateEmployeeStatusAndRole(userId);
         return EMPLOYEE_ROLES_SUCCESSFULLY_SAVED;
     }

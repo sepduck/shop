@@ -1,49 +1,36 @@
 package com.qlyshopphone_backend.service;
 
-import com.qlyshopphone_backend.dto.CartDTO;
-import com.qlyshopphone_backend.dto.CustomerInfoDTO;
-import com.qlyshopphone_backend.dto.PurchaseDTO;
-import com.qlyshopphone_backend.model.*;
+import com.qlyshopphone_backend.dto.*;
 import jakarta.servlet.http.HttpSession;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 
 public interface CartService {
-    void addToCart(HttpSession session, CartDTO cartDTO);
+    String addProductToCart(Long productId);
 
-    String saveCart(CartDTO cartDTO);
+    List<CartDTO> getUserCart();
 
-    String deleteCart(Long cartId, Users users);
+    String deleteCart(Long cartId);
 
-    List<CartDTO> getCart(HttpSession session);
+    String sellMultipleProducts(PayForCartItemsRequest request);
 
-    Cart findCartById(Long cartId);
+    Map<String, Object> getTodayPurchasesReport();
+
+    Map<String, Object> generateLast30DaysRevenueStatistics();
+
+    List<BigDecimal> calculateDailySalesForLast30Days();
+
+    List<CustomerInfoDTO> getCustomerInfo();
 
     String createCustomerInfo(CustomerInfoDTO customerInfoDTO);
 
-    CustomerInfoDTO updateCustomerInfo(Long customerId, CustomerInfoDTO customerInfoDTO);
+    String updateCustomerInfo(Long customerId, CustomerInfoDTO customerInfoDTO);
 
     String deleteCustomerInfo(Long customerId);
-
-    CustomerInfo findById(Long customerId);
-
-    void createPurchase(Purchase purchase);
-
-    List<PurchaseDTO> getPurchaseBetweenDates();
-
-    List<PurchaseDTO> getTodayPurchases();
-
-    List<BigDecimal> getDailySalesTotalPriceLast30Days();
-
-    BigDecimal calculateTotalPrice(List<PurchaseDTO> purchases);
 
     BigDecimal getPercentageChangeFromYesterdayToToday();
 
     BigDecimal getPercentageChangeFromLastMonthToThisMonth();
-
-    Optional<UserStatistics> findUserStatisticsByUserId(Long userId);
-
-    void saveUserStatistics(UserStatistics userStatistics);
 }

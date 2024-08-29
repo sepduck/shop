@@ -36,24 +36,18 @@ public class RestUserController {
     }
 
     @PutMapping(PASSWORD)
-    public ResponseEntity<?> updatePassword(@RequestBody PasswordChangeRequestDTO passwordChangeRequestDTO,
-                                            Principal principal) {
-        String username = principal.getName();
-        return ResponseEntity.ok(userService.updatePassword(username, passwordChangeRequestDTO));
+    public ResponseEntity<?> updatePassword(@RequestBody PasswordChangeRequestDTO request) {
+        return ResponseEntity.ok(userService.updatePassword(request));
     }
 
     @PutMapping(USERS_INFO)
-    public ResponseEntity<?> updateUserInfo(@RequestBody UsersDTO usersDTO,
-                                            Principal principal) throws Exception {
-        String username = principal.getName();
-        return ResponseEntity.ok(userService.updateUserInfo(username, usersDTO));
+    public ResponseEntity<?> updateUserInfo(@RequestBody UsersDTO usersDTO) throws Exception {
+        return ResponseEntity.ok(userService.updateUserInfo(usersDTO));
     }
 
     @PutMapping(USERS_INFO_FILE)
-    public ResponseEntity<?> updateInfoFile(@RequestBody UsersDTO usersDTO,
-                                            Principal principal) throws Exception {
-        String username = principal.getName();
-        return ResponseEntity.ok(userService.updateUserInfoFile(username, usersDTO));
+    public ResponseEntity<?> updateInfoFile(@RequestBody UsersDTO usersDTO) throws Exception {
+        return ResponseEntity.ok(userService.updateUserInfoFile(usersDTO));
     }
 
     @DeleteMapping(ADMIN_USERS_ID)
@@ -62,43 +56,8 @@ public class RestUserController {
     }
 
     @GetMapping(INFO)
-    public ResponseEntity<?> getAccountInfo(HttpServletRequest request) {
-        String username = request.getUserPrincipal().getName();
-        Users user = userService.findByUsername(username);
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        String formattedStartDay = user.getStartDay().format(formatter);
-        Map<String, Object> userInfo = new HashMap<>();
-        userInfo.put("userId", user.getUserId());
-        userInfo.put("username", user.getUsername());
-        userInfo.put("password", user.getPassword());
-        userInfo.put("phoneNumber", user.getPhoneNumber());
-        userInfo.put("idCard", user.getIdCard());
-        userInfo.put("genderName", user.getGender().getGenderName());
-        userInfo.put("facebook", user.getFacebook());
-        userInfo.put("email", user.getEmail());
-        userInfo.put("address", user.getAddress());
-        userInfo.put("fullName", user.getFullName());
-        userInfo.put("birthday", user.getBirthday());
-        userInfo.put("startDay", formattedStartDay);
-        userInfo.put("fileUser", user.getFileUser());
-        return ResponseEntity.ok(ResponseEntity.ok(userInfo));
-    }
-
-    @PostMapping(LOGOUT)
-    public ResponseEntity<?> logout(HttpServletRequest request) {
-        try {
-            String authorizationHeader = request.getHeader("Authorization");
-            if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(MISSING_OR_INCORRECT_AUTHORIZATION_HEADER_FORMAT);
-            }
-
-            String token = authorizationHeader.replace("Bearer ", "");
-            authenticationService.invalidateToken(token);
-            return ResponseEntity.ok(ResponseEntity.ok(SUCCESSFULLY_LOGGED_OUT));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(AN_ERROR_OCCURRED_DURING_LOGOUT);
-        }
+    public ResponseEntity<Map<String, Object>> getAccountInfo() {
+        return ResponseEntity.ok(userService.getUserInfo());
     }
 
     @GetMapping(ADMIN_EMPLOYEE)
@@ -203,23 +162,4 @@ public class RestUserController {
     public ResponseEntity<?> searchCustomerNumber(@PathVariable("number") int number){
         return ResponseEntity.ok(userService.searchCustomerByGender(number));
     }
-
-//    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_ACCOUNTANT', 'ROLE_USER')")
-//    @GetMapping("/info")
-//    public ResponseEntity<UsersDTO> getAccountInfo(HttpServletRequest request) {
-//        String username = request.getUserPrincipal().getName();
-//        Users user = userService.findByUsername(username);
-//
-//        UsersDTO userDTO = new UsersDTO();
-//        if (user.getFileUser() != null) {
-//            String base64Image = Base64.getEncoder().encodeToString(user.getFileUser());
-//            userDTO.setThumbnail(base64Image);
-//            System.out.println("Encoded image: " + base64Image);
-//        }else {
-//            userDTO.setThumbnail("");
-//        }
-//
-//        return ResponseEntity.ok(ResponseEntity.ok(userDTO);
-//    }
-
 }

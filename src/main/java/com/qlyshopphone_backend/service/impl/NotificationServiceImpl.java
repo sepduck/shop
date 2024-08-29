@@ -1,9 +1,7 @@
 package com.qlyshopphone_backend.service.impl;
-import static com.qlyshopphone_backend.constant.ErrorMessage.*;
 
 import com.qlyshopphone_backend.dto.NotificationDTO;
 import com.qlyshopphone_backend.mapper.NotificationMapper;
-import com.qlyshopphone_backend.model.BaseReponse;
 import com.qlyshopphone_backend.model.Notification;
 import com.qlyshopphone_backend.model.Users;
 import com.qlyshopphone_backend.repository.NotificationRepository;

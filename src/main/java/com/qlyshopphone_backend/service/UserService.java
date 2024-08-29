@@ -13,19 +13,17 @@ import java.util.Map;
 public interface UserService {
     List<Map<String, Object>> getAllUsers();
 
-    void saveUser(Users user);
+    String updatePassword(PasswordChangeRequestDTO passwordChangeRequestDTO);
 
-    String updatePassword(String username, PasswordChangeRequestDTO passwordChangeRequestDTO);
+    String updateUser(Long userId, UsersDTO usersDTO);
 
-    String updateUser(Long userId, UsersDTO usersDTO) throws Exception;
+    String updateUserInfo(UsersDTO usersDTO) throws Exception;
 
-    String updateUserInfo(String username, UsersDTO usersDTO) throws Exception;
-
-    String updateUserInfoFile(String username, UsersDTO usersDTO) throws Exception;
-
-    Users findByUsername(String username);
+    String updateUserInfoFile(UsersDTO usersDTO) throws Exception;
 
     String deleteUser(Long id);
+
+    Map<String, Object> getUserInfo();
 
     List<Map<String, Object>> getAllCustomers();
 

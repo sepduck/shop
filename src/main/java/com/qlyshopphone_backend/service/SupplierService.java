@@ -12,11 +12,11 @@ import java.util.Map;
 public interface SupplierService {
     List<Map<String, Object>> getAllSuppliers();
 
-    String saveSuppliers(SupplierDTO supplierDTO, Users users);
+    String saveSuppliers(SupplierDTO supplierDTO);
 
-    String updateSuppliers(Long supplierId, SupplierDTO supplierDTO, Users users) throws Exception;
+    String updateSuppliers(Long supplierId, SupplierDTO supplierDTO) throws Exception;
 
-    String deleteSuppliers(Long supplierId, Users users);
+    String deleteSuppliers(Long supplierId);
 
     List<Map<String, Object>> searchByPhoneNumber(String phoneNumber);
 

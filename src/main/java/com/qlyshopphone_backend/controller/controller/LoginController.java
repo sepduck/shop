@@ -17,12 +17,12 @@ public class LoginController {
     private final AuthenticationService authenticationService;
 
     @PostMapping(LOGIN)
-    public ResponseEntity<?> login(@RequestBody Users users) {
+    public ResponseEntity<String> login(@RequestBody Users users) {
         return ResponseEntity.ok(authenticationService.login(users));
     }
 
     @PostMapping(REGISTER)
-    public ResponseEntity<?> register(@ModelAttribute UsersDTO usersDTO) throws Exception {
+    public ResponseEntity<String> register(@ModelAttribute UsersDTO usersDTO) throws Exception {
         usersDTO.setEmployee(false);
         usersDTO.setDeleteUser(false);
         usersDTO.setRoleId(3L);

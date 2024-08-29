@@ -11,17 +11,11 @@ import java.util.Optional;
 public interface ProductService {
     List<Map<String, Object>> getAllProducts();
 
-    void createProduct(Product product);
+    String saveProduct(ProductDTO productDTO) throws Exception;
 
-    String saveProduct(ProductDTO productDTO, Users users) throws Exception;
+    String updateProduct(Long productId, ProductDTO productDTO) throws Exception;
 
-    String updateProduct(Long productId, ProductDTO productDTO, Users users) throws Exception;
-
-    ResponseEntity<?> findByIdProduct(Long productId);
-
-    Optional<Product> findByProductId(Long productId);
-
-    String deleteProduct(Long productId, Users users);
+    String deleteProduct(Long productId);
 
     List<Map<String, Object>> searchAllByProductName(String productName);
 
@@ -38,8 +32,6 @@ public interface ProductService {
     List<Map<String, Object>> searchByLocationId( Long locationId);
 
     List<Map<String, Object>> searchCategory(int number);
-
-    Map<String, Object> getProductDetailId(Long productId);
 
     List<Category> getAllCategory();
 

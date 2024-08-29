@@ -18,12 +18,13 @@ public class PathConstant {
     public static final String LIST_CART = "/list-cart";
     public static final String DELETE_CART_CART_ID = "/delete/cart/{cartId}";
     public static final String CART_SELL_CART_ID_CUSTOMER_INFO_ID = "/cart/sell/{cardId}/{customerInfoId}";
-    public static final String CART_SELLS_CUSTOMER_INFO_ID = "/cart/sells/{customerInfoId}";
+    public static final String CART_SELLS = "/cart/sells";
     public static final String SALE = "/sale";
     public static final String CART_VIEW = "/view-cart";
     public static final String ADMIN_TODAY_PURCHASES = ADMIN + "/today-purchases";
     public static final String ADMIN_LAST_30_DAYS_PURCHASES = ADMIN + "/last-30-days-purchases";
     public static final String ADMIN_DAILY_SALES_TOTAL_PRICE_LAST_30_DAYS = ADMIN + "/daily-sales-total-price-last-30-days";
+    public static final String ADMIN_SALES_PERCENTAGE_CHANGE = ADMIN + "/sales-percentage-change";
     public static final String ADMIN_SALES_MONTH_PERCENTAGE_CHANGE = ADMIN + "/sales-month-percentage-change";
     public static final String CART_SESSION = CART + "/session";
     public static final String CUSTOMER_INFO = CART + "/customer-info";

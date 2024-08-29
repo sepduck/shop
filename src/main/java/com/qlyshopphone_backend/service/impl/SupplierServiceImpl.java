@@ -7,6 +7,7 @@ import com.qlyshopphone_backend.model.*;
 import com.qlyshopphone_backend.repository.GroupSupplierRepository;
 import com.qlyshopphone_backend.repository.ProductRepository;
 import com.qlyshopphone_backend.repository.SupplierRepository;
+import com.qlyshopphone_backend.service.AuthenticationService;
 import com.qlyshopphone_backend.service.NotificationService;
 import com.qlyshopphone_backend.service.SupplierService;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,7 @@ public class SupplierServiceImpl implements SupplierService {
     private final GroupSupplierRepository groupSupplierRepository;
     private final ProductRepository productRepository;
     private final NotificationService notificationService;
-
+    private final AuthenticationService authenticationService;
     @Override
     public List<Map<String, Object>> getSupplier() {
         return supplierRepository.getSuppliers();
@@ -45,12 +46,35 @@ public class SupplierServiceImpl implements SupplierService {
     }
 
     @Override
-    public String saveSuppliers(SupplierDTO supplierDTO, Users users) {
+    public String saveSuppliers(SupplierDTO supplierDTO) {
+        Users users = authenticationService.getAuthenticatedUser();
+        Supplier supplier = new Supplier();
+        updateSupplierProperties(supplier, supplierDTO);
+
+        String message = users.getFullName() + " have successfully added supplier " + supplier.getSupplierName();
+        notificationService.saveNotification(message, users);
+        supplierRepository.save(supplier);
+        return SUPPLIER_SAVED_SUCCESSFULLY;
+
+    }
+
+    @Override
+    public String updateSuppliers(Long supplierId, SupplierDTO supplierDTO) {
+        Users users = authenticationService.getAuthenticatedUser();
+        Supplier supplier = supplierRepository.findById(supplierId)
+                .orElseThrow(() -> new RuntimeException(SUPPLIER_NOT_FOUND));
+        updateSupplierProperties(supplier, supplierDTO);
+        String message = users.getFullName() + " have edited product " + supplierDTO.getSupplierName() + " to " + supplier.getSupplierName();
+        notificationService.saveNotification(message, users);
+        supplierRepository.save(supplier);
+        return SUPPLIER_UPDATED_SUCCESSFULLY;
+    }
+
+    private void updateSupplierProperties(Supplier supplier, SupplierDTO supplierDTO) {
         GroupSupplier existingGroupSupplier = groupSupplierRepository.findById(supplierDTO.getGroupSupplierId())
                 .orElseThrow(() -> new RuntimeException(GROUP_SUPPLIER_NOT_FOUND));
         Product existingProduct = productRepository.findById(supplierDTO.getProductId())
                 .orElseThrow(() -> new RuntimeException(PRODUCT_NOT_FOUND));
-        Supplier supplier = new Supplier();
         supplier.setSupplierName(supplierDTO.getSupplierName());
         supplier.setPhoneNumber(supplierDTO.getPhoneNumber());
         supplier.setAddress(supplierDTO.getAddress());
@@ -60,40 +84,11 @@ public class SupplierServiceImpl implements SupplierService {
         supplier.setDeleteSupplier(supplierDTO.isDeleteProduct());
         supplier.setGroupSupplier(existingGroupSupplier);
         supplier.setProduct(existingProduct);
-        supplierRepository.save(supplier);
-
-        String message = users.getFullName() + " have successfully added supplier " + supplier.getSupplierName();
-        notificationService.saveNotification(message, users);
-        return SUPPLIER_SAVED_SUCCESSFULLY;
-
     }
 
     @Override
-    public String updateSuppliers(Long supplierId, SupplierDTO supplierDTO, Users users) {
-        Supplier existingSupplier = supplierRepository.findById(supplierId)
-                .orElseThrow(() -> new RuntimeException(SUPPLIER_NOT_FOUND));
-        GroupSupplier existingGroupSupplier = groupSupplierRepository.findById(supplierDTO.getGroupSupplierId())
-                .orElseThrow(() -> new RuntimeException(GROUP_SUPPLIER_NOT_FOUND));
-        Product existingProduct = productRepository.findById(supplierDTO.getProductId())
-                .orElseThrow(() -> new RuntimeException(PRODUCT_NOT_FOUND));
-        existingSupplier.setSupplierName(supplierDTO.getSupplierName());
-        existingSupplier.setPhoneNumber(supplierDTO.getPhoneNumber());
-        existingSupplier.setAddress(supplierDTO.getAddress());
-        existingSupplier.setEmail(supplierDTO.getEmail());
-        existingSupplier.setCompany(supplierDTO.getCompany());
-        existingSupplier.setTaxCode(supplierDTO.getTaxCode());
-        existingSupplier.setDeleteSupplier(supplierDTO.isDeleteProduct());
-        existingSupplier.setGroupSupplier(existingGroupSupplier);
-        existingSupplier.setProduct(existingProduct);
-
-        String message = users.getFullName() + " have edited product " + supplierDTO.getSupplierName() + " to " + existingSupplier.getSupplierName();
-        notificationService.saveNotification(message, users);
-        supplierRepository.save(existingSupplier);
-        return SUPPLIER_UPDATED_SUCCESSFULLY;
-    }
-
-    @Override
-    public String deleteSuppliers(Long supplierId, Users users) {
+    public String deleteSuppliers(Long supplierId) {
+        Users users = authenticationService.getAuthenticatedUser();
         Supplier supplier = supplierRepository.findById(supplierId)
                         .orElseThrow(() -> new RuntimeException(SUPPLIER_NOT_FOUND));
         supplierRepository.deleteBySupplierId(supplier.getSupplierId());

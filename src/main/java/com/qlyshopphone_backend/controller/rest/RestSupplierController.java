@@ -34,25 +34,20 @@ public class RestSupplierController {
     }
     
     @PostMapping(ADMIN_SUPPLIER)
-    public ResponseEntity<?> saveSuppliers(@RequestBody SupplierDTO supplierDTO,
-                                           Principal principal) {
-        Users users = userService.findByUsername(principal.getName());
+    public ResponseEntity<?> saveSuppliers(@RequestBody SupplierDTO supplierDTO) {
         supplierDTO.setDeleteProduct(false);
-        return ResponseEntity.ok(supplierService.saveSuppliers(supplierDTO, users));
+        return ResponseEntity.ok(supplierService.saveSuppliers(supplierDTO));
     }
 
     @PutMapping(ADMIN_SUPPLIER_ID)
     public ResponseEntity<?> updateSupplier(@PathVariable Long id,
-                                            @RequestBody SupplierDTO supplierDTO,
-                                            Principal principal) throws Exception {
-        Users users = userService.findByUsername(principal.getName());
-        return ResponseEntity.ok(ResponseEntity.ok(supplierService.updateSuppliers(id, supplierDTO, users)));
+                                            @RequestBody SupplierDTO supplierDTO) throws Exception {
+        return ResponseEntity.ok(ResponseEntity.ok(supplierService.updateSuppliers(id, supplierDTO)));
     }
 
     @DeleteMapping(ADMIN_SUPPLIER_ID)
-    public ResponseEntity<?> deleteSuppliers(@PathVariable Long id, Principal principal) {
-        Users users = userService.findByUsername(principal.getName());
-        return ResponseEntity.ok(supplierService.deleteSuppliers(id, users));
+    public ResponseEntity<?> deleteSuppliers(@PathVariable Long id) {
+        return ResponseEntity.ok(supplierService.deleteSuppliers(id));
     }
 
     @GetMapping(ADMIN_SUPPLIERS_SEARCH_PHONE_NUMBER)
