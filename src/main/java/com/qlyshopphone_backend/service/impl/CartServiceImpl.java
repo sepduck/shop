@@ -2,10 +2,10 @@ package com.qlyshopphone_backend.service.impl;
 
 import static com.qlyshopphone_backend.constant.ErrorMessage.*;
 
-import com.qlyshopphone_backend.dto.CartDTO;
-import com.qlyshopphone_backend.dto.CustomerInfoDTO;
-import com.qlyshopphone_backend.dto.PayForCartItemsRequest;
-import com.qlyshopphone_backend.dto.PurchaseDTO;
+import com.qlyshopphone_backend.dto.request.CartRequest;
+import com.qlyshopphone_backend.dto.request.CustomerInfoRequest;
+import com.qlyshopphone_backend.dto.request.PayForCartItemsRequest;
+import com.qlyshopphone_backend.dto.request.PurchaseRequest;
 import com.qlyshopphone_backend.mapper.CartMapper;
 import com.qlyshopphone_backend.mapper.CustomerInfoMapper;
 import com.qlyshopphone_backend.mapper.PurchaseMapper;
@@ -58,7 +58,7 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public List<CartDTO> getUserCart() {
+    public List<CartRequest> getUserCart() {
         Users users = authenticationService.getAuthenticatedUser();
         return users.getCart()
                 .stream()
@@ -109,15 +109,15 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public Map<String, Object> getTodayPurchasesReport() {
-        List<PurchaseDTO> purchaseDTOS = purchaseRepository.findByToday().stream()
+        List<PurchaseRequest> purchaseRequests = purchaseRepository.findByToday().stream()
                 .map(PurchaseMapper::toDto)
                 .toList();
-        BigDecimal totalPrice = purchaseDTOS.stream()
-                .map(PurchaseDTO::getTotalPrice)
+        BigDecimal totalPrice = purchaseRequests.stream()
+                .map(PurchaseRequest::getTotalPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         Map<String, Object> map = new HashMap<>();
-        map.put("purchases", purchaseDTOS);
+        map.put("purchases", purchaseRequests);
         map.put("totalPrice", totalPrice);
         return map;
     }
@@ -129,16 +129,16 @@ public class CartServiceImpl implements CartService {
 
         List<Purchase> purchases = purchaseRepository.findAllPurchasesBetweenDates(startDate, endDate);
 
-        List<PurchaseDTO> purchaseDTOS = purchases.stream()
+        List<PurchaseRequest> purchaseRequests = purchases.stream()
                 .map(PurchaseMapper::toDto)
                 .toList();
 
-        BigDecimal totalPrice = purchaseDTOS.stream()
-                .map(PurchaseDTO::getTotalPrice)
+        BigDecimal totalPrice = purchaseRequests.stream()
+                .map(PurchaseRequest::getTotalPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         Map<String, Object> map = new HashMap<>();
-        map.put("purchases", purchaseDTOS);
+        map.put("purchases", purchaseRequests);
         map.put("totalPrice", totalPrice);
         return map;
     }
@@ -164,7 +164,7 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public List<CustomerInfoDTO> getCustomerInfo() {
+    public List<CustomerInfoRequest> getCustomerInfo() {
         Users users = authenticationService.getAuthenticatedUser();
         return users.getCustomerInfo()
                 .stream()
@@ -174,12 +174,12 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public String createCustomerInfo(CustomerInfoDTO customerInfoDTO) {
+    public String createCustomerInfo(CustomerInfoRequest customerInfoRequest) {
         Users users = authenticationService.getAuthenticatedUser();
         CustomerInfo customerInfo = new CustomerInfo();
-        customerInfo.setCustomerName(customerInfoDTO.getCustomerName());
-        customerInfo.setPhone(customerInfoDTO.getPhone());
-        customerInfo.setAddress(customerInfoDTO.getAddress());
+        customerInfo.setCustomerName(customerInfoRequest.getCustomerName());
+        customerInfo.setPhone(customerInfoRequest.getPhone());
+        customerInfo.setAddress(customerInfoRequest.getAddress());
         customerInfo.setUser(users);
         users.getCustomerInfo().add(customerInfo);
         customerInfoRepository.save(customerInfo);
@@ -187,12 +187,12 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public String updateCustomerInfo(Long customerId, CustomerInfoDTO customerInfoDTO) {
+    public String updateCustomerInfo(Long customerId, CustomerInfoRequest customerInfoRequest) {
         CustomerInfo customerInfo = customerInfoRepository.findById(customerId)
                 .orElseThrow(() -> new RuntimeException(CUSTOMER_INFO_NOT_FOUND));
-        customerInfo.setCustomerName(customerInfoDTO.getCustomerName());
-        customerInfo.setPhone(customerInfoDTO.getPhone());
-        customerInfo.setAddress(customerInfoDTO.getAddress());
+        customerInfo.setCustomerName(customerInfoRequest.getCustomerName());
+        customerInfo.setPhone(customerInfoRequest.getPhone());
+        customerInfo.setAddress(customerInfoRequest.getAddress());
         customerInfoRepository.save(customerInfo);
         return SUCCESSFULLY_UPDATED_CUSTOMER_INFO;
     }

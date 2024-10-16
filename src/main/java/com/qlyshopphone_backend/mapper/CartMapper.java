@@ -1,6 +1,6 @@
 package com.qlyshopphone_backend.mapper;
 
-import com.qlyshopphone_backend.dto.CartDTO;
+import com.qlyshopphone_backend.dto.request.CartRequest;
 import com.qlyshopphone_backend.model.Cart;
 import com.qlyshopphone_backend.model.Product;
 import com.qlyshopphone_backend.model.Users;
@@ -8,34 +8,33 @@ import com.qlyshopphone_backend.model.Users;
 import java.util.Base64;
 
 public class CartMapper {
-    // Chuyển đổi từ Cart sang CartDTO
-    public static CartDTO toDto(Cart cart) {
-        CartDTO cartDTO = new CartDTO();
-        cartDTO.setCartId(cart.getCartId());
-        cartDTO.setProductId(cart.getProduct().getProductId());
-        cartDTO.setProductName(cart.getProduct().getProductName());
-        cartDTO.setPrice(cart.getProduct().getPrice());
-        cartDTO.setUserId(cart.getUser().getUserId());
-        cartDTO.setQuantity(cart.getQuantity());
-        cartDTO.setSold(cart.isSold());
-        cartDTO.setDeleteCart(cart.isDeleteCart());
+    public static CartRequest toDto(Cart cart) {
+        CartRequest cartRequest = new CartRequest();
+        cartRequest.setCartId(cart.getCartId());
+        cartRequest.setProductId(cart.getProduct().getProductId());
+        cartRequest.setProductName(cart.getProduct().getProductName());
+        cartRequest.setPrice(cart.getProduct().getPrice());
+        cartRequest.setUserId(cart.getUser().getUserId());
+        cartRequest.setQuantity(cart.getQuantity());
+        cartRequest.setSold(cart.isSold());
+        cartRequest.setDeleteCart(cart.isDeleteCart());
         if (cart.getProduct().getFile() != null){
-            cartDTO.setFileBase64(Base64.getEncoder().encodeToString(cart.getProduct().getFile()));
+            cartRequest.setFileBase64(Base64.getEncoder().encodeToString(cart.getProduct().getFile()));
         }
-        return cartDTO;
+        return cartRequest;
     }
 
     // Chuyển đổi từ CartDTO sang Cart
-    public static Cart toEntity(CartDTO cartDTO, Product product, Users user){
+    public static Cart toEntity(CartRequest cartRequest, Product product, Users user){
         Cart cart = new Cart();
-        cart.setCartId(cartDTO.getCartId());
+        cart.setCartId(cartRequest.getCartId());
         cart.setProduct(product);
         cart.setUser(user);
-        cart.setQuantity(cartDTO.getQuantity());
-        cart.setSold(cartDTO.isSold());
+        cart.setQuantity(cartRequest.getQuantity());
+        cart.setSold(cartRequest.isSold());
         cart.setDeleteCart(cart.isDeleteCart());
-        if (cartDTO.getFileBase64() != null && !cartDTO.getFileBase64().isEmpty()) {
-            byte[] file = Base64.getDecoder().decode(cartDTO.getFileBase64());
+        if (cartRequest.getFileBase64() != null && !cartRequest.getFileBase64().isEmpty()) {
+            byte[] file = Base64.getDecoder().decode(cartRequest.getFileBase64());
             cart.getProduct().setFile(file);
         }
         return cart;

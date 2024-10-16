@@ -13,9 +13,9 @@ public class GroupSupplier {
     @Column(name = "group_supplier_id")
     private Long groupSupplierId;
 
-    @Column(name = "group_supplier_name", length = 50, nullable = false)
+    @Column(name = "group_supplier_name")
     private String  groupSupplierName;
 
-    @Column(name = "note", length = 200)
+    @Column(name = "note")
     private String  note;
 }

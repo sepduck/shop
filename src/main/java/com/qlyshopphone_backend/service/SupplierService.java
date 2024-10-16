@@ -1,10 +1,8 @@
 package com.qlyshopphone_backend.service;
 
-import com.qlyshopphone_backend.dto.GroupSupplierDTO;
-import com.qlyshopphone_backend.dto.SupplierDTO;
+import com.qlyshopphone_backend.dto.request.GroupSupplierRequest;
+import com.qlyshopphone_backend.dto.request.SupplierRequest;
 import com.qlyshopphone_backend.model.GroupSupplier;
-import com.qlyshopphone_backend.model.Users;
-import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 import java.util.Map;
@@ -12,9 +10,9 @@ import java.util.Map;
 public interface SupplierService {
     List<Map<String, Object>> getAllSuppliers();
 
-    String saveSuppliers(SupplierDTO supplierDTO);
+    String saveSuppliers(SupplierRequest supplierRequest);
 
-    String updateSuppliers(Long supplierId, SupplierDTO supplierDTO) throws Exception;
+    String updateSuppliers(Long supplierId, SupplierRequest supplierRequest) throws Exception;
 
     String deleteSuppliers(Long supplierId);
 
@@ -32,9 +30,9 @@ public interface SupplierService {
 
     List<GroupSupplier> getAllGroupSupplier();
 
-    String saveGroupSupplier(GroupSupplierDTO groupSupplierDTO);
+    String saveGroupSupplier(GroupSupplierRequest groupSupplierRequest);
 
-    String updateGroupSupplier(GroupSupplierDTO groupSupplierDTO, Long groupSupplierId);
+    String updateGroupSupplier(GroupSupplierRequest groupSupplierRequest, Long groupSupplierId);
 
     String deleteGroupSupplier(Long groupSupplierId);
 

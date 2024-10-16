@@ -1,19 +1,17 @@
 package com.qlyshopphone_backend.service;
 
-import com.qlyshopphone_backend.dto.*;
+import com.qlyshopphone_backend.dto.request.*;
 import com.qlyshopphone_backend.model.*;
-import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 public interface ProductService {
     List<Map<String, Object>> getAllProducts();
 
-    String saveProduct(ProductDTO productDTO) throws Exception;
+    String saveProduct(ProductRequest productRequest) throws Exception;
 
-    String updateProduct(Long productId, ProductDTO productDTO) throws Exception;
+    String updateProduct(Long productId, ProductRequest productRequest) throws Exception;
 
     String deleteProduct(Long productId);
 
@@ -35,49 +33,49 @@ public interface ProductService {
 
     List<Category> getAllCategory();
 
-    String saveCategory(CategoryDTO categoryDTO);
+    String saveCategory(CategoryRequest categoryRequest);
 
-    String updateCategory(CategoryDTO categoryDTO, Long categoryId);
+    String updateCategory(CategoryRequest categoryRequest, Long categoryId);
 
     String deleteCategory(Long categoryId);
 
     List<GroupProduct> getAllGroupProduct();
 
-    String saveGroupProduct(GroupProductDTO groupProductDTO);
+    String saveGroupProduct(GroupProductRequest groupProductRequest);
 
-    String updateGroupProduct(GroupProductDTO groupProductDTO, Long groupProductId);
+    String updateGroupProduct(GroupProductRequest groupProductRequest, Long groupProductId);
 
     String deleteGroupProduct(Long groupProductId);
 
     List<Location> getAllLocation();
 
-    String saveLocation(LocationDTO locationDTO);
+    String saveLocation(LocationRequest locationRequest);
 
-    String updateLocation(LocationDTO locationDTO, Long locationId);
+    String updateLocation(LocationRequest locationRequest, Long locationId);
 
     String deleteLocation(Long locationId);
 
     List<Properties> getAllProperties();
 
-    String saveProperties(PropertiesDTO propertiesDTO);
+    String saveProperties(PropertiesRequest propertiesRequest);
 
-    String updateProperties(PropertiesDTO propertiesDTO, Long propertiesId);
+    String updateProperties(PropertiesRequest propertiesRequest, Long propertiesId);
 
     String deleteProperties(Long propertiesId);
 
     List<Trademark> getAllTrademarks();
 
-    String saveTrademark(TrademarkDTO trademarkDTO);
+    String saveTrademark(TrademarkRequest trademarkRequest);
 
-    String updateTrademark(TrademarkDTO trademarkDTO, Long trademarkId);
+    String updateTrademark(TrademarkRequest trademarkRequest, Long trademarkId);
 
     String deleteTrademark(Long trademarkId);
 
     List<Unit> getAllUnits();
 
-    String saveUnit(UnitDTO unitDTO);
+    String saveUnit(UnitRequest unitRequest);
 
-    String updateUnit(UnitDTO unitDTO, Long unitId);
+    String updateUnit(UnitRequest unitRequest, Long unitId);
 
     String deleteUnit(Long unitId);
 

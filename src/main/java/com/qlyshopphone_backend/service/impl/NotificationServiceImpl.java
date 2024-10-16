@@ -1,6 +1,6 @@
 package com.qlyshopphone_backend.service.impl;
 
-import com.qlyshopphone_backend.dto.NotificationDTO;
+import com.qlyshopphone_backend.dto.request.NotificationRequest;
 import com.qlyshopphone_backend.mapper.NotificationMapper;
 import com.qlyshopphone_backend.model.Notification;
 import com.qlyshopphone_backend.model.Users;
@@ -21,7 +21,7 @@ public class NotificationServiceImpl implements NotificationService {
     private final NotificationRepository notificationRepository;
 
     @Override
-    public List<NotificationDTO> getNotifications() {
+    public List<NotificationRequest> getNotifications() {
         List<Notification> notifications = notificationRepository.findAll();
         return notifications.stream()
                 .sorted(Comparator.comparing(Notification::getNotificationId).reversed())

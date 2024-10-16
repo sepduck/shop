@@ -13,6 +13,6 @@ public class GroupProduct {
     @Column(name = "group_product_id")
     private Long groupProductId;
 
-    @Column(name = "group_product_name", length = 50, nullable = false)
+    @Column(name = "group_product_name")
     private String groupProductName;
 }

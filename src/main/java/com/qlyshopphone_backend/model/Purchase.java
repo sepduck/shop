@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
+@Table(name = "purchase")
 public class Purchase {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,19 +18,19 @@ public class Purchase {
     private Long purchaseId;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id")
     private Users user;
 
     @ManyToOne
-    @JoinColumn(name = "customer_info_id", nullable = false)
+    @JoinColumn(name = "customer_info_id")
     private CustomerInfo customerInfo;
 
-    @Column(name = "total_price", precision = 15, scale = 2, nullable = false)
+    @Column(name = "total_price")
     private BigDecimal totalPrice;
 
-    @Column(name = "total_amount", nullable = false)
+    @Column(name = "total_amount")
     private Long totalAmount;
 
-    @Column(name = "purchase_date", nullable = false)
+    @Column(name = "purchase_date")
     private LocalDateTime purchaseDate;
 }

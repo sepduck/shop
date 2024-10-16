@@ -2,11 +2,9 @@ package com.qlyshopphone_backend.service.impl;
 
 import static com.qlyshopphone_backend.constant.ErrorMessage.*;
 
-import com.qlyshopphone_backend.dto.PasswordChangeRequestDTO;
-import com.qlyshopphone_backend.dto.UsersDTO;
-import com.qlyshopphone_backend.model.Gender;
+import com.qlyshopphone_backend.dto.request.PasswordChangeRequest;
+import com.qlyshopphone_backend.dto.request.UserRequest;
 import com.qlyshopphone_backend.model.Users;
-import com.qlyshopphone_backend.repository.GenderRepository;
 import com.qlyshopphone_backend.repository.UserRepository;
 import com.qlyshopphone_backend.service.AuthenticationService;
 import com.qlyshopphone_backend.service.UserService;
@@ -27,7 +25,6 @@ import java.util.Map;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final GenderRepository genderRepository;
     private final AuthenticationService authenticationService;
 
     @Override
@@ -36,15 +33,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String updatePassword(PasswordChangeRequestDTO passwordChangeRequestDTO) {
+    public String updatePassword(PasswordChangeRequest passwordChangeRequest) {
         Users users = authenticationService.getAuthenticatedUser();
-        if (!checkPasswordPresent(users, passwordChangeRequestDTO.getOldPassword())) {
+        if (!checkPasswordPresent(users, passwordChangeRequest.getOldPassword())) {
             throw new RuntimeException(OLD_PASSWORD_DOSE_NOT_MATCH);
         }
-        if (!passwordChangeRequestDTO.getNewPassword().equals(passwordChangeRequestDTO.getConfirmPassword())) {
+        if (!passwordChangeRequest.getNewPassword().equals(passwordChangeRequest.getConfirmPassword())) {
             throw new RuntimeException(NEW_PASSWORD_DOSE_NOT_MATCH);
         }
-        users.setPassword(passwordEncoder.encode(passwordChangeRequestDTO.getNewPassword()));
+        users.setPassword(passwordEncoder.encode(passwordChangeRequest.getNewPassword()));
         userRepository.save(users);
         return SUCCESSFULLY_UPDATED_PASSWORD;
 
@@ -57,40 +54,38 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public String updateUser(Long userId, UsersDTO usersDTO) {
+    public String updateUser(Long userId, UserRequest userRequest) {
         Users users = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException(USER_NOT_FOUND));
-        updateUserProperties(users, usersDTO);
+        updateUserProperties(users, userRequest);
         userRepository.save(users);
         return USER_UPDATED_SUCCESSFULLY;
     }
 
     @Transactional
     @Override
-    public String updateUserInfo(UsersDTO usersDTO) {
+    public String updateUserInfo(UserRequest userRequest) {
         Users users = authenticationService.getAuthenticatedUser();
-        updateUserProperties(users, usersDTO);
+        updateUserProperties(users, userRequest);
         userRepository.save(users);
         return UNIT_UPDATED_SUCCESSFULLY;
     }
 
-    private void updateUserProperties(Users users, UsersDTO usersDTO) {
-        Gender gender = genderRepository.findById(usersDTO.getGenderId())
-                .orElseThrow(() -> new RuntimeException(GENDER_NOT_FOUND));
-        users.setFullName(usersDTO.getFullName());
-        users.setPhoneNumber(usersDTO.getPhoneNumber());
-        users.setEmail(usersDTO.getEmail());
-        users.setGender(gender);
-        users.setBirthday(usersDTO.getBirthday());
-        users.setAddress(usersDTO.getAddress());
-        users.setIdCard(usersDTO.getIdCard());
-        users.setFacebook(usersDTO.getFacebook());
+    private void updateUserProperties(Users users, UserRequest request) {
+        users.setFirstName(request.getFirstName());
+        users.setLastName(request.getLastName());
+        users.setPhoneNumber(request.getPhoneNumber());
+        users.setEmail(request.getEmail());
+        users.setGender(Users.Gender.valueOf(request.getGender()));
+        users.setBirthday(request.getBirthday());
+        users.setAddress(request.getAddress());
+        users.setIdCard(request.getIdCard());
+        users.setFacebook(request.getFacebook());
     }
 
     @Override
-    public String updateUserInfoFile(UsersDTO usersDTO) throws IOException {
+    public String updateUserInfoFile(UserRequest request) throws IOException {
         Users users = authenticationService.getAuthenticatedUser();
-        users.setFileUser(usersDTO.getFileUser().getBytes());
         userRepository.save(users);
         return USER_UPDATED_SUCCESSFULLY;
     }
@@ -116,14 +111,12 @@ public class UserServiceImpl implements UserService {
         userInfo.put("password", user.getPassword());
         userInfo.put("phoneNumber", user.getPhoneNumber());
         userInfo.put("idCard", user.getIdCard());
-        userInfo.put("genderName", user.getGender().getGenderName());
+        userInfo.put("genderName", user.getGender());
         userInfo.put("facebook", user.getFacebook());
         userInfo.put("email", user.getEmail());
         userInfo.put("address", user.getAddress());
-        userInfo.put("fullName", user.getFullName());
         userInfo.put("birthday", user.getBirthday());
         userInfo.put("startDay", formattedStartDay);
-        userInfo.put("fileUser", user.getFileUser());
         return userInfo;
     }
 
@@ -134,7 +127,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String deleteCustomerById(Long userId) {
-        userRepository.deleteCustomerId(userId);
+//        userRepository.deleteCustomerId(userId);
         return DELETE_CUSTOMER_SUCCESSFULLY;
     }
 
@@ -194,7 +187,7 @@ public class UserServiceImpl implements UserService {
     public String deleteEmployeeById(Long userId) {
         Users users = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException(USER_NOT_FOUND));
-        userRepository.deleteEmployeeById(users.getUserId());
+//        userRepository.deleteEmployeeById(users.getUserId());
         return EMPLOYEE_DELETED_SUCCESSFULLY;
     }
 
@@ -217,16 +210,9 @@ public class UserServiceImpl implements UserService {
     public List<Map<String, Object>> searchEmployeeByActive(int number) {
         return switch (number) {
             case 1 -> userRepository.getEmployeeList();
-            case 2 -> userRepository.searchByAllActive();
-            case 3 -> userRepository.searchByNoActive();
+//            case 2 -> userRepository.searchByAllActive();
+//            case 3 -> userRepository.searchByNoActive();
             default -> new ArrayList<>();
         };
     }
-
-    @Override
-    public List<Gender> getAllGender() {
-        return genderRepository.findAll();
-    }
-
-
 }

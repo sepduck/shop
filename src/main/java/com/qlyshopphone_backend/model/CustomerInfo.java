@@ -13,19 +13,19 @@ public class CustomerInfo {
     @Column(name = "customer_id")
     private Long customerId;
 
-    @Column(name = "customer_name", length = 50, nullable = false)
+    @Column(name = "customer_name")
     private String customerName;
 
-    @Column(name = "phone", length = 11, nullable = false)
+    @Column(name = "phone")
     private String phone;
 
-    @Column(name = "address", length = 250, nullable = false)
+    @Column(name = "address")
     private String address;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id")
     private Users user;
 
-    @Column(name = "delete_customer_info", columnDefinition = "boolean default false")
-    private boolean deleteCustomerInfo = false;
+    @Column(name = "delete_customer_info")
+    private boolean deleteCustomerInfo;
 }

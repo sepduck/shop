@@ -1,10 +1,11 @@
 package com.qlyshopphone_backend.controller.controller;
 import static com.qlyshopphone_backend.constant.PathConstant.*;
 
-import com.qlyshopphone_backend.dto.UsersDTO;
-import com.qlyshopphone_backend.model.Users;
+import com.qlyshopphone_backend.dto.request.AuthenticationRequest;
+import com.qlyshopphone_backend.dto.request.UserRequest;
+import com.qlyshopphone_backend.dto.response.LoginResponse;
+import com.qlyshopphone_backend.dto.response.UserResponse;
 import com.qlyshopphone_backend.service.AuthenticationService;
-import com.qlyshopphone_backend.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,15 +18,13 @@ public class LoginController {
     private final AuthenticationService authenticationService;
 
     @PostMapping(LOGIN)
-    public ResponseEntity<String> login(@RequestBody Users users) {
-        return ResponseEntity.ok(authenticationService.login(users));
+    public ResponseEntity<LoginResponse> login(@RequestBody AuthenticationRequest request) {
+        return ResponseEntity.ok(authenticationService.login(request));
     }
 
     @PostMapping(REGISTER)
-    public ResponseEntity<String> register(@ModelAttribute UsersDTO usersDTO) throws Exception {
-        usersDTO.setEmployee(false);
-        usersDTO.setDeleteUser(false);
-        usersDTO.setRoleId(3L);
-        return ResponseEntity.ok(authenticationService.register(usersDTO));
+    public ResponseEntity<UserResponse> register(@RequestBody UserRequest userRequest) throws Exception {
+        userRequest.setEmployee(false);
+        return ResponseEntity.ok(authenticationService.register(userRequest));
     }
 }

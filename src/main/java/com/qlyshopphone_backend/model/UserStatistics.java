@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "user_statistics")
 public class UserStatistics {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,13 +21,13 @@ public class UserStatistics {
     private Long userStatisticsId;
 
     @OneToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id")
     private Users user;
 
-    @Column(name = "total_amount_paid", precision = 15, scale = 2, nullable = false)
+    @Column(name = "total_amount_paid")
     private BigDecimal totalAmountPaid;
 
-    @Column(name = "total_item_bought", nullable = false)
+    @Column(name = "total_item_bought")
     private Long totalItemBought;
 
     public UserStatistics(Users user) {

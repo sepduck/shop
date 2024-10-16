@@ -1,7 +1,8 @@
 package com.qlyshopphone_backend.service;
 
-import com.qlyshopphone_backend.dto.*;
-import jakarta.servlet.http.HttpSession;
+import com.qlyshopphone_backend.dto.request.CartRequest;
+import com.qlyshopphone_backend.dto.request.CustomerInfoRequest;
+import com.qlyshopphone_backend.dto.request.PayForCartItemsRequest;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -10,7 +11,7 @@ import java.util.Map;
 public interface CartService {
     String addProductToCart(Long productId);
 
-    List<CartDTO> getUserCart();
+    List<CartRequest> getUserCart();
 
     String deleteCart(Long cartId);
 
@@ -22,11 +23,11 @@ public interface CartService {
 
     List<BigDecimal> calculateDailySalesForLast30Days();
 
-    List<CustomerInfoDTO> getCustomerInfo();
+    List<CustomerInfoRequest> getCustomerInfo();
 
-    String createCustomerInfo(CustomerInfoDTO customerInfoDTO);
+    String createCustomerInfo(CustomerInfoRequest customerInfoRequest);
 
-    String updateCustomerInfo(Long customerId, CustomerInfoDTO customerInfoDTO);
+    String updateCustomerInfo(Long customerId, CustomerInfoRequest customerInfoRequest);
 
     String deleteCustomerInfo(Long customerId);
 

@@ -1,10 +1,7 @@
 package com.qlyshopphone_backend.service;
 
-import com.qlyshopphone_backend.dto.PasswordChangeRequestDTO;
-import com.qlyshopphone_backend.dto.UsersDTO;
-import com.qlyshopphone_backend.model.Gender;
-import com.qlyshopphone_backend.model.Users;
-import org.springframework.http.ResponseEntity;
+import com.qlyshopphone_backend.dto.request.PasswordChangeRequest;
+import com.qlyshopphone_backend.dto.request.UserRequest;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -13,13 +10,13 @@ import java.util.Map;
 public interface UserService {
     List<Map<String, Object>> getAllUsers();
 
-    String updatePassword(PasswordChangeRequestDTO passwordChangeRequestDTO);
+    String updatePassword(PasswordChangeRequest passwordChangeRequest);
 
-    String updateUser(Long userId, UsersDTO usersDTO);
+    String updateUser(Long userId, UserRequest userRequest);
 
-    String updateUserInfo(UsersDTO usersDTO) throws Exception;
+    String updateUserInfo(UserRequest userRequest) throws Exception;
 
-    String updateUserInfoFile(UsersDTO usersDTO) throws Exception;
+    String updateUserInfoFile(UserRequest userRequest) throws Exception;
 
     String deleteUser(Long id);
 
@@ -57,5 +54,4 @@ public interface UserService {
 
     List<Map<String, Object>> searchEmployeeByActive(int number);
 
-    List<Gender> getAllGender();
 }

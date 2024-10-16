@@ -1,12 +1,11 @@
 package com.qlyshopphone_backend.service.impl;
-import static com.qlyshopphone_backend.constant.ErrorMessage.*;
 
-import com.qlyshopphone_backend.dto.UsersDTO;
-import com.qlyshopphone_backend.model.Gender;
-import com.qlyshopphone_backend.model.Roles;
+import com.qlyshopphone_backend.dto.request.AuthenticationRequest;
+import com.qlyshopphone_backend.dto.request.UserRequest;
+import com.qlyshopphone_backend.dto.response.LoginResponse;
+import com.qlyshopphone_backend.dto.response.UserResponse;
+import com.qlyshopphone_backend.mapper.BasicMapper;
 import com.qlyshopphone_backend.model.Users;
-import com.qlyshopphone_backend.repository.GenderRepository;
-import com.qlyshopphone_backend.repository.RoleRepository;
 import com.qlyshopphone_backend.repository.UserRepository;
 import com.qlyshopphone_backend.service.AuthenticationService;
 import com.qlyshopphone_backend.service.jwt.JwtProvider;
@@ -18,58 +17,53 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 public class AuthenticationServiceImpl implements AuthenticationService {
     private final JwtProvider provider;
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
-    private final GenderRepository genderRepository;
+    private final BasicMapper basicMapper;
 
     @Override
-    public String login(Users users) {
-           Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken
-                                   (users.getUsername(), users.getPassword()));
-           SecurityContextHolder.getContext().setAuthentication(authentication);
-        return provider.generateToken(authentication);
+    public LoginResponse login(AuthenticationRequest request) {
+        Authentication authentication = authenticationManager
+                .authenticate(new UsernamePasswordAuthenticationToken
+                        (request.getUsername(), request.getPassword()));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        Users user = userRepository.getUserByUsername(request.getUsername());
+        String token = provider.generateToken(authentication);
+        UserRequest userRequest = basicMapper.convertToRequest(user, UserRequest.class);
+        return new LoginResponse(userRequest, token);
     }
 
     @Override
-    public String register(UsersDTO usersDTO) throws Exception {
-        Gender gender = genderRepository.findById(usersDTO.getGenderId())
-                .orElseThrow(() -> new RuntimeException(GENDER_NOT_FOUND));
-        Users users = new Users();
-        users.setUsername(usersDTO.getUsername());
-        users.setPassword(passwordEncoder.encode(usersDTO.getPassword()));
-        users.setPhoneNumber(usersDTO.getPhoneNumber());
-        users.setStartDay(LocalDate.now());
-        users.setIdCard(usersDTO.getIdCard());
-        users.setGender(gender);
-        users.setFacebook(usersDTO.getFacebook());
-        users.setEmail(usersDTO.getEmail());
-        users.setAddress(usersDTO.getAddress());
-        users.setDelete_user(usersDTO.isDeleteUser());
-        users.setEmployee(usersDTO.isEmployee());
-        users.setFullName(usersDTO.getFullName());
-        users.setBirthday(usersDTO.getBirthday());
-        users.setFileUser(usersDTO.getFileUser().getBytes());
-
-        Roles roles = roleRepository.findById(usersDTO.getRoleId())
-                .orElseThrow(() -> new RuntimeException(ROLE_NOT_FOUND));
-        users.setRoles(List.of(roles));
+    public UserResponse register(UserRequest request) {
+        Users users = basicMapper.convertToRequest(request, Users.class);
+        users.setPassword(passwordEncoder.encode(request.getPassword()));
+        users.setStatus(Users.Status.ACTIVE);
+        users.setRole(Users.Role.CUSTOMER);
         userRepository.save(users);
-        return YOU_HAVE_REGISTER_SUCCESSFULLY;
-    }
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
+        );
+
+        // Thiết lập xác thực trong SecurityContext
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        // Tạo token
+        String token = provider.generateToken(authentication);
+
+        // Chuyển đổi từ Users sang UserResponse và thêm token
+        UserResponse response = basicMapper.convertToResponse(users, UserResponse.class);
+        response.setToken(token);  // Set token vào response
+
+        return response;    }
 
     @Override
     public Users getAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
-        return userRepository.findByUsername(username);
+        return userRepository.getUserByUsername(authentication.getName());
     }
 }

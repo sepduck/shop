@@ -1,25 +1,25 @@
 package com.qlyshopphone_backend.mapper;
 
-import com.qlyshopphone_backend.dto.NotificationDTO;
+import com.qlyshopphone_backend.dto.request.NotificationRequest;
 import com.qlyshopphone_backend.model.Notification;
 import com.qlyshopphone_backend.model.Users;
 
 public class NotificationMapper {
-    public static NotificationDTO toDto(Notification notification) {
-        NotificationDTO notificationDTO = new NotificationDTO();
-        notificationDTO.setNotificationId(notification.getNotificationId());
-        notificationDTO.setUserId(notification.getUser().getUserId());
-        notificationDTO.setMessage(notification.getMessage());
-        notificationDTO.setTimestamp(notification.getTimestamp());
-        return notificationDTO;
+    public static NotificationRequest toDto(Notification notification) {
+        NotificationRequest notificationRequest = new NotificationRequest();
+        notificationRequest.setNotificationId(notification.getNotificationId());
+        notificationRequest.setUserId(notification.getUser().getUserId());
+        notificationRequest.setMessage(notification.getMessage());
+        notificationRequest.setTimestamp(notification.getTimestamp());
+        return notificationRequest;
     }
 
-    public static Notification toEntity(NotificationDTO notificationDTO, Users user) {
+    public static Notification toEntity(NotificationRequest notificationRequest, Users user) {
         Notification notification = new Notification();
-        notification.setNotificationId(notificationDTO.getNotificationId());
+        notification.setNotificationId(notificationRequest.getNotificationId());
         notification.setUser(user);
-        notification.setMessage(notificationDTO.getMessage());
-        notification.setTimestamp(notificationDTO.getTimestamp());
+        notification.setMessage(notificationRequest.getMessage());
+        notification.setTimestamp(notificationRequest.getTimestamp());
         return notification;
     }
 }

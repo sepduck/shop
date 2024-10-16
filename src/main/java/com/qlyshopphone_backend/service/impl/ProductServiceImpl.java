@@ -1,7 +1,7 @@
 package com.qlyshopphone_backend.service.impl;
 import static com.qlyshopphone_backend.constant.ErrorMessage.*;
 
-import com.qlyshopphone_backend.dto.*;
+import com.qlyshopphone_backend.dto.request.*;
 import com.qlyshopphone_backend.exceptions.DataNotFoundException;
 import com.qlyshopphone_backend.model.*;
 import com.qlyshopphone_backend.repository.*;
@@ -36,10 +36,10 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public String saveProduct(ProductDTO productDTO) throws Exception {
+    public String saveProduct(ProductRequest productRequest) throws Exception {
         Users users = authenticationService.getAuthenticatedUser();
         Product product = new Product();
-        updateProductProperties(product, productDTO);
+        updateProductProperties(product, productRequest);
 
         sendProductNotification(users, "successfully added", product.getProductName(), null);
         productRepository.save(product);
@@ -47,51 +47,51 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public String updateProduct(Long productId, ProductDTO productDTO) throws Exception {
+    public String updateProduct(Long productId, ProductRequest productRequest) throws Exception {
         Users users = authenticationService.getAuthenticatedUser();
         Product existingProduct = productRepository.findById(productId)
                 .orElseThrow(() -> new DataNotFoundException(PRODUCT_NOT_FOUND));
 
-        updateProductProperties(existingProduct, productDTO);
+        updateProductProperties(existingProduct, productRequest);
 
-        sendProductNotification(users, "edited", productDTO.getProductName(), existingProduct.getProductName());
+        sendProductNotification(users, "edited", productRequest.getProductName(), existingProduct.getProductName());
         productRepository.save(existingProduct);
         return PRODUCT_UPDATED_SUCCESSFULLY;
     }
 
 
-    private void updateProductProperties(Product product, ProductDTO productDTO) throws IOException {
-        GroupProduct existingGroupProduct = groupProductRepository.findById(productDTO.getGroupProductId())
+    private void updateProductProperties(Product product, ProductRequest productRequest) throws IOException {
+        GroupProduct existingGroupProduct = groupProductRepository.findById(productRequest.getGroupProductId())
                 .orElseThrow(() -> new RuntimeException(GROUP_PRODUCT_NOT_FOUND));
-        Trademark existingTrademark = trademarkRepository.findById(productDTO.getTrademarkId())
+        Trademark existingTrademark = trademarkRepository.findById(productRequest.getTrademarkId())
                 .orElseThrow(() -> new RuntimeException(TRADEMARK_NOT_FOUND));
-        Location existingLocation = locationRepository.findById(productDTO.getLocationId())
+        Location existingLocation = locationRepository.findById(productRequest.getLocationId())
                 .orElseThrow(() -> new RuntimeException(LOCATION_NOT_FOUND));
-        Properties existingProperties = propertiesRepository.findById(productDTO.getPropertiesId())
+        Properties existingProperties = propertiesRepository.findById(productRequest.getPropertiesId())
                 .orElseThrow(() -> new RuntimeException(PROPERTIES_NOT_FOUND));
-        Unit existingUnit = unitRepository.findById(productDTO.getUnitId())
+        Unit existingUnit = unitRepository.findById(productRequest.getUnitId())
                 .orElseThrow(() -> new RuntimeException(UNIT_NOT_FOUND));
-        Category existingCategory = categoryRepository.findById(productDTO.getCategoryId())
+        Category existingCategory = categoryRepository.findById(productRequest.getCategoryId())
                 .orElseThrow(() -> new RuntimeException(CATEGORY_NOT_FOUND));
 
-        product.setProductName(productDTO.getProductName());
-        product.setPrice(productDTO.getPrice());
-        product.setCapitalPrice(productDTO.getCapitalPrice());
-        product.setInventory(productDTO.getInventory());
+        product.setProductName(productRequest.getProductName());
+        product.setPrice(productRequest.getPrice());
+        product.setCapitalPrice(productRequest.getCapitalPrice());
+        product.setInventory(productRequest.getInventory());
         product.setGroupProduct(existingGroupProduct);
         product.setLocation(existingLocation);
         product.setTrademark(existingTrademark);
-        product.setWeight(productDTO.getWeight());
+        product.setWeight(productRequest.getWeight());
         product.setProperties(existingProperties);
         product.setUnit(existingUnit);
-        product.setDeleteProduct(productDTO.isDeleteProduct());
+        product.setDeleteProduct(productRequest.isDeleteProduct());
         product.setCategory(existingCategory);
-        product.setDirectSales(productDTO.isDirectSales());
-        product.setFile(productDTO.getFile().getBytes());
+        product.setDirectSales(productRequest.isDirectSales());
+        product.setFile(productRequest.getFile().getBytes());
     }
 
     private void sendProductNotification(Users users, String action, String productName, String newProductName) {
-        String message = String.format("%s have %s product %s%s", users.getFullName(), action, productName,
+        String message = String.format("%s have %s product %s%s", users.getFirstName(), action, productName,
                 newProductName != null ? " to " + newProductName : "");
         notificationService.saveNotification(message, users);
     }
@@ -102,7 +102,7 @@ public class ProductServiceImpl implements ProductService {
         Product product = productRepository.findById(productId)
                         .orElseThrow(() -> new RuntimeException(PRODUCT_NOT_FOUND));
         productRepository.deleteProductById(product.getProductId());
-        String message = users.getFullName() + " have successfully deleted product " + product.getProductName();
+        String message = users.getFirstName() + " have successfully deleted product " + product.getProductName();
         notificationService.saveNotification(message, users);
         return PRODUCT_DELETED_SUCCESSFULLY;
     }
@@ -176,18 +176,18 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public String saveCategory(CategoryDTO categoryDTO) {
+    public String saveCategory(CategoryRequest categoryRequest) {
             Category category = new Category();
-            category.setCategoryName(categoryDTO.getCategoryName());
+            category.setCategoryName(categoryRequest.getCategoryName());
             categoryRepository.save(category);
             return CATEGORY_SAVED_SUCCESSFULLY;
     }
 
     @Override
-    public String updateCategory(CategoryDTO categoryDTO, Long categoryId) {
+    public String updateCategory(CategoryRequest categoryRequest, Long categoryId) {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new RuntimeException(CATEGORY_NOT_FOUND));
-        category.setCategoryName(categoryDTO.getCategoryName());
+        category.setCategoryName(categoryRequest.getCategoryName());
         categoryRepository.save(category);
         return CATEGORY_UPDATED_SUCCESSFULLY;
     }
@@ -207,18 +207,18 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public String saveGroupProduct(GroupProductDTO groupProductDTO) {
+    public String saveGroupProduct(GroupProductRequest groupProductRequest) {
         GroupProduct groupProduct = new GroupProduct();
-        groupProduct.setGroupProductName(groupProductDTO.getGroupProductName());
+        groupProduct.setGroupProductName(groupProductRequest.getGroupProductName());
         groupProductRepository.save(groupProduct);
         return GROUP_PRODUCT_SAVED_SUCCESSFULLY;
     }
 
     @Override
-    public String updateGroupProduct(GroupProductDTO groupProductDTO, Long groupProductId) {
+    public String updateGroupProduct(GroupProductRequest groupProductRequest, Long groupProductId) {
         GroupProduct groupProduct = groupProductRepository.findById(groupProductId)
                 .orElseThrow(() -> new RuntimeException(GROUP_PRODUCT_NOT_FOUND));
-        groupProduct.setGroupProductName(groupProductDTO.getGroupProductName());
+        groupProduct.setGroupProductName(groupProductRequest.getGroupProductName());
         groupProductRepository.save(groupProduct);
         return GROUP_PRODUCT_UPDATED_SUCCESSFULLY;
     }
@@ -237,18 +237,18 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public String saveLocation(LocationDTO locationDTO) {
+    public String saveLocation(LocationRequest locationRequest) {
         Location location = new Location();
-        location.setLocationName(locationDTO.getLocationName());
+        location.setLocationName(locationRequest.getLocationName());
         locationRepository.save(location);
         return LOCATION_SAVED_SUCCESSFULLY;
     }
 
     @Override
-    public String updateLocation(LocationDTO locationDTO, Long locationId) {
+    public String updateLocation(LocationRequest locationRequest, Long locationId) {
         Location location = locationRepository.findById(locationId)
                 .orElseThrow(() -> new RuntimeException(LOCATION_NOT_FOUND));
-        location.setLocationName(locationDTO.getLocationName());
+        location.setLocationName(locationRequest.getLocationName());
         locationRepository.save(location);
         return LOCATION_UPDATED_SUCCESSFULLY;
     }
@@ -267,18 +267,18 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public String saveProperties(PropertiesDTO propertiesDTO) {
+    public String saveProperties(PropertiesRequest propertiesRequest) {
         Properties properties = new Properties();
-        properties.setPropertiesName(propertiesDTO.getPropertiesName());
+        properties.setPropertiesName(propertiesRequest.getPropertiesName());
         propertiesRepository.save(properties);
         return PROPERTIES_SAVED_SUCCESSFULLY;
     }
 
     @Override
-    public String updateProperties(PropertiesDTO propertiesDTO, Long propertiesId) {
+    public String updateProperties(PropertiesRequest propertiesRequest, Long propertiesId) {
         Properties properties = propertiesRepository.findById(propertiesId)
                 .orElseThrow(() -> new RuntimeException(PROPERTIES_NOT_FOUND));
-        properties.setPropertiesName(propertiesDTO.getPropertiesName());
+        properties.setPropertiesName(propertiesRequest.getPropertiesName());
         propertiesRepository.save(properties);
         return PROPERTIES_UPDATED_SUCCESSFULLY;
     }
@@ -297,18 +297,18 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public String saveTrademark(TrademarkDTO trademarkDTO) {
+    public String saveTrademark(TrademarkRequest trademarkRequest) {
         Trademark trademark = new Trademark();
-        trademark.setTrademarkName(trademarkDTO.getTrademarkName());
+        trademark.setTrademarkName(trademarkRequest.getTrademarkName());
         trademarkRepository.save(trademark);
         return TRADEMARK_SAVED_SUCCESSFULLY;
     }
 
     @Override
-    public String updateTrademark(TrademarkDTO trademarkDTO, Long trademarkId) {
+    public String updateTrademark(TrademarkRequest trademarkRequest, Long trademarkId) {
         Trademark trademark = trademarkRepository.findById(trademarkId)
                 .orElseThrow(() -> new RuntimeException(TRADEMARK_NOT_FOUND));
-        trademark.setTrademarkName(trademarkDTO.getTrademarkName());
+        trademark.setTrademarkName(trademarkRequest.getTrademarkName());
         trademarkRepository.save(trademark);
         return TRADEMARK_UPDATED_SUCCESSFULLY;
     }
@@ -327,18 +327,18 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public String saveUnit(UnitDTO unitDTO) {
+    public String saveUnit(UnitRequest unitRequest) {
         Unit unit = new Unit();
-        unit.setUnitName(unitDTO.getUnitName());
+        unit.setUnitName(unitRequest.getUnitName());
         unitRepository.save(unit);
         return UNIT_SAVED_SUCCESSFULLY;
     }
 
     @Override
-    public String updateUnit(UnitDTO unitDTO, Long unitId) {
+    public String updateUnit(UnitRequest unitRequest, Long unitId) {
         Unit unit = unitRepository.findById(unitId)
                 .orElseThrow(() -> new RuntimeException(UNIT_NOT_FOUND));
-        unit.setUnitName(unitDTO.getUnitName());
+        unit.setUnitName(unitRequest.getUnitName());
         unitRepository.save(unit);
         return UNIT_UPDATED_SUCCESSFULLY;
     }

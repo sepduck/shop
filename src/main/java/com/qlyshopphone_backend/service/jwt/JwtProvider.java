@@ -1,34 +1,54 @@
 package com.qlyshopphone_backend.service.jwt;
 
-import com.qlyshopphone_backend.model.UserSecurityDetails;
+import com.qlyshopphone_backend.model.Users;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 @Component
+@RequiredArgsConstructor
 public class JwtProvider {
-    private final String privateKey = "ducnhung";
+
+    @Value("${jwt.JWT_PRIVATE_KEY_BASE64}")
+    private String privateKeyString;
+
+    @Value("${jwt.expiration}")
+    private long validityInMilliseconds;
 
     public String generateToken(Authentication authentication) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("roles", authentication.getAuthorities());
-        UserSecurityDetails userSecurityDetails = (UserSecurityDetails) authentication.getPrincipal();
-        return Jwts.builder().setId("ducnhung")
-                .setExpiration(new Date(new Date().getTime() + 1000000))
-                .setSubject(userSecurityDetails.getUsername())
-                .addClaims(map)
-                .signWith(SignatureAlgorithm.HS512, privateKey)
+        Map<String, Object> claims = new HashMap<>();
+        Users user = (Users) authentication.getPrincipal();
+        claims.put("roles", authentication.getAuthorities());
+        claims.put("email", user.getEmail());
+        claims.put("firstName", user.getFirstName());
+        claims.put("lastName", user.getLastName());
+
+        SecretKey secretKey = Keys.hmacShaKeyFor(privateKeyString.getBytes());
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(user.getUsername())
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + validityInMilliseconds))
+                .signWith(secretKey, SignatureAlgorithm.HS512)
                 .compact();
     }
 
     public Boolean validateToken(String token) {
         try {
-            Jwts.parser().setSigningKey(privateKey).parseClaimsJws(token);
+            Jwts.parserBuilder()
+                    .setSigningKey(Keys.hmacShaKeyFor(privateKeyString.getBytes()))
+                    .build()
+                    .parseClaimsJws(token);
             return true;
         } catch (Exception e) {
             return false;
@@ -36,6 +56,11 @@ public class JwtProvider {
     }
 
     public String getUsernameFromToken(String token) {
-        return Jwts.parser().setSigningKey(privateKey).parseClaimsJws(token).getBody().getSubject();
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(Keys.hmacShaKeyFor(privateKeyString.getBytes()))
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        return claims.getSubject();
     }
 }

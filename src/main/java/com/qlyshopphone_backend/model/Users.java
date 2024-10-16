@@ -1,76 +1,72 @@
 package com.qlyshopphone_backend.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.format.annotation.DateTimeFormat;
+import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Collection;
 import java.util.List;
 
 @Getter
 @Setter
 @Entity
-public class Users {
+public class Users implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Long userId;
 
-    @Column(name = "username", unique = true, length = 50, nullable = false)
+    @Column(name = "username", unique = true)
     private String username;
 
-    @Column(name = "password", length = 200, nullable = false)
+    @Column(name = "password")
     private String password;
 
-    @Column(name = "phone_number", length = 11, nullable = false)
+    @Column(name = "phone_number")
     private String phoneNumber;
 
-    @Column(name = "start_day", nullable = false)
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-    @JsonFormat(pattern = "dd-MM-yyyy")
+    @Column(name = "start_day")
+    @CreationTimestamp
     private LocalDate startDay;
 
-    @Column(name = "id_card", length = 12, nullable = false)
+    @Column(name = "id_card")
     private String idCard;
 
-    @ManyToOne
-    @JoinColumn(name = "gender_id", nullable = false)
+    @Column(name = "gender")
+    @Enumerated(EnumType.STRING)
     private Gender gender;
 
-    @Column(name = "facebook", length = 250)
+    @Column(name = "facebook")
     private String facebook;
 
-    @Column(name = "email", length = 100, nullable = false)
+    @Column(name = "email")
     private String email;
 
-    @Column(name = "address", length = 250, nullable = false)
+    @Column(name = "address")
     private String address;
 
-    @Column(name = "full_name", length = 50, nullable = false)
-    private String fullName;
+    @Column(name = "first_name")
+    private String firstName;
 
-    @Column(name = "delete_user", columnDefinition = "boolean default false")
-    private boolean delete_user = false;
+    @Column(name = "last_name")
+    private String lastName;
 
-    @Column(name = "employee", columnDefinition = "boolean default false")
-    private boolean employee = false;
+    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+    private Status status;
 
-    @Column(name = "birthday", nullable = false)
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-    @JsonFormat(pattern = "dd-MM-yyyy")
-    @Temporal(TemporalType.DATE)
-    private Date birthday;
+    @Column(name = "birthday")
+    private LocalDate birthday;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JsonIgnoreProperties("users")
-    @JoinTable(name = "users_roles", joinColumns = {@JoinColumn(name = "user_id", nullable = false)},
-            inverseJoinColumns = {@JoinColumn(name = "role_id", nullable = false)})
-    private List<Roles> roles;
+    @Column(name = "role")
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Cart> cart = new ArrayList<>();
@@ -78,7 +74,20 @@ public class Users {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CustomerInfo> customerInfo = new ArrayList<>();
 
-    @Lob
-    @Column(name = "file_user", columnDefinition = "MEDIUMBLOB")
-    private byte[] fileUser;
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority(role.name()));
+    }
+
+    public enum Gender {
+        MALE, FEMALE, OTHER
+    }
+
+    public enum Role {
+        CUSTOMER, EMPLOYEE, ADMIN
+    }
+
+    public enum Status {
+        ACTIVE, INACTIVE, LOCKED
+    }
 }

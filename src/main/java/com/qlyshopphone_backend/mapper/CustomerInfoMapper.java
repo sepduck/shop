@@ -1,27 +1,27 @@
 package com.qlyshopphone_backend.mapper;
 
-import com.qlyshopphone_backend.dto.CustomerInfoDTO;
+import com.qlyshopphone_backend.dto.request.CustomerInfoRequest;
 import com.qlyshopphone_backend.model.CustomerInfo;
 import com.qlyshopphone_backend.model.Users;
 
 public class CustomerInfoMapper {
-    public static CustomerInfoDTO infoDTO(CustomerInfo customerInfo) {
-        CustomerInfoDTO customerInfoDTO = new CustomerInfoDTO();
-        customerInfoDTO.setCustomerId(customerInfo.getCustomerId());
-        customerInfoDTO.setCustomerName(customerInfo.getCustomerName());
-        customerInfoDTO.setPhone(customerInfo.getPhone());
-        customerInfoDTO.setAddress(customerInfo.getAddress());
-        customerInfoDTO.setDeleteCustomerInfo(customerInfo.isDeleteCustomerInfo());
-        customerInfoDTO.setUserId(customerInfoDTO.getUserId());
-        return customerInfoDTO;
+    public static CustomerInfoRequest infoDTO(CustomerInfo customerInfo) {
+        CustomerInfoRequest customerInfoRequest = new CustomerInfoRequest();
+        customerInfoRequest.setCustomerId(customerInfo.getCustomerId());
+        customerInfoRequest.setCustomerName(customerInfo.getCustomerName());
+        customerInfoRequest.setPhone(customerInfo.getPhone());
+        customerInfoRequest.setAddress(customerInfo.getAddress());
+        customerInfoRequest.setDeleteCustomerInfo(customerInfo.isDeleteCustomerInfo());
+        customerInfoRequest.setUserId(customerInfoRequest.getUserId());
+        return customerInfoRequest;
     }
-    public static CustomerInfo infoEntity(CustomerInfoDTO customerInfoDTO, Users user) {
+    public static CustomerInfo infoEntity(CustomerInfoRequest customerInfoRequest, Users user) {
         CustomerInfo customerInfo = new CustomerInfo();
-        customerInfo.setCustomerId(customerInfoDTO.getCustomerId());
-        customerInfo.setCustomerName(customerInfoDTO.getCustomerName());
-        customerInfo.setPhone(customerInfoDTO.getPhone());
-        customerInfo.setAddress(customerInfoDTO.getAddress());
-        customerInfo.setDeleteCustomerInfo(customerInfoDTO.isDeleteCustomerInfo());
+        customerInfo.setCustomerId(customerInfoRequest.getCustomerId());
+        customerInfo.setCustomerName(customerInfoRequest.getCustomerName());
+        customerInfo.setPhone(customerInfoRequest.getPhone());
+        customerInfo.setAddress(customerInfoRequest.getAddress());
+        customerInfo.setDeleteCustomerInfo(customerInfoRequest.isDeleteCustomerInfo());
         customerInfo.setUser(user);
         return customerInfo;
     }

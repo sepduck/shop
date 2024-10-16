@@ -13,6 +13,6 @@ public class Location {
     @Column(name = "location_id")
     private Long locationId;
 
-    @Column(name = "location_name", length = 50, nullable = false)
+    @Column(name = "location_name")
     private String locationName;
 }

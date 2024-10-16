@@ -1,12 +1,15 @@
 package com.qlyshopphone_backend.service;
 
-import com.qlyshopphone_backend.dto.UsersDTO;
+import com.qlyshopphone_backend.dto.request.AuthenticationRequest;
+import com.qlyshopphone_backend.dto.request.UserRequest;
+import com.qlyshopphone_backend.dto.response.LoginResponse;
+import com.qlyshopphone_backend.dto.response.UserResponse;
 import com.qlyshopphone_backend.model.Users;
 
 public interface AuthenticationService {
-    String login(Users users);
+    LoginResponse login(AuthenticationRequest request);
 
-    String register(UsersDTO usersDTO) throws Exception;
+    UserResponse register(UserRequest userRequest) throws Exception;
 
     Users getAuthenticatedUser();
 }

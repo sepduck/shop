@@ -15,51 +15,52 @@ public class Product {
     @Column(name = "product_id")
     private Long productId;
 
-    @Column(name = "product_name", length = 50, nullable = false)
+    @Column(name = "product_name")
     private String productName;
 
-    @Column(name = "price", precision = 15, scale = 2, nullable = false)
+    @Column(name = "price")
     private BigDecimal price;
 
-    @Column(name = "capital_price", precision = 15, scale = 2, nullable = false)
+    @Column(name = "capital_price")
     private BigDecimal capitalPrice;
 
-    @Column(name = "inventory", nullable = false)
+    @Column(name = "inventory")
     private Long inventory;
+
     @ManyToOne
-    @JoinColumn(name = "group_product_id", nullable = false)
+    @JoinColumn(name = "group_product_id")
     private GroupProduct groupProduct;
 
     @ManyToOne
-    @JoinColumn(name = "trademark_id", nullable = false)
+    @JoinColumn(name = "trademark_id")
     private Trademark trademark;
 
     @ManyToOne
-    @JoinColumn(name = "location_id", nullable = false)
+    @JoinColumn(name = "location_id")
     private Location location;
 
-    @Column(name = "weight", precision = 15, scale = 2, nullable = false)
+    @Column(name = "weight")
     private BigDecimal weight;
 
-    @Column(name = "delete_product", columnDefinition = "boolean default false")
-    private boolean deleteProduct = false;
+    @Column(name = "delete_product")
+    private boolean deleteProduct;
 
     @Column(name = "direct_sales")
     private boolean directSales;
 
     @ManyToOne
-    @JoinColumn(name = "properties_id", nullable = false)
+    @JoinColumn(name = "properties_id")
     private Properties properties;
 
     @ManyToOne
-    @JoinColumn(name = "category_id", nullable = false)
+    @JoinColumn(name = "category_id")
     private Category category;
 
     @ManyToOne
-    @JoinColumn(name = "unit_id", nullable = false)
+    @JoinColumn(name = "unit_id")
     private Unit unit;
 
     @Lob
-    @Column(name = "file", columnDefinition = "MEDIUMBLOB")
+    @Column(name = "file")
     private byte[] file;
 }

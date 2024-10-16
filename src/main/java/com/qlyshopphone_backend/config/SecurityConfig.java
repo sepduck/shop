@@ -2,7 +2,6 @@ package com.qlyshopphone_backend.config;
 
 import static com.qlyshopphone_backend.constant.PathConstant.*;
 
-import com.qlyshopphone_backend.model.Roles;
 import com.qlyshopphone_backend.service.impl.UserSecurityDetailService;
 import com.qlyshopphone_backend.service.jwt.JwtEntryPoint;
 import com.qlyshopphone_backend.service.jwt.JwtFilter;

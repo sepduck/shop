@@ -7,39 +7,39 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-
+@Table(name = "supplier")
 public class Supplier {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "supplier_id")
     private Long supplierId;
 
-    @Column(name = "supplier_name", length = 50, nullable = false)
+    @Column(name = "supplier_name")
     private String supplierName;
 
-    @Column(name = "phone_number", length = 11, nullable = false)
+    @Column(name = "phone_number")
     private String phoneNumber;
 
-    @Column(name = "address", length = 250, nullable = false)
+    @Column(name = "address")
     private String address;
 
-    @Column(name = "email", length = 100, nullable = false)
+    @Column(name = "email")
     private String email;
 
-    @Column(name = "company", length = 250, nullable = false)
+    @Column(name = "company")
     private String company;
 
-    @Column(name = "tax_code", length = 10, nullable = false)
+    @Column(name = "tax_code")
     private String taxCode;
 
-    @Column(name = "delete_supplier", columnDefinition = "boolean default false")
-    private boolean deleteSupplier = false;
+    @Column(name = "delete_supplier")
+    private boolean deleteSupplier;
 
     @ManyToOne
-    @JoinColumn(name = "group_supplier_id", nullable = false)
+    @JoinColumn(name = "group_supplier_id")
     private GroupSupplier groupSupplier;
 
     @ManyToOne
-    @JoinColumn(name = "product_id", nullable = false)
+    @JoinColumn(name = "product_id")
     private Product product;
 }

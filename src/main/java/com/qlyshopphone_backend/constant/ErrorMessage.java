@@ -22,16 +22,12 @@ public class ErrorMessage {
 
     public static final String CART_SOLD_SUCCESSFULLY = "Cart sold successfully";
     public static final String CART_NOT_FOUND = "Cart not found";
-    public static final String NO_ITEMS_IN_CART = "No items in cart";
 
     public static final String USER_NOT_FOUND = "User not found";
-    public static final String USER_SAVED_SUCCESSFULLY = "User saved successfully";
     public static final String USER_UPDATED_SUCCESSFULLY = "User updated successfully";
     public static final String USER_DELETED_SUCCESSFULLY = "User deleted successfully";
     public static final String GENDER_NOT_FOUND = "Gender not found";
     public static final String ROLE_NOT_FOUND = "Role not found";
-    public static final String INTRODUCE_LOCAL_VARIABLE = "Introduce local variable";
-    public static final String SUCCESSFULLY_ADDED_TO_CART = "Successfully added to cart";
     public static final String SUCCESSFULLY_DELETED_THE_PRODUCT_FROM_THE_CART = "Successfully deleted the product from the cart";
     public static final String ACCOUNT_DOES_NOT_EXIST = "Account does not exist";
     public static final String OLD_PASSWORD_DOSE_NOT_MATCH = "New password does not match";
