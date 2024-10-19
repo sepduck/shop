@@ -1,20 +1,31 @@
 package com.qlyshopphone_backend.service.impl;
+
 import static com.qlyshopphone_backend.constant.ErrorMessage.*;
 
 import com.qlyshopphone_backend.dto.request.*;
+import com.qlyshopphone_backend.dto.response.ProductAttributeResponse;
+import com.qlyshopphone_backend.dto.response.ProductResponse;
+import com.qlyshopphone_backend.exceptions.ApiRequestException;
 import com.qlyshopphone_backend.exceptions.DataNotFoundException;
+import com.qlyshopphone_backend.mapper.BasicMapper;
 import com.qlyshopphone_backend.model.*;
+import com.qlyshopphone_backend.model.enums.Status;
 import com.qlyshopphone_backend.repository.*;
 import com.qlyshopphone_backend.service.AuthenticationService;
 import com.qlyshopphone_backend.service.NotificationService;
 import com.qlyshopphone_backend.service.ProductService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 
 @Service
@@ -29,65 +40,65 @@ public class ProductServiceImpl implements ProductService {
     private final CategoryRepository categoryRepository;
     private final NotificationService notificationService;
     private final AuthenticationService authenticationService;
+    private final BasicMapper basicMapper;
 
     @Override
-    public List<Map<String, Object>> getAllProducts() {
-        return productRepository.getAllProducts();
+    public List<ProductResponse> getAllProducts() {
+        return productRepository.getAllProducts(Status.ACTIVE);
     }
 
     @Override
     public String saveProduct(ProductRequest productRequest) throws Exception {
         Users users = authenticationService.getAuthenticatedUser();
-        Product product = new Product();
-        updateProductProperties(product, productRequest);
+        Products products = new Products();
+        updateProductProperties(products, productRequest);
 
-        sendProductNotification(users, "successfully added", product.getProductName(), null);
-        productRepository.save(product);
+        sendProductNotification(users, "successfully added", products.getName(), null);
+        productRepository.save(products);
         return PRODUCT_CREATED_SUCCESSFULLY;
     }
 
     @Override
     public String updateProduct(Long productId, ProductRequest productRequest) throws Exception {
         Users users = authenticationService.getAuthenticatedUser();
-        Product existingProduct = productRepository.findById(productId)
+        Products existingProducts = productRepository.findById(productId)
                 .orElseThrow(() -> new DataNotFoundException(PRODUCT_NOT_FOUND));
 
-        updateProductProperties(existingProduct, productRequest);
+        updateProductProperties(existingProducts, productRequest);
 
-        sendProductNotification(users, "edited", productRequest.getProductName(), existingProduct.getProductName());
-        productRepository.save(existingProduct);
+        sendProductNotification(users, "edited", productRequest.getName(), existingProducts.getName());
+        productRepository.save(existingProducts);
         return PRODUCT_UPDATED_SUCCESSFULLY;
     }
 
 
-    private void updateProductProperties(Product product, ProductRequest productRequest) throws IOException {
-        GroupProduct existingGroupProduct = groupProductRepository.findById(productRequest.getGroupProductId())
+    private void updateProductProperties(Products products, ProductRequest productRequest) throws IOException {
+        GroupProducts existingGroupProducts = groupProductRepository.findById(productRequest.getGroupProductId())
                 .orElseThrow(() -> new RuntimeException(GROUP_PRODUCT_NOT_FOUND));
-        Trademark existingTrademark = trademarkRepository.findById(productRequest.getTrademarkId())
+        Trademarks existingTrademarks = trademarkRepository.findById(productRequest.getTrademarkId())
                 .orElseThrow(() -> new RuntimeException(TRADEMARK_NOT_FOUND));
-        Location existingLocation = locationRepository.findById(productRequest.getLocationId())
+        Locations existingLocations = locationRepository.findById(productRequest.getLocationId())
                 .orElseThrow(() -> new RuntimeException(LOCATION_NOT_FOUND));
         Properties existingProperties = propertiesRepository.findById(productRequest.getPropertiesId())
                 .orElseThrow(() -> new RuntimeException(PROPERTIES_NOT_FOUND));
-        Unit existingUnit = unitRepository.findById(productRequest.getUnitId())
+        Units existingUnits = unitRepository.findById(productRequest.getUnitId())
                 .orElseThrow(() -> new RuntimeException(UNIT_NOT_FOUND));
-        Category existingCategory = categoryRepository.findById(productRequest.getCategoryId())
+        Categories existingCategories = categoryRepository.findById(productRequest.getCategoryId())
                 .orElseThrow(() -> new RuntimeException(CATEGORY_NOT_FOUND));
 
-        product.setProductName(productRequest.getProductName());
-        product.setPrice(productRequest.getPrice());
-        product.setCapitalPrice(productRequest.getCapitalPrice());
-        product.setInventory(productRequest.getInventory());
-        product.setGroupProduct(existingGroupProduct);
-        product.setLocation(existingLocation);
-        product.setTrademark(existingTrademark);
-        product.setWeight(productRequest.getWeight());
-        product.setProperties(existingProperties);
-        product.setUnit(existingUnit);
-        product.setDeleteProduct(productRequest.isDeleteProduct());
-        product.setCategory(existingCategory);
-        product.setDirectSales(productRequest.isDirectSales());
-        product.setFile(productRequest.getFile().getBytes());
+        products.setName(productRequest.getName());
+        products.setPrice(productRequest.getPrice());
+        products.setCapitalPrice(productRequest.getCapitalPrice());
+        products.setInventory(productRequest.getInventory());
+        products.setGroupProducts(existingGroupProducts);
+        products.setLocations(existingLocations);
+        products.setTrademarks(existingTrademarks);
+        products.setWeight(productRequest.getWeight());
+        products.setProperties(existingProperties);
+        products.setUnits(existingUnits);
+        products.setStatus(Status.ACTIVE);
+        products.setCategories(existingCategories);
+        products.setDirectSales(productRequest.isDirectSales());
     }
 
     private void sendProductNotification(Users users, String action, String productName, String newProductName) {
@@ -99,10 +110,10 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public String deleteProduct(Long productId) {
         Users users = authenticationService.getAuthenticatedUser();
-        Product product = productRepository.findById(productId)
-                        .orElseThrow(() -> new RuntimeException(PRODUCT_NOT_FOUND));
-        productRepository.deleteProductById(product.getProductId());
-        String message = users.getFirstName() + " have successfully deleted product " + product.getProductName();
+        Products products = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException(PRODUCT_NOT_FOUND));
+        productRepository.deleteProductById(products.getId());
+        String message = users.getFirstName() + " have successfully deleted product " + products.getName();
         notificationService.saveNotification(message, users);
         return PRODUCT_DELETED_SUCCESSFULLY;
     }
@@ -119,13 +130,13 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<Map<String, Object>> searchGroupProductId(Long groupProductId) {
-        return productRepository.searchGroupProductId(groupProductId);
+        return productRepository.searchAllByProductId(groupProductId);
     }
 
     @Override
     public List<Map<String, Object>> searchInventory(int number) {
         return switch (number) {
-            case 1 -> productRepository.getAllProducts();
+//            case 1 -> productRepository.getAllProducts(Status.ACTIVE);
             case 2 -> productRepository.searchBelowInventoryThreshold();
             case 3 -> productRepository.searchExceedingInventoryLimit();
             case 4 -> productRepository.searchStockAvailable();
@@ -139,7 +150,7 @@ public class ProductServiceImpl implements ProductService {
         return switch (number) {
             case 1 -> productRepository.searchActive();
             case 2 -> productRepository.searchNoActive();
-            case 3 -> productRepository.getAllProducts();
+//            case 3 -> productRepository.getAllProducts();
             default -> new ArrayList<>();
         };
     }
@@ -147,7 +158,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<Map<String, Object>> searchDirectSales(int number) {
         return switch (number) {
-            case 1 -> productRepository.getAllProducts();
+//            case 1 -> productRepository.getAllProducts();
             case 2 -> productRepository.searchDirectSales();
             case 3 -> productRepository.searchNoDirectSales();
             default -> new ArrayList<>();
@@ -156,13 +167,13 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<Map<String, Object>> searchByLocationId(Long locationId) {
-        return productRepository.searchByLocationId(locationId);
+        return productRepository.searchAllByProductId(locationId);
     }
 
     @Override
     public List<Map<String, Object>> searchCategory(int number) {
         return switch (number) {
-            case 1 -> productRepository.getAllProducts();
+//            case 1 -> productRepository.getAllProducts();
             case 2 -> productRepository.searchCategory1();
             case 3 -> productRepository.searchCategory2();
             case 4 -> productRepository.searchCategory3();
@@ -170,184 +181,243 @@ public class ProductServiceImpl implements ProductService {
         };
     }
 
+
     @Override
-    public List<Category> getAllCategory() {
-        return categoryRepository.findAll();
+    public List<ProductAttributeResponse> getAllGroupProduct() {
+        List<GroupProducts> list = groupProductRepository.findAll();
+        return basicMapper.convertToResponseList(list, ProductAttributeResponse.class);
     }
 
     @Override
-    public String saveCategory(CategoryRequest categoryRequest) {
-            Category category = new Category();
-            category.setCategoryName(categoryRequest.getCategoryName());
-            categoryRepository.save(category);
-            return CATEGORY_SAVED_SUCCESSFULLY;
+    public ProductAttributeResponse saveGroupProduct(ProductAttributeRequest request) {
+        GroupProducts groupProducts = new GroupProducts();
+        groupProducts.setName(request.getName());
+        groupProductRepository.save(groupProducts);
+        return basicMapper.convertToResponse(groupProducts, ProductAttributeResponse.class);
     }
 
     @Override
-    public String updateCategory(CategoryRequest categoryRequest, Long categoryId) {
-        Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new RuntimeException(CATEGORY_NOT_FOUND));
-        category.setCategoryName(categoryRequest.getCategoryName());
-        categoryRepository.save(category);
-        return CATEGORY_UPDATED_SUCCESSFULLY;
+    public ProductAttributeResponse updateGroupProduct(ProductAttributeRequest request, Long groupProductId) {
+        return updateAttribute(
+                groupProductId,
+                request,
+                groupProductRepository::findById,
+                groupProductRepository::save,
+                GroupProducts::getName,
+                GroupProducts::setName,
+                GROUP_PRODUCT_NOT_FOUND
+        );
     }
 
     @Override
-    public String deleteCategory(Long categoryId) {
-        Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new RuntimeException(CATEGORY_NOT_FOUND));
-        categoryRepository.deleteById(category.getCategoryId());
-        return CATEGORY_DELETED_SUCCESSFULLY;
-
+    public boolean deleteGroupProduct(Long groupProductId) {
+        if (!groupProductRepository.existsById(groupProductId)) {
+            throw new ApiRequestException(GROUP_PRODUCT_NOT_FOUND, HttpStatus.NOT_FOUND);
+        }
+        groupProductRepository.deleteById(groupProductId);
+        return true;
     }
 
     @Override
-    public List<GroupProduct> getAllGroupProduct() {
-        return groupProductRepository.findAll();
+    public List<ProductAttributeResponse> getAllLocation() {
+        List<Locations> list = locationRepository.findAll();
+        return basicMapper.convertToResponseList(list, ProductAttributeResponse.class);
     }
 
     @Override
-    public String saveGroupProduct(GroupProductRequest groupProductRequest) {
-        GroupProduct groupProduct = new GroupProduct();
-        groupProduct.setGroupProductName(groupProductRequest.getGroupProductName());
-        groupProductRepository.save(groupProduct);
-        return GROUP_PRODUCT_SAVED_SUCCESSFULLY;
+    public ProductAttributeResponse createLocation(ProductAttributeRequest request) {
+        Locations locations = new Locations();
+        locations.setName(request.getName());
+        locationRepository.save(locations);
+        return basicMapper.convertToResponse(locations, ProductAttributeResponse.class);
     }
 
     @Override
-    public String updateGroupProduct(GroupProductRequest groupProductRequest, Long groupProductId) {
-        GroupProduct groupProduct = groupProductRepository.findById(groupProductId)
-                .orElseThrow(() -> new RuntimeException(GROUP_PRODUCT_NOT_FOUND));
-        groupProduct.setGroupProductName(groupProductRequest.getGroupProductName());
-        groupProductRepository.save(groupProduct);
-        return GROUP_PRODUCT_UPDATED_SUCCESSFULLY;
+    public ProductAttributeResponse updateLocation(ProductAttributeRequest request, Long locationId) {
+        return updateAttribute(
+                locationId,
+                request,
+                locationRepository::findById,
+                locationRepository::save,
+                Locations::getName,
+                Locations::setName,
+                LOCATION_NOT_FOUND
+        );
     }
 
     @Override
-    public String deleteGroupProduct(Long groupProductId) {
-        GroupProduct groupProduct = groupProductRepository.findById(groupProductId)
-                .orElseThrow(() -> new RuntimeException(GROUP_PRODUCT_NOT_FOUND));
-        groupProductRepository.deleteById(groupProduct.getGroupProductId());
-        return GROUP_PRODUCT_DELETED_SUCCESSFULLY;
+    public boolean deleteLocation(Long locationId) {
+        if (!locationRepository.existsById(locationId)) {
+            throw new ApiRequestException(LOCATION_NOT_FOUND, HttpStatus.NOT_FOUND);
+        }
+        locationRepository.deleteById(locationId);
+        return true;
     }
 
     @Override
-    public List<Location> getAllLocation() {
-        return locationRepository.findAll();
+    public List<ProductAttributeResponse> getAllProperties() {
+        List<Properties> list = propertiesRepository.findAll();
+        return basicMapper.convertToResponseList(list, ProductAttributeResponse.class);
     }
 
     @Override
-    public String saveLocation(LocationRequest locationRequest) {
-        Location location = new Location();
-        location.setLocationName(locationRequest.getLocationName());
-        locationRepository.save(location);
-        return LOCATION_SAVED_SUCCESSFULLY;
-    }
-
-    @Override
-    public String updateLocation(LocationRequest locationRequest, Long locationId) {
-        Location location = locationRepository.findById(locationId)
-                .orElseThrow(() -> new RuntimeException(LOCATION_NOT_FOUND));
-        location.setLocationName(locationRequest.getLocationName());
-        locationRepository.save(location);
-        return LOCATION_UPDATED_SUCCESSFULLY;
-    }
-
-    @Override
-    public String deleteLocation(Long locationId) {
-        Location location = locationRepository.findById(locationId)
-                .orElseThrow(() -> new RuntimeException(LOCATION_NOT_FOUND));
-        locationRepository.deleteById(location.getLocationId());
-        return LOCATION_DELETED_SUCCESSFULLY;
-    }
-
-    @Override
-    public List<Properties> getAllProperties() {
-        return propertiesRepository.findAll();
-    }
-
-    @Override
-    public String saveProperties(PropertiesRequest propertiesRequest) {
+    public ProductAttributeResponse saveProperties(ProductAttributeRequest request) {
         Properties properties = new Properties();
-        properties.setPropertiesName(propertiesRequest.getPropertiesName());
+        properties.setName(request.getName());
         propertiesRepository.save(properties);
-        return PROPERTIES_SAVED_SUCCESSFULLY;
+        return basicMapper.convertToResponse(properties, ProductAttributeResponse.class);
     }
 
     @Override
-    public String updateProperties(PropertiesRequest propertiesRequest, Long propertiesId) {
-        Properties properties = propertiesRepository.findById(propertiesId)
-                .orElseThrow(() -> new RuntimeException(PROPERTIES_NOT_FOUND));
-        properties.setPropertiesName(propertiesRequest.getPropertiesName());
-        propertiesRepository.save(properties);
-        return PROPERTIES_UPDATED_SUCCESSFULLY;
+    public ProductAttributeResponse updateProperties(ProductAttributeRequest request, Long propertiesId) {
+        return updateAttribute(
+                propertiesId,
+                request,
+                propertiesRepository::findById,
+                propertiesRepository::save,
+                Properties::getName,
+                Properties::setName,
+                PROPERTIES_NOT_FOUND
+        );
     }
 
     @Override
-    public String deleteProperties(Long propertiesId) {
-        Properties properties = propertiesRepository.findById(propertiesId)
-                .orElseThrow(() -> new RuntimeException(PROPERTIES_NOT_FOUND));
-        propertiesRepository.deleteById(properties.getPropertiesId());
-        return PROPERTIES_DELETED_SUCCESSFULLY;
+    public boolean deleteProperties(Long propertiesId) {
+        if (!propertiesRepository.existsById(propertiesId)) {
+            throw new ApiRequestException(PROPERTIES_NOT_FOUND, HttpStatus.NOT_FOUND);
+        }
+        propertiesRepository.deleteById(propertiesId);
+        return true;
     }
 
     @Override
-    public List<Trademark> getAllTrademarks() {
-        return trademarkRepository.findAll();
+    public List<ProductAttributeResponse> getAllTrademarks() {
+        List<Trademarks> list = trademarkRepository.findAll();
+        return basicMapper.convertToResponseList(list, ProductAttributeResponse.class);
     }
 
     @Override
-    public String saveTrademark(TrademarkRequest trademarkRequest) {
-        Trademark trademark = new Trademark();
-        trademark.setTrademarkName(trademarkRequest.getTrademarkName());
-        trademarkRepository.save(trademark);
-        return TRADEMARK_SAVED_SUCCESSFULLY;
+    public ProductAttributeResponse saveTrademark(ProductAttributeRequest request) {
+        Trademarks trademarks = new Trademarks();
+        trademarks.setName(request.getName());
+        trademarkRepository.save(trademarks);
+        return basicMapper.convertToResponse(trademarks, ProductAttributeResponse.class);
     }
 
     @Override
-    public String updateTrademark(TrademarkRequest trademarkRequest, Long trademarkId) {
-        Trademark trademark = trademarkRepository.findById(trademarkId)
-                .orElseThrow(() -> new RuntimeException(TRADEMARK_NOT_FOUND));
-        trademark.setTrademarkName(trademarkRequest.getTrademarkName());
-        trademarkRepository.save(trademark);
-        return TRADEMARK_UPDATED_SUCCESSFULLY;
+    public ProductAttributeResponse updateTrademark(ProductAttributeRequest request, Long trademarkId) {
+        return updateAttribute(
+                trademarkId,
+                request,
+                trademarkRepository::findById,
+                trademarkRepository::save,
+                Trademarks::getName,
+                Trademarks::setName,
+                TRADEMARK_NOT_FOUND
+        );
     }
 
     @Override
-    public String deleteTrademark(Long trademarkId) {
-        Trademark trademark = trademarkRepository.findById(trademarkId)
-                .orElseThrow(() -> new RuntimeException(TRADEMARK_NOT_FOUND));
-        trademarkRepository.deleteById(trademark.getTrademarkId());
-        return TRADEMARK_DELETED_SUCCESSFULLY;
+    public boolean deleteTrademark(Long id) {
+        if (!trademarkRepository.existsById(id)) {
+            throw new ApiRequestException(TRADEMARK_NOT_FOUND, HttpStatus.NOT_FOUND);
+        }
+        trademarkRepository.deleteById(id);
+        return true;
     }
 
     @Override
-    public List<Unit> getAllUnits() {
-        return unitRepository.findAll();
+    public List<ProductAttributeResponse> getAllUnits() {
+        List<Units> list = unitRepository.findAll();
+        return basicMapper.convertToResponseList(list, ProductAttributeResponse.class);
     }
 
     @Override
-    public String saveUnit(UnitRequest unitRequest) {
-        Unit unit = new Unit();
-        unit.setUnitName(unitRequest.getUnitName());
-        unitRepository.save(unit);
-        return UNIT_SAVED_SUCCESSFULLY;
+    public ProductAttributeResponse createUnit(ProductAttributeRequest request) {
+        Units units = new Units();
+        units.setName(request.getName());
+        unitRepository.save(units);
+        return basicMapper.convertToResponse(units, ProductAttributeResponse.class);
     }
 
     @Override
-    public String updateUnit(UnitRequest unitRequest, Long unitId) {
-        Unit unit = unitRepository.findById(unitId)
-                .orElseThrow(() -> new RuntimeException(UNIT_NOT_FOUND));
-        unit.setUnitName(unitRequest.getUnitName());
-        unitRepository.save(unit);
-        return UNIT_UPDATED_SUCCESSFULLY;
+    public ProductAttributeResponse updateUnit(ProductAttributeRequest request, Long unitId) {
+        return updateAttribute(
+                unitId,
+                request,
+                unitRepository::findById,
+                unitRepository::save,
+                Units::getName,
+                Units::setName,
+                UNIT_NOT_FOUND
+        );
     }
 
     @Override
-    public String deleteUnit(Long unitId) {
-        Unit unit = unitRepository.findById(unitId)
-                .orElseThrow(() -> new RuntimeException(UNIT_NOT_FOUND));
-        unitRepository.deleteById(unit.getUnitId());
-        return UNIT_DELETED_SUCCESSFULLY;
+    public boolean deleteUnit(Long unitId) {
+        if (!unitRepository.existsById(unitId)) {
+            throw new ApiRequestException(UNIT_NOT_FOUND, HttpStatus.NOT_FOUND);
+        }
+        unitRepository.deleteById(unitId);
+        return true;
     }
+
+    @Override
+    public List<ProductAttributeResponse> getAllCategories() {
+        List<Categories> list = categoryRepository.findAll();
+        return basicMapper.convertToResponseList(list, ProductAttributeResponse.class);
+    }
+
+    @Override
+    public ProductAttributeResponse createCategory(ProductAttributeRequest request) {
+        Categories categories = new Categories();
+        categories.setName(request.getName());
+        categoryRepository.save(categories);
+        return basicMapper.convertToResponse(categories, ProductAttributeResponse.class);
+    }
+
+    @Override
+    public ProductAttributeResponse updateCategory(ProductAttributeRequest request, Long categoryId) {
+        return updateAttribute(
+                categoryId,
+                request,
+                categoryRepository::findById,
+                categoryRepository::save,
+                Categories::getName,
+                Categories::setName,
+                CATEGORY_NOT_FOUND
+        );
+    }
+
+    @Override
+    public boolean deleteCategory(Long id) {
+        if (!categoryRepository.existsById(id)) {
+            throw new ApiRequestException(CATEGORY_NOT_FOUND, HttpStatus.BAD_REQUEST);
+        }
+        categoryRepository.deleteById(id);
+        return true;
+    }
+
+    private <T> ProductAttributeResponse updateAttribute(
+            Long id,
+            ProductAttributeRequest request,
+            Function<Long, Optional<T>> findByIdFunction,
+            Consumer<T> saveFunction,
+            Function<T, String> getNameFunction,
+            BiConsumer<T, String> setNameFunction,
+            String notFoundMessage) {
+
+        return findByIdFunction.apply(id)
+                .map(attribute -> {
+                    // Kiểm tra xem tên mới có khác không
+                    if (!getNameFunction.apply(attribute).equals(request.getName())) {
+                        setNameFunction.accept(attribute, request.getName());
+                        saveFunction.accept(attribute); // Lưu lại thực thể đã cập nhật
+                    }
+                    return basicMapper.convertToResponse(attribute, ProductAttributeResponse.class);
+                })
+                .orElseThrow(() -> new ApiRequestException(notFoundMessage, HttpStatus.NOT_FOUND));
+    }
+
+
 }

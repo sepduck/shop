@@ -2,155 +2,144 @@ package com.qlyshopphone_backend.controller.rest;
 
 import static com.qlyshopphone_backend.constant.PathConstant.*;
 
-import com.qlyshopphone_backend.dto.request.PasswordChangeRequest;
-import com.qlyshopphone_backend.dto.request.UserRequest;
-import com.qlyshopphone_backend.service.AuthenticationService;
+import com.qlyshopphone_backend.dto.request.ChangePasswordRequest;
+import com.qlyshopphone_backend.dto.request.UserUpdateRequest;
+import com.qlyshopphone_backend.dto.response.UserProjectResponse;
+import com.qlyshopphone_backend.dto.response.UserRolesResponse;
 import com.qlyshopphone_backend.service.UserService;
+import com.qlyshopphone_backend.service.impl.FirebaseStorageService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Map;
+import java.io.IOException;
+import java.util.List;
 
 @RestController
-@RequestMapping()
+@RequestMapping(API_V1)
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
-    private final AuthenticationService authenticationService;
+    private final FirebaseStorageService firebaseStorageService;
 
-    @GetMapping(ADMIN_USERS)
-    public ResponseEntity<?> getAllUsers() {
-        return ResponseEntity.ok(userService.getAllUsers());
+    @PutMapping(UPDATE_AVATAR)
+    public ResponseEntity<Boolean> updateAvatar(@RequestParam("file") MultipartFile file) throws IOException {
+        return ResponseEntity.ok(userService.updateAvatar(file));
     }
 
-    @PutMapping(PASSWORD)
-    public ResponseEntity<?> updatePassword(@RequestBody PasswordChangeRequest request) {
-        return ResponseEntity.ok(userService.updatePassword(request));
+    @PutMapping(UPDATE_FIRSTNAME)
+    public ResponseEntity<Boolean> updateFirstName(@RequestBody UserUpdateRequest request) {
+        return ResponseEntity.ok(userService.updateFirstName(request));
     }
 
-    @PutMapping(USERS_INFO)
-    public ResponseEntity<?> updateUserInfo(@RequestBody UserRequest userRequest) throws Exception {
-        return ResponseEntity.ok(userService.updateUserInfo(userRequest));
+    @PutMapping(UPDATE_LASTNAME)
+    public ResponseEntity<Boolean> updateLastName(@RequestBody UserUpdateRequest request)   {
+        return ResponseEntity.ok(userService.updateLastName(request));
     }
 
-    @PutMapping(USERS_INFO_FILE)
-    public ResponseEntity<?> updateInfoFile(@RequestBody UserRequest userRequest) throws Exception {
-        return ResponseEntity.ok(userService.updateUserInfoFile(userRequest));
+    @PutMapping(UPDATE_ADDRESS)
+    public ResponseEntity<Boolean> updateAddress(@RequestBody UserUpdateRequest request)   {
+        return ResponseEntity.ok(userService.updateAddress(request));
     }
 
-    @DeleteMapping(ADMIN_USERS_ID)
-    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
-        return ResponseEntity.ok(userService.deleteUser(id));
+    @PutMapping(UPDATE_BIRTHDAY)
+    public ResponseEntity<Boolean> updateBirthday(@RequestBody UserUpdateRequest request)   {
+        return ResponseEntity.ok(userService.updateBirthday(request));
+    }
+
+    @PutMapping(UPDATE_FACEBOOK)
+    public ResponseEntity<Boolean> updateFacebook(@RequestBody UserUpdateRequest request)   {
+        return ResponseEntity.ok(userService.updateFacebook(request));
+    }
+
+    @PutMapping(UPDATE_GENDER)
+    public ResponseEntity<Boolean> updateGender(@RequestBody UserUpdateRequest request)   {
+        return ResponseEntity.ok(userService.updateGender(request));
+    }
+
+    @PutMapping(UPDATE_PHONE)
+    public ResponseEntity<Boolean> updatePhoneNumber(@RequestBody UserUpdateRequest request)   {
+        return ResponseEntity.ok(userService.updatePhoneNumber(request));
+    }
+
+    @PutMapping(CHANGE_PASSWORD)
+    public ResponseEntity<String> changePassword(@RequestBody ChangePasswordRequest request) {
+        return ResponseEntity.ok(userService.changePassword(request));
     }
 
     @GetMapping(INFO)
-    public ResponseEntity<Map<String, Object>> getAccountInfo() {
+    public ResponseEntity<UserProjectResponse> getAccountInfo() {
         return ResponseEntity.ok(userService.getUserInfo());
     }
 
-    @GetMapping(ADMIN_EMPLOYEE)
-    public ResponseEntity<?> getEmployee() {
-        return ResponseEntity.ok(userService.getAllEmployees());
-    }
-
-    @PostMapping(ADMIN_EMPLOYEE)
-    public ResponseEntity<?> saveEmployee(@ModelAttribute UserRequest userRequest) throws Exception {
-        userRequest.setEmployee(true);
-
-        return ResponseEntity.ok(authenticationService.register(userRequest));
-    }
-
-    @PostMapping(ADMIN_EMPLOYEE_ROLE_USER_ID)
-    public ResponseEntity<?> saveEmployeeRoles(@PathVariable("userId") Long userId) {
-        try {
-            userService.saveEmployeeRoles(userId);
-            return ResponseEntity.ok(ResponseEntity.ok().body("User saved"));
-        } catch (Exception e) {
-            return ResponseEntity.ok(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage()));
-        }
-    }
-
-    @PutMapping(ADMIN_EMPLOYEE_ID)
-    public ResponseEntity<?> updateEmployee(@PathVariable("id") Long id,
-                                            @ModelAttribute UserRequest userRequest) throws Exception {
-        return ResponseEntity.ok(ResponseEntity.ok(userService.updateUser(id, userRequest)));
-    }
-
-    @DeleteMapping(ADMIN_EMPLOYEE_ID)
-    public ResponseEntity<?> deleteEmployee(@PathVariable("id") Long id) {
-        return ResponseEntity.ok(userService.deleteEmployeeById(id));
+    @PostMapping(ADMIN_ASSIGN_EMPLOYEE)
+    public ResponseEntity<Boolean> assignEmployeeRole(@PathVariable("userId") Long userId) {
+            return ResponseEntity.ok(userService.assignEmployeeRole(userId));
     }
 
     @GetMapping(ADMIN_EMPLOYEE_SEARCH_ID)
-    public ResponseEntity<?> searchEmployeeId(@PathVariable("id") Long employeeId) {
+    public ResponseEntity<List<UserRolesResponse>> searchEmployeeId(@PathVariable("id") Long employeeId) {
         return ResponseEntity.ok(userService.searchEmployeeById(employeeId));
     }
 
     @GetMapping(ADMIN_EMPLOYEE_SEARCH_NAME)
-    public ResponseEntity<?> searchEmployeeName(@PathVariable("name") String employeeName) {
+    public ResponseEntity<List<UserRolesResponse>> searchEmployeeName(@PathVariable("name") String employeeName) {
         return ResponseEntity.ok(userService.searchEmployeeByName(employeeName));
     }
 
     @GetMapping(ADMIN_EMPLOYEE_SEARCH_PHONE_NUMBER)
-    public ResponseEntity<?> searchEmployeePhoneNumber(@PathVariable("number") String phoneNumber) {
+    public ResponseEntity<List<UserRolesResponse>> searchEmployeePhoneNumber(@PathVariable("number") String phoneNumber) {
         return ResponseEntity.ok(userService.searchEmployeeByPhoneNumber(phoneNumber));
     }
 
-    @GetMapping(ADMIN_EMPLOYEE_SEARCH_ACTIVE_NUMBER)
-    public ResponseEntity<?> searchEmployeeActive(@PathVariable("number") int number) {
-        return ResponseEntity.ok(userService.searchEmployeeByActive(number));
+    @GetMapping(ADMIN_EMPLOYEE_SEARCH_STATUS)
+    public ResponseEntity<List<UserRolesResponse>> searchEmployeeStatus(@PathVariable("status") String status) {
+        return ResponseEntity.ok(userService.searchEmployeeByStatus(status));
+    }
+
+    @GetMapping(ADMIN_EMPLOYEE)
+    public ResponseEntity<List<UserRolesResponse>> getEmployee() {
+        return ResponseEntity.ok(userService.findAllByRoleEmployee());
     }
 
     @GetMapping(ADMIN_CUSTOMER)
-    public ResponseEntity<?> getCustomer() {
+    public ResponseEntity<List<UserRolesResponse>> getCustomer() {
         return ResponseEntity.ok(userService.getAllCustomers());
     }
 
-    @PutMapping(ADMIN_CUSTOMER_ID)
-    public ResponseEntity<?> updateCustomer(@PathVariable Long id,
-                                            @ModelAttribute UserRequest userRequest) throws Exception {
-        return ResponseEntity.ok(userService.updateUser(id, userRequest));
-    }
-
-    @DeleteMapping(ADMIN_CUSTOMER_ID)
-    public ResponseEntity<?> deleteCustomer(@PathVariable("id") Long customerId) {
-        return ResponseEntity.ok(userService.deleteCustomerById(customerId));
-    }
-
     @GetMapping(ADMIN_CUSTOMER_SEARCH_ID)
-    public ResponseEntity<?> searchCustomerId(@PathVariable("id") Long customerId) {
-        return ResponseEntity.ok(userService.searchCustomerById(customerId));
+    public ResponseEntity<List<UserRolesResponse>> searchCustomerId(@PathVariable("id") Long id) {
+        return ResponseEntity.ok(userService.searchCustomerById(id));
     }
 
     @GetMapping(ADMIN_CUSTOMER_SEARCH_NAME)
-    public ResponseEntity<?> searchCustomerName(@PathVariable("name") String customerName) {
+    public ResponseEntity<List<UserRolesResponse>> searchCustomerName(@PathVariable("name") String customerName) {
         return ResponseEntity.ok(userService.searchCustomerByName(customerName));
     }
 
     @GetMapping(ADMIN_CUSTOMER_SEARCH_PHONE_NUMBER)
-    public ResponseEntity<?> searchCustomerPhoneNumber(@PathVariable("number") String phoneNumber) {
+    public ResponseEntity<List<UserRolesResponse>> searchCustomerPhoneNumber(@PathVariable("number") String phoneNumber) {
         return ResponseEntity.ok(userService.searchCustomerByPhone(phoneNumber));
     }
 
     @GetMapping(ADMIN_CUSTOMER_SEARCH_EMAIL)
-    public ResponseEntity<?> searchCustomerEmail(@PathVariable("email") String email) {
+    public ResponseEntity<List<UserRolesResponse>> searchCustomerEmail(@PathVariable("email") String email) {
         return ResponseEntity.ok(userService.searchCustomerByEmail(email));
     }
 
-    @GetMapping(ADMIN_CUSTOMER_SEARCH_ADDRESS)
-    public ResponseEntity<?> searchCustomerAddress(@PathVariable("address") String address) {
-        return ResponseEntity.ok(userService.searchCustomerByAddress(address));
+    @GetMapping(ADMIN_CUSTOMER_SEARCH_STATUS)
+    public ResponseEntity<List<UserRolesResponse>> searchCustomerActive(@PathVariable("status") String status) {
+        return ResponseEntity.ok(userService.searchCustomerByStatus(status));
     }
 
-    @GetMapping(ADMIN_CUSTOMER_SEARCH_ACTIVE_NUMBER)
-    public ResponseEntity<?> searchCustomerActive(@PathVariable("number") byte active) {
-        return ResponseEntity.ok(userService.searchCustomerByActive(active));
+    @GetMapping(ADMIN_CUSTOMER_SEARCH_GENDER)
+    public ResponseEntity<List<UserRolesResponse>> searchCustomerNumber(@PathVariable("gender") String gender) {
+        return ResponseEntity.ok(userService.searchCustomerByGender(gender));
     }
 
-    @GetMapping(ADMIN_CUSTOMER_SEARCH_GENDER_NUMBER)
-    public ResponseEntity<?> searchCustomerNumber(@PathVariable("number") int number) {
-        return ResponseEntity.ok(userService.searchCustomerByGender(number));
+    @PostMapping(UPLOAD)
+    public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file) throws Exception {
+        return ResponseEntity.ok(firebaseStorageService.uploadFile(file));
     }
 }

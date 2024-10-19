@@ -27,12 +27,12 @@ public class ErrorMessage {
     public static final String USER_UPDATED_SUCCESSFULLY = "User updated successfully";
     public static final String USER_DELETED_SUCCESSFULLY = "User deleted successfully";
     public static final String GENDER_NOT_FOUND = "Gender not found";
-    public static final String ROLE_NOT_FOUND = "Role not found";
+    public static final String ROLE_NOT_FOUND = "Roles not found";
     public static final String SUCCESSFULLY_DELETED_THE_PRODUCT_FROM_THE_CART = "Successfully deleted the product from the cart";
     public static final String ACCOUNT_DOES_NOT_EXIST = "Account does not exist";
-    public static final String OLD_PASSWORD_DOSE_NOT_MATCH = "New password does not match";
+    public static final String OLD_PASSWORD_DOSE_NOT_MATCH = "Old password does not match!";
     public static final String NEW_PASSWORD_DOSE_NOT_MATCH = "New password does not match";
-    public static final String SUCCESSFULLY_UPDATED_PASSWORD = "Successfully updated password";
+    public static final String PASSWORD_CHANGED_SUCCESSFULLY = "Password changed successfully";
 
     public static final String GROUP_PRODUCT_NOT_FOUND = "Group product not found";
     public static final String GROUP_PRODUCT_SAVED_SUCCESSFULLY = "Group product saved successfully";

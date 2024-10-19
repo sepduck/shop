@@ -9,7 +9,7 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class SupplierRequest {
-    private String supplierName;
+    private String name;
     private String phoneNumber;
     private String address;
     private String email;

@@ -7,12 +7,10 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-public class Location {
+public class Categories {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "location_id")
-    private Long locationId;
+    private Long id;
 
-    @Column(name = "location_name")
-    private String locationName;
+    private String name;
 }

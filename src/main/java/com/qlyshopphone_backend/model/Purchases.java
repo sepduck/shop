@@ -3,34 +3,30 @@ package com.qlyshopphone_backend.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @Entity
-@Table(name = "purchase")
-public class Purchase {
+public class Purchases {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "purchase_id")
-    private Long purchaseId;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private Users user;
+    private Users users;
 
     @ManyToOne
     @JoinColumn(name = "customer_info_id")
     private CustomerInfo customerInfo;
 
-    @Column(name = "total_price")
-    private BigDecimal totalPrice;
+    private float totalPrice;
 
-    @Column(name = "total_amount")
     private Long totalAmount;
 
-    @Column(name = "purchase_date")
+    @CreationTimestamp
     private LocalDateTime purchaseDate;
 }

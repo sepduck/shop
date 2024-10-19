@@ -7,13 +7,10 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "trademark")
-public class Trademark {
+public class AddressCountries {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "trademark_id")
-    private Long trademarkId;
+    private Long id;
 
-    @Column(name = "trademark_name")
-    private String trademarkName;
+    private String name;
 }

@@ -3,6 +3,8 @@ package com.qlyshopphone_backend.controller.rest;
 import static com.qlyshopphone_backend.constant.PathConstant.*;
 
 import com.qlyshopphone_backend.dto.request.*;
+import com.qlyshopphone_backend.dto.response.ProductAttributeResponse;
+import com.qlyshopphone_backend.dto.response.ProductResponse;
 import com.qlyshopphone_backend.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +14,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping(API_V1)
@@ -22,13 +23,13 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping(PRODUCT)
-    public ResponseEntity<List<Map<String, Object>>> getAllProducts() {
+    public ResponseEntity<List<ProductResponse>> getAllProducts() {
         return ResponseEntity.ok(productService.getAllProducts());
     }
 
     @PostMapping(ADMIN_PRODUCT)
-    public ResponseEntity<String> addProduct(@Validated @ModelAttribute ProductRequest productRequest,
-                                        BindingResult result) throws Exception {
+    public ResponseEntity<String> addProduct(@Validated @ModelAttribute ProductRequest request,
+                                             BindingResult result) throws Exception {
         if (result.hasErrors()) {
             StringBuilder errors = new StringBuilder();
             for (FieldError error : result.getFieldErrors()) {
@@ -36,8 +37,8 @@ public class ProductController {
             }
             return ResponseEntity.badRequest().body(errors.toString());
         }
-        productRequest.setDeleteProduct(false);
-        return ResponseEntity.ok(productService.saveProduct(productRequest));
+//        request.se(false);
+        return ResponseEntity.ok(productService.saveProduct(request));
     }
 
     @PutMapping(ADMIN_PRODUCT_PRODUCT_ID)
@@ -92,128 +93,128 @@ public class ProductController {
     }
 
     @GetMapping(GROUP_PRODUCT)
-    public ResponseEntity<?> getAllGroupProduct() {
+    public ResponseEntity<List<ProductAttributeResponse>> getAllGroupProduct() {
         return ResponseEntity.ok(productService.getAllGroupProduct());
     }
 
     @PostMapping(ADMIN_GROUP_PRODUCT)
-    public ResponseEntity<?> saveGroupProduct(@ModelAttribute GroupProductRequest groupProductRequest) {
-        return ResponseEntity.ok(productService.saveGroupProduct(groupProductRequest));
+    public ResponseEntity<ProductAttributeResponse> saveGroupProduct(@ModelAttribute ProductAttributeRequest request) {
+        return ResponseEntity.ok(productService.saveGroupProduct(request));
     }
 
     @PutMapping(ADMIN_GROUP_PRODUCT_ID)
-    public ResponseEntity<?> updateGroupProduct(@RequestBody GroupProductRequest groupProductRequest,
-                                                @PathVariable Long id) {
-        return ResponseEntity.ok(productService.updateGroupProduct(groupProductRequest, id));
+    public ResponseEntity<ProductAttributeResponse> updateGroupProduct(@RequestBody ProductAttributeRequest request,
+                                                                       @PathVariable Long id) {
+        return ResponseEntity.ok(productService.updateGroupProduct(request, id));
     }
 
     @DeleteMapping(ADMIN_GROUP_PRODUCT_ID)
-    public ResponseEntity<?> deleteGroupProduct(@PathVariable Long id) {
+    public ResponseEntity<Boolean> deleteGroupProduct(@PathVariable Long id) {
         return ResponseEntity.ok(productService.deleteGroupProduct(id));
     }
 
     @GetMapping(TRADEMARK)
-    public ResponseEntity<?> getAllTrademark() {
+    public ResponseEntity<List<ProductAttributeResponse>> getAllTrademark() {
         return ResponseEntity.ok(productService.getAllTrademarks());
     }
 
     @PostMapping(ADMIN_TRADEMARK)
-    public ResponseEntity<?> saveTrademark(@RequestBody TrademarkRequest trademarkRequest) {
-        return ResponseEntity.ok(productService.saveTrademark(trademarkRequest));
+    public ResponseEntity<ProductAttributeResponse> saveTrademark(@RequestBody ProductAttributeRequest request) {
+        return ResponseEntity.ok(productService.saveTrademark(request));
     }
 
     @PutMapping(ADMIN_TRADEMARK_ID)
-    public ResponseEntity<?> updateTrademark(@RequestBody TrademarkRequest trademarkRequest,
-                                             @PathVariable Long id) {
-        return ResponseEntity.ok(productService.updateTrademark(trademarkRequest, id));
+    public ResponseEntity<ProductAttributeResponse> updateTrademark(@RequestBody ProductAttributeRequest request,
+                                                                    @PathVariable Long id) {
+        return ResponseEntity.ok(productService.updateTrademark(request, id));
     }
 
     @DeleteMapping(ADMIN_TRADEMARK_ID)
-    public ResponseEntity<?> deleteTrademark(@PathVariable Long id) {
+    public ResponseEntity<Boolean> deleteTrademark(@PathVariable Long id) {
         return ResponseEntity.ok(productService.deleteTrademark(id));
     }
 
     @GetMapping(LOCATION)
-    public ResponseEntity<?> getAllLocation() {
+    public ResponseEntity<List<ProductAttributeResponse>> getAllLocation() {
         return ResponseEntity.ok(productService.getAllLocation());
     }
 
     @PostMapping(ADMIN_LOCATION)
-    public ResponseEntity<?> saveLocation(@RequestBody LocationRequest locationRequest) {
-        return ResponseEntity.ok(productService.saveLocation(locationRequest));
+    public ResponseEntity<ProductAttributeResponse> saveLocation(@RequestBody ProductAttributeRequest request) {
+        return ResponseEntity.ok(productService.createLocation(request));
     }
 
     @PutMapping(ADMIN_LOCATION_ID)
-    public ResponseEntity<?> updateLocation(@RequestBody LocationRequest locationRequest,
-                                            @PathVariable Long id) {
-        return ResponseEntity.ok(productService.updateLocation(locationRequest, id));
+    public ResponseEntity<ProductAttributeResponse> updateLocation(@RequestBody ProductAttributeRequest request,
+                                                                   @PathVariable Long id) {
+        return ResponseEntity.ok(productService.updateLocation(request, id));
     }
 
     @DeleteMapping(ADMIN_LOCATION_ID)
-    public ResponseEntity<?> deleteLocation(@PathVariable Long id) {
+    public ResponseEntity<Boolean> deleteLocation(@PathVariable Long id) {
         return ResponseEntity.ok(productService.deleteLocation(id));
     }
 
     @GetMapping(PROPERTIES)
-    public ResponseEntity<?> getAllProperties() {
+    public ResponseEntity<List<ProductAttributeResponse>> getAllProperties() {
         return ResponseEntity.ok(productService.getAllProperties());
     }
 
     @PostMapping(ADMIN_PROPERTIES)
-    public ResponseEntity<?> saveProperties(@RequestBody PropertiesRequest propertiesRequest) {
-        return ResponseEntity.ok(productService.saveProperties(propertiesRequest));
+    public ResponseEntity<ProductAttributeResponse> saveProperties(@RequestBody ProductAttributeRequest request) {
+        return ResponseEntity.ok(productService.saveProperties(request));
     }
 
     @PutMapping(ADMIN_PROPERTIES_ID)
-    public ResponseEntity<?> updateProperties(@RequestBody PropertiesRequest propertiesRequest,
-                                              @PathVariable Long id) {
-        return ResponseEntity.ok(productService.updateProperties(propertiesRequest, id));
+    public ResponseEntity<ProductAttributeResponse> updateProperties(@RequestBody ProductAttributeRequest request,
+                                                                     @PathVariable Long id) {
+        return ResponseEntity.ok(productService.updateProperties(request, id));
     }
 
     @DeleteMapping(ADMIN_PROPERTIES_ID)
-    public ResponseEntity<?> deleteProperties(@PathVariable Long id) {
+    public ResponseEntity<Boolean> deleteProperties(@PathVariable Long id) {
         return ResponseEntity.ok(productService.deleteProperties(id));
     }
 
     @GetMapping(UNIT)
-    public ResponseEntity<?> getAllUnits() {
+    public ResponseEntity<List<ProductAttributeResponse>> getAllUnits() {
         return ResponseEntity.ok(productService.getAllUnits());
     }
 
     @PostMapping(ADMIN_UNIT)
-    public ResponseEntity<?> saveUnits(@RequestBody UnitRequest unitRequest) {
-        return ResponseEntity.ok(productService.saveUnit(unitRequest));
+    public ResponseEntity<ProductAttributeResponse> saveUnits(@RequestBody ProductAttributeRequest request) {
+        return ResponseEntity.ok(productService.createUnit(request));
     }
 
     @PutMapping(ADMIN_UNIT_ID)
-    public ResponseEntity<?> updateUnits(@RequestBody UnitRequest unitRequest,
-                                         @PathVariable Long id) {
-        return ResponseEntity.ok(productService.updateUnit(unitRequest, id));
+    public ResponseEntity<ProductAttributeResponse> updateUnits(@RequestBody ProductAttributeRequest request,
+                                                                @PathVariable Long id) {
+        return ResponseEntity.ok(productService.updateUnit(request, id));
     }
 
     @DeleteMapping(ADMIN_UNIT_ID)
-    public ResponseEntity<?> deleteUnits(@PathVariable Long id) {
+    public ResponseEntity<Boolean> deleteUnits(@PathVariable Long id) {
         return ResponseEntity.ok(productService.deleteUnit(id));
     }
 
     @GetMapping(CATEGORY)
-    public ResponseEntity<?> getAllCategory() {
-        return ResponseEntity.ok(productService.getAllCategory());
+    public ResponseEntity<List<ProductAttributeResponse>> getAllCategory() {
+        return ResponseEntity.ok(productService.getAllCategories());
     }
 
     @PostMapping(ADMIN_CATEGORY)
-    public ResponseEntity<?> saveCategory(@RequestBody CategoryRequest categoryRequest) {
-        return ResponseEntity.ok(productService.saveCategory(categoryRequest));
+    public ResponseEntity<ProductAttributeResponse> saveCategory(@RequestBody ProductAttributeRequest request) {
+        return ResponseEntity.ok(productService.createCategory(request));
     }
 
     @PutMapping(ADMIN_CATEGORY_ID)
-    public ResponseEntity<?> updateCategory(@RequestBody CategoryRequest categoryRequest,
-                                            @PathVariable Long id) {
-        return ResponseEntity.ok(productService.updateCategory(categoryRequest, id));
+    public ResponseEntity<ProductAttributeResponse> updateCategory(@RequestBody ProductAttributeRequest request,
+                                                                   @PathVariable Long id) {
+        return ResponseEntity.ok(productService.updateCategory(request, id));
     }
 
     @DeleteMapping(ADMIN_CATEGORY_ID)
-    public ResponseEntity<?> deleteCategory(@PathVariable Long id) {
+    public ResponseEntity<Boolean> deleteCategory(@PathVariable Long id) {
         return ResponseEntity.ok(productService.deleteCategory(id));
     }
 }

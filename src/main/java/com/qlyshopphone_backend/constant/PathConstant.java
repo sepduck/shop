@@ -13,6 +13,10 @@ public class PathConstant {
     public static final String API_V1_LOGIN = API_V1 + LOGIN;
     public static final String API_V1_REGISTER = API_V1 + REGISTER;
 
+    public static final String SEND_VERIFICATION = "/send-verification";
+    public static final String VERIFY = "/verify";
+    public static final String RESEND_VERIFICATION = "/resend-verification";
+    public static final String FORGOT_PASSWORD = "/forgot-password";
     public static final String CART = "/cart";
     public static final String CART_ADD_PRODUCT_ID = "/cart/add/{productId}";
     public static final String LIST_CART = "/list-cart";
@@ -80,20 +84,20 @@ public class PathConstant {
     public static final String USERS = "/users";
     public static final String ADMIN_USERS = ADMIN + "/users";
     public static final String GENDER = "/gender";
-    public static final String PASSWORD = "/password";
+    public static final String CHANGE_PASSWORD = "/change-password";
     public static final String INFO = "/info";
     public static final String EMPLOYEE = "/employee";
     public static final String USERS_INFO = USERS + INFO;
     public static final String USERS_INFO_FILE = USERS_INFO + "/file";
     public static final String ADMIN_USERS_ID = ADMIN_USERS + "/{id}";
     public static final String ADMIN_EMPLOYEE = ADMIN + EMPLOYEE;
-    public static final String ADMIN_EMPLOYEE_ROLE_USER_ID = ADMIN_EMPLOYEE + "/role/{userId}";
+    public static final String ADMIN_ASSIGN_EMPLOYEE = ADMIN + "/assign/{userId}";
     public static final String ADMIN_EMPLOYEE_ID = ADMIN_EMPLOYEE + "/{id}";
     public static final String ADMIN_EMPLOYEE_SEARCH = ADMIN_EMPLOYEE + SEARCH;
-    public static final String ADMIN_EMPLOYEE_SEARCH_ID = ADMIN_EMPLOYEE_SEARCH + "id/{id}";
-    public static final String ADMIN_EMPLOYEE_SEARCH_NAME = ADMIN_EMPLOYEE_SEARCH + "name/{name}";
-    public static final String ADMIN_EMPLOYEE_SEARCH_PHONE_NUMBER = ADMIN_EMPLOYEE_SEARCH + "phone/{number}";
-    public static final String ADMIN_EMPLOYEE_SEARCH_ACTIVE_NUMBER = ADMIN_EMPLOYEE_SEARCH + "active/{number}";
+    public static final String ADMIN_EMPLOYEE_SEARCH_ID = ADMIN_EMPLOYEE_SEARCH + "/id/{id}";
+    public static final String ADMIN_EMPLOYEE_SEARCH_NAME = ADMIN_EMPLOYEE_SEARCH + "/name/{name}";
+    public static final String ADMIN_EMPLOYEE_SEARCH_PHONE_NUMBER = ADMIN_EMPLOYEE_SEARCH + "/phone/{number}";
+    public static final String ADMIN_EMPLOYEE_SEARCH_STATUS = ADMIN_EMPLOYEE_SEARCH + "/status/{status}";
     public static final String CUSTOMER = "/customer";
     public static final String ADMIN_CUSTOMER = ADMIN + CUSTOMER;
     public static final String ADMIN_CUSTOMER_ID = ADMIN_CUSTOMER + "/{id}";
@@ -103,6 +107,16 @@ public class PathConstant {
     public static final String ADMIN_CUSTOMER_SEARCH_PHONE_NUMBER = ADMIN_CUSTOMER_SEARCH + "/phone/{number}";
     public static final String ADMIN_CUSTOMER_SEARCH_EMAIL = ADMIN_CUSTOMER_SEARCH + "/email/{email}";
     public static final String ADMIN_CUSTOMER_SEARCH_ADDRESS = ADMIN_CUSTOMER_SEARCH + "/address/{address}";
-    public static final String ADMIN_CUSTOMER_SEARCH_ACTIVE_NUMBER = ADMIN_CUSTOMER_SEARCH + "/active/{number}";
-    public static final String ADMIN_CUSTOMER_SEARCH_GENDER_NUMBER = ADMIN_CUSTOMER_SEARCH + "/gender/{number}";
+    public static final String ADMIN_CUSTOMER_SEARCH_STATUS = ADMIN_CUSTOMER_SEARCH + "/status/{status}";
+    public static final String ADMIN_CUSTOMER_SEARCH_GENDER = ADMIN_CUSTOMER_SEARCH + "/gender/{gender}";
+    public static final String UPLOAD = "/upload";
+
+    public static final String UPDATE_AVATAR = "/update-avatar";
+    public static final String UPDATE_FIRSTNAME = "/update-firstname";
+    public static final String UPDATE_LASTNAME = "/update-lastname";
+    public static final String UPDATE_ADDRESS = "/update-address";
+    public static final String UPDATE_BIRTHDAY = "/update-birthday";
+    public static final String UPDATE_FACEBOOK = "/update-facebook";
+    public static final String UPDATE_GENDER = "/update-gender";
+    public static final String UPDATE_PHONE = "/update-phone";
 }

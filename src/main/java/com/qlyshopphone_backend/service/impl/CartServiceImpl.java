@@ -40,18 +40,18 @@ public class CartServiceImpl implements CartService {
     @Override
     public String addProductToCart(Long productId) {
         Users users = authenticationService.getAuthenticatedUser();
-        Product product = productRepository.findById(productId)
+        Products products = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException(PRODUCT_NOT_FOUND));
 
-        Cart existingCartItem = users.getCart().stream()
-                .filter(item -> item.getProduct().getProductId().equals(productId) && !item.isSold())
+        Carts existingCartsItem = users.getCarts().stream()
+                .filter(item -> item.getProducts().getId().equals(productId) && !item.isSold())
                 .findFirst()
                 .orElse(null);
 
-        if (existingCartItem != null) {
-            existingCartItem.setQuantity(existingCartItem.getQuantity() + 1);
+        if (existingCartsItem != null) {
+            existingCartsItem.setQuantity(existingCartsItem.getQuantity() + 1);
         } else {
-            addNewProductToCart(users, product);
+            addNewProductToCart(users, products);
         }
         userRepository.save(users);
         return PRODUCT_ADDED_SUCCESSFULLY;
@@ -60,20 +60,20 @@ public class CartServiceImpl implements CartService {
     @Override
     public List<CartRequest> getUserCart() {
         Users users = authenticationService.getAuthenticatedUser();
-        return users.getCart()
+        return users.getCarts()
                 .stream()
-                .filter(cart -> !cart.isSold() && !cart.isDeleteCart())
-                .sorted(Comparator.comparing(Cart::getCartId).reversed())
+                .filter(carts -> !carts.isSold() && !carts.isDeleteCart())
+                .sorted(Comparator.comparing(Carts::getId).reversed())
                 .map(CartMapper::toDto)
                 .collect(Collectors.toList());
     }
 
-    private void addNewProductToCart(Users users, Product product) {
-        Cart cart = new Cart();
-        cart.setProduct(product);
-        cart.setQuantity(1L);
-        cart.setUser(users);
-        users.getCart().add(cart);
+    private void addNewProductToCart(Users users, Products products) {
+        Carts carts = new Carts();
+        carts.setProducts(products);
+        carts.setQuantity(1L);
+        carts.setUsers(users);
+        users.getCarts().add(carts);
     }
 
     @Override
@@ -93,12 +93,12 @@ public class CartServiceImpl implements CartService {
         long totalItems = 0;
         CustomerInfo customerInfo = customerInfoRepository.findById(request.getCustomerId())
                 .orElseThrow(() -> new RuntimeException(CUSTOMER_INFO_NOT_FOUND));
-        List<Cart> carts = cartRepository.findAllById(request.getCartIds());
+        List<Carts> carts = cartRepository.findAllById(request.getCartIds());
         validateCarts(carts);
         if (carts.size() != request.getCartIds().size()) {
             throw new RuntimeException(CART_NOT_FOUND);
         }
-        for (Cart cart : carts) {
+        for (Carts cart : carts) {
             totalPrice = totalPrice.add(processCart(cart, users));
             totalItems += cart.getQuantity();
         }
@@ -127,7 +127,7 @@ public class CartServiceImpl implements CartService {
         LocalDateTime startDate = LocalDateTime.now().minusDays(30);
         LocalDateTime endDate = LocalDateTime.now();
 
-        List<Purchase> purchases = purchaseRepository.findAllPurchasesBetweenDates(startDate, endDate);
+        List<Purchases> purchases = purchaseRepository.findAllPurchasesBetweenDates(startDate, endDate);
 
         List<PurchaseRequest> purchaseRequests = purchases.stream()
                 .map(PurchaseMapper::toDto)
@@ -148,19 +148,20 @@ public class CartServiceImpl implements CartService {
         LocalDate startDate = LocalDate.now().minusDays(30);
         LocalDate endDate = LocalDate.now();
 
-        List<Purchase> purchases = purchaseRepository.findAllPurchasesBetweenDates(
+        List<Purchases> purchases = purchaseRepository.findAllPurchasesBetweenDates(
                 startDate.atStartOfDay(),
                 endDate.atTime(23, 59, 59));
 
-        Map<LocalDate, BigDecimal> dailySaleMap = purchases.stream()
-                .collect(Collectors.groupingBy(
-                        purchase -> purchase.getPurchaseDate().toLocalDate(),
-                        Collectors.mapping(Purchase::getTotalPrice,
-                                Collectors.reducing(BigDecimal.ZERO, BigDecimal::add))
-                ));
-        return startDate.datesUntil(endDate.plusDays(1))
-                .map(date -> dailySaleMap.getOrDefault(date, BigDecimal.ZERO))
-                .collect(Collectors.toList());
+//        Map<LocalDate, BigDecimal> dailySaleMap = purchases.stream()
+//                .collect(Collectors.groupingBy(
+//                        purchase -> purchase.getPurchaseDate().toLocalDate(),
+//                        Collectors.mapping(Purchase::getTotalPrice,
+//                                Collectors.reducing(BigDecimal.ZERO, BigDecimal::add))
+//                ));
+//        return startDate.datesUntil(endDate.plusDays(1))
+//                .map(date -> dailySaleMap.getOrDefault(date, BigDecimal.ZERO))
+//                .collect(Collectors.toList());
+        return null;
     }
 
     @Override
@@ -177,10 +178,10 @@ public class CartServiceImpl implements CartService {
     public String createCustomerInfo(CustomerInfoRequest customerInfoRequest) {
         Users users = authenticationService.getAuthenticatedUser();
         CustomerInfo customerInfo = new CustomerInfo();
-        customerInfo.setCustomerName(customerInfoRequest.getCustomerName());
+        customerInfo.setName(customerInfoRequest.getName());
         customerInfo.setPhone(customerInfoRequest.getPhone());
         customerInfo.setAddress(customerInfoRequest.getAddress());
-        customerInfo.setUser(users);
+        customerInfo.setUsers(users);
         users.getCustomerInfo().add(customerInfo);
         customerInfoRepository.save(customerInfo);
         return SUCCESSFULLY_CREATED_CUSTOMER_INFO;
@@ -190,7 +191,7 @@ public class CartServiceImpl implements CartService {
     public String updateCustomerInfo(Long customerId, CustomerInfoRequest customerInfoRequest) {
         CustomerInfo customerInfo = customerInfoRepository.findById(customerId)
                 .orElseThrow(() -> new RuntimeException(CUSTOMER_INFO_NOT_FOUND));
-        customerInfo.setCustomerName(customerInfoRequest.getCustomerName());
+        customerInfo.setName(customerInfoRequest.getName());
         customerInfo.setPhone(customerInfoRequest.getPhone());
         customerInfo.setAddress(customerInfoRequest.getAddress());
         customerInfoRepository.save(customerInfo);
@@ -201,51 +202,52 @@ public class CartServiceImpl implements CartService {
     public String deleteCustomerInfo(Long customerId) {
         CustomerInfo customerInfo = customerInfoRepository.findById(customerId)
                         .orElseThrow(() -> new RuntimeException(CUSTOMER_INFO_NOT_FOUND));
-        customerInfoRepository.deleteById(customerInfo.getCustomerId());
+        customerInfoRepository.deleteById(customerInfo.getId());
         return SUCCESSFULLY_DELETED_DELIVERY_ADDRESS_INFORMATION;
     }
 
-    private void validateCarts(List<Cart> carts) {
-        for (Cart cart : carts) {
+    private void validateCarts(List<Carts> carts) {
+        for (Carts cart : carts) {
             if (cart.isSold()) {
                 throw new RuntimeException(PRODUCT_ALREADY_SOLD);
             }
-            if (cart.getProduct().getInventory() < cart.getQuantity()) {
+            if (cart.getProducts().getInventory() < cart.getQuantity()) {
                 throw new RuntimeException(PRODUCT_OUT_OF_STOCK);
             }
         }
     }
 
-    private BigDecimal processCart(Cart cart, Users users) {
-        Product product = cart.getProduct();
-        product.setInventory(product.getInventory() - cart.getQuantity());
-        productRepository.save(product);
+    private BigDecimal processCart(Carts carts, Users users) {
+        Products products = carts.getProducts();
+        products.setInventory(products.getInventory() - carts.getQuantity());
+        productRepository.save(products);
 
-        cart.setSold(true);
-        cart.setUser(users);
-        cartRepository.save(cart);
+        carts.setSold(true);
+        carts.setUsers(users);
+        cartRepository.save(carts);
 
-        return product.getPrice().multiply(BigDecimal.valueOf(cart.getQuantity()));
+//        return product.getPrice().multiply(BigDecimal.valueOf(cart.getQuantity()));
+        return BigDecimal.ZERO;
     }
 
     private void savePurchase(Users users, CustomerInfo customerInfo, BigDecimal totalPrice, long totalItems) {
-        Purchase purchase = new Purchase();
-        purchase.setUser(users);
-        purchase.setCustomerInfo(customerInfo);
-        purchase.setTotalAmount(totalItems);
-        purchase.setTotalPrice(totalPrice);
-        purchase.setPurchaseDate(LocalDateTime.now());
-        purchaseRepository.save(purchase);
+        Purchases purchases = new Purchases();
+        purchases.setUsers(users);
+        purchases.setCustomerInfo(customerInfo);
+        purchases.setTotalAmount(totalItems);
+//        purchase.setTotalPrice(totalPrice);
+        purchases.setPurchaseDate(LocalDateTime.now());
+        purchaseRepository.save(purchases);
     }
 
-    private void updateUserStatistics(Users user, BigDecimal totalPrice, long totalItems) {
-        UserStatistics userStatistics = userStatisticsRepository.findByUserUserId(user.getUserId())
-                .orElse(new UserStatistics(user));
-        BigDecimal currentTotalAmountPaid = userStatistics.getTotalAmountPaid() != null ? userStatistics.getTotalAmountPaid() : BigDecimal.ZERO;
-        userStatistics.setTotalAmountPaid(currentTotalAmountPaid.add(totalPrice));
-        long currentTotalItemsBought = userStatistics.getTotalItemBought() != null ? userStatistics.getTotalItemBought() : 0;
-        userStatistics.setTotalItemBought(currentTotalItemsBought + totalItems);
-        userStatisticsRepository.save(userStatistics);
+    private void updateUserStatistics(Users users, BigDecimal totalPrice, long totalItems) {
+//        UserStatistics userStatistics = userStatisticsRepository.findByUserUserId(user.getUserId())
+//                .orElse(new UserStatistics(user));
+////        BigDecimal currentTotalAmountPaid = userStatistics.getTotalAmountPaid() != null ? userStatistics.getTotalAmountPaid() : BigDecimal.ZERO;
+////        userStatistics.setTotalAmountPaid(currentTotalAmountPaid.add(totalPrice));
+//        long currentTotalItemsBought = userStatistics.getTotalItemBought() != null ? userStatistics.getTotalItemBought() : 0;
+//        userStatistics.setTotalItemBought(currentTotalItemsBought + totalItems);
+//        userStatisticsRepository.save(userStatistics);
     }
 
     @Override
@@ -260,13 +262,14 @@ public class CartServiceImpl implements CartService {
     }
 
     private BigDecimal getTotalSalesDate(LocalDate date) {
-        LocalDateTime startDate = date.atStartOfDay();
-        LocalDateTime endDate = startDate.plusDays(1);
-        List<Purchase> purchases = purchaseRepository.findAllPurchasesBetweenDates(startDate, endDate);
-
-        return purchases.stream()
-                .map(Purchase::getTotalPrice)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+//        LocalDateTime startDate = date.atStartOfDay();
+//        LocalDateTime endDate = startDate.plusDays(1);
+//        List<Purchase> purchases = purchaseRepository.findAllPurchasesBetweenDates(startDate, endDate);
+//
+//        return purchases.stream()
+//                .map(Purchase::getTotalPrice)
+//                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        return null;
     }
 
     private BigDecimal calculatePercentageChange(BigDecimal previousTotal, BigDecimal currentTotal) {
@@ -292,12 +295,13 @@ public class CartServiceImpl implements CartService {
     }
 
     public BigDecimal getTotalSalesMonth(LocalDate firstDayOfMonth) {
-        LocalDateTime startDate = firstDayOfMonth.atStartOfDay();
-        LocalDateTime endDate = startDate.plusMonths(1);
-
-        List<Purchase> purchases = purchaseRepository.findAllPurchasesBetweenDates(startDate, endDate);
-        return purchases.stream()
-                .map(Purchase::getTotalPrice)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+//        LocalDateTime startDate = firstDayOfMonth.atStartOfDay();
+//        LocalDateTime endDate = startDate.plusMonths(1);
+//
+//        List<Purchase> purchases = purchaseRepository.findAllPurchasesBetweenDates(startDate, endDate);
+//        return purchases.stream()
+//                .map(Purchase::getTotalPrice)
+//                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        return null;
     }
 }

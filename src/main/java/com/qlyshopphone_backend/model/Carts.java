@@ -3,32 +3,36 @@ package com.qlyshopphone_backend.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
-import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @Entity
-public class Cart {
+public class Carts {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "cart_id")
-    private Long cartId;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "product_id")
-    private Product product;
+    private Products products;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private Users user;
+    private Users users;
 
-    @Column(name = "quantity")
     private Long quantity;
 
-    @Column(name = "sold")
     private boolean sold;
 
-    @Column(name = "delete_cart")
     private boolean deleteCart;
+
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 }

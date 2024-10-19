@@ -6,31 +6,25 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.math.BigDecimal;
-
 @Getter
 @Setter
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "user_statistics")
 public class UserStatistics {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_statistics_id")
-    private Long userStatisticsId;
+    private Long id;
 
     @OneToOne
     @JoinColumn(name = "user_id")
-    private Users user;
+    private Users users;
 
-    @Column(name = "total_amount_paid")
-    private BigDecimal totalAmountPaid;
+    private float totalAmountPaid;
 
-    @Column(name = "total_item_bought")
     private Long totalItemBought;
 
-    public UserStatistics(Users user) {
-        this.user = user;
+    public UserStatistics(Users users) {
+        this.users = users;
     }
 }

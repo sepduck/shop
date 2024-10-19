@@ -7,12 +7,10 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-public class Category {
+public class Units {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "category_id")
-    private Long categoryId;
+    private Long id;
 
-    @Column(name = "category_name")
-    private String categoryName;
+    private String name;
 }

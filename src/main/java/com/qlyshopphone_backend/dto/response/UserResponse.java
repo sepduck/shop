@@ -6,7 +6,7 @@ import java.time.LocalDate;
 
 @Data
 public class UserResponse {
-    private Long userId;
+    private Long id;
     private String username;
     private String phoneNumber;
     private LocalDate startDay;
@@ -15,8 +15,8 @@ public class UserResponse {
     private String facebook;
     private String email;
     private String address;
-    private String fullName;
+    private String firstName;
+    private String lastName;
     private String status;
     private LocalDate birthday;
-    private String token;
 }

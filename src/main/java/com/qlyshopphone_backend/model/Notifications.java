@@ -9,20 +9,17 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
-public class Notification {
+public class Notifications {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "notification_id")
-    private Long notificationId;
+    private Long id;
 
-    @Column(name = "message")
     private String message;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private Users user;
+    private Users users;
 
-    @Column(name = "timestamp")
     @CreationTimestamp
     private LocalDateTime timestamp;
 }

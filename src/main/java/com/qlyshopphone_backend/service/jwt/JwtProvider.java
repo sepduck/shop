@@ -27,16 +27,16 @@ public class JwtProvider {
 
     public String generateToken(Authentication authentication) {
         Map<String, Object> claims = new HashMap<>();
-        Users user = (Users) authentication.getPrincipal();
+        Users users = (Users) authentication.getPrincipal();
         claims.put("roles", authentication.getAuthorities());
-        claims.put("email", user.getEmail());
-        claims.put("firstName", user.getFirstName());
-        claims.put("lastName", user.getLastName());
+        claims.put("email", users.getEmail());
+        claims.put("firstName", users.getFirstName());
+        claims.put("lastName", users.getLastName());
 
         SecretKey secretKey = Keys.hmacShaKeyFor(privateKeyString.getBytes());
         return Jwts.builder()
                 .setClaims(claims)
-                .setSubject(user.getUsername())
+                .setSubject(users.getUsername())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + validityInMilliseconds))
                 .signWith(secretKey, SignatureAlgorithm.HS512)

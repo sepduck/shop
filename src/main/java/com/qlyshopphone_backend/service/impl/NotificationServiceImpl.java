@@ -2,7 +2,7 @@ package com.qlyshopphone_backend.service.impl;
 
 import com.qlyshopphone_backend.dto.request.NotificationRequest;
 import com.qlyshopphone_backend.mapper.NotificationMapper;
-import com.qlyshopphone_backend.model.Notification;
+import com.qlyshopphone_backend.model.Notifications;
 import com.qlyshopphone_backend.model.Users;
 import com.qlyshopphone_backend.repository.NotificationRepository;
 import com.qlyshopphone_backend.service.NotificationService;
@@ -22,20 +22,20 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public List<NotificationRequest> getNotifications() {
-        List<Notification> notifications = notificationRepository.findAll();
+        List<Notifications> notifications = notificationRepository.findAll();
         return notifications.stream()
-                .sorted(Comparator.comparing(Notification::getNotificationId).reversed())
+                .sorted(Comparator.comparing(Notifications::getId).reversed())
                 .map(NotificationMapper :: toDto)
                 .collect(Collectors.toList());
     }
 
     @Override
     public void saveNotification(String message, Users users) {
-        Notification notification = new Notification();
-        notification.setMessage(message);
-        notification.setUser(users);
-        notification.setTimestamp(LocalDateTime.now());
-        notificationRepository.save(notification);
+        Notifications notifications = new Notifications();
+        notifications.setMessage(message);
+        notifications.setUsers(users);
+        notifications.setTimestamp(LocalDateTime.now());
+        notificationRepository.save(notifications);
     }
 
     // Phương thức xóa các thông báo cũ hơn 15 ngày

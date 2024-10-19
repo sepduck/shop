@@ -17,9 +17,13 @@ public class UserRequest {
     private String gender;
     private String facebook;
     private String email;
-    private String address;
+    private Long addressId;
     private String firstName;
     private String lastName;
     private LocalDate birthday;
-    private boolean employee;
+
+    private String address;
+    private Long cityId;
+    private Long countryId;
+    private Long wardId;
 }

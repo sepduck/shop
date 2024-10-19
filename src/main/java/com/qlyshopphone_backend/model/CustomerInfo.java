@@ -10,22 +10,17 @@ import lombok.Setter;
 public class CustomerInfo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "customer_id")
-    private Long customerId;
+    private Long id;
 
-    @Column(name = "customer_name")
-    private String customerName;
+    private String name;
 
-    @Column(name = "phone")
     private String phone;
 
-    @Column(name = "address")
     private String address;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private Users user;
+    private Users users;
 
-    @Column(name = "delete_customer_info")
     private boolean deleteCustomerInfo;
 }

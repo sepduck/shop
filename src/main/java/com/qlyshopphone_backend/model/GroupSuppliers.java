@@ -7,15 +7,12 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-public class GroupSupplier {
+public class GroupSuppliers {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "group_supplier_id")
-    private Long groupSupplierId;
+    private Long id;
 
-    @Column(name = "group_supplier_name")
-    private String  groupSupplierName;
+    private String name;
 
-    @Column(name = "note")
     private String  note;
 }

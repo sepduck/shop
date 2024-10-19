@@ -14,15 +14,13 @@ import java.math.BigDecimal;
 
 public class ProductRequest {
     @NotBlank(message = "Tên sản phẩm không được để trống")
-    private String productName;
+    private String name;
 
     @NotNull(message = "Giá sản phẩm không được để trống")
-    @DecimalMin(value = "0.0", inclusive = false, message = "Giá sản phẩm phải lớn hơn 0")
-    private BigDecimal price;
+    private float price;
 
     @NotNull(message = "Giá vốn không được để trống")
-    @DecimalMin(value = "0.0", inclusive = false, message = "Giá vốn phải lớn hơn 0")
-    private BigDecimal capitalPrice;
+    private float capitalPrice;
 
     @NotNull(message = "Số lượng tồn kho không được để trống")
     @DecimalMin(value = "0.0", inclusive = false, message = "Số lượng tồn kho phải lớn hơn 0")
@@ -38,8 +36,7 @@ public class ProductRequest {
     private Long locationId;
 
     @NotNull(message = "Trọng lượng không được để trống")
-    @DecimalMin(value = "0.0", inclusive = false, message = "Trọng lượng phải lớn hơn 0")
-    private BigDecimal weight;
+    private float weight;
 
     @NotNull(message = "Thuộc tính không được để trống")
     private Long propertiesId;
@@ -51,9 +48,5 @@ public class ProductRequest {
     private Long unitId;
 
     private boolean directSales;
-    private boolean deleteProduct;
-    private String thumbnail;
 
-    @NotNull(message = "Ảnh sản phẩm không được để trống")
-    private MultipartFile file;
 }

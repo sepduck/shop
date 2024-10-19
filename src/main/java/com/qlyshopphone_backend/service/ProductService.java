@@ -1,13 +1,14 @@
 package com.qlyshopphone_backend.service;
 
 import com.qlyshopphone_backend.dto.request.*;
-import com.qlyshopphone_backend.model.*;
+import com.qlyshopphone_backend.dto.response.ProductAttributeResponse;
+import com.qlyshopphone_backend.dto.response.ProductResponse;
 
 import java.util.List;
 import java.util.Map;
 
 public interface ProductService {
-    List<Map<String, Object>> getAllProducts();
+    List<ProductResponse> getAllProducts();
 
     String saveProduct(ProductRequest productRequest) throws Exception;
 
@@ -31,52 +32,52 @@ public interface ProductService {
 
     List<Map<String, Object>> searchCategory(int number);
 
-    List<Category> getAllCategory();
+    List<ProductAttributeResponse> getAllCategories();
 
-    String saveCategory(CategoryRequest categoryRequest);
+    ProductAttributeResponse createCategory(ProductAttributeRequest request);
 
-    String updateCategory(CategoryRequest categoryRequest, Long categoryId);
+    ProductAttributeResponse updateCategory(ProductAttributeRequest request, Long categoryId);
 
-    String deleteCategory(Long categoryId);
+    boolean deleteCategory(Long categoryId);
 
-    List<GroupProduct> getAllGroupProduct();
+    List<ProductAttributeResponse> getAllGroupProduct();
 
-    String saveGroupProduct(GroupProductRequest groupProductRequest);
+    ProductAttributeResponse saveGroupProduct(ProductAttributeRequest request);
 
-    String updateGroupProduct(GroupProductRequest groupProductRequest, Long groupProductId);
+    ProductAttributeResponse updateGroupProduct(ProductAttributeRequest request, Long groupProductId);
 
-    String deleteGroupProduct(Long groupProductId);
+    boolean deleteGroupProduct(Long groupProductId);
 
-    List<Location> getAllLocation();
+    List<ProductAttributeResponse> getAllLocation();
 
-    String saveLocation(LocationRequest locationRequest);
+    ProductAttributeResponse createLocation(ProductAttributeRequest request);
 
-    String updateLocation(LocationRequest locationRequest, Long locationId);
+    ProductAttributeResponse updateLocation(ProductAttributeRequest request, Long locationId);
 
-    String deleteLocation(Long locationId);
+    boolean deleteLocation(Long locationId);
 
-    List<Properties> getAllProperties();
+    List<ProductAttributeResponse> getAllProperties();
 
-    String saveProperties(PropertiesRequest propertiesRequest);
+    ProductAttributeResponse saveProperties(ProductAttributeRequest request);
 
-    String updateProperties(PropertiesRequest propertiesRequest, Long propertiesId);
+    ProductAttributeResponse updateProperties(ProductAttributeRequest request, Long propertiesId);
 
-    String deleteProperties(Long propertiesId);
+    boolean deleteProperties(Long propertiesId);
 
-    List<Trademark> getAllTrademarks();
+    List<ProductAttributeResponse> getAllTrademarks();
 
-    String saveTrademark(TrademarkRequest trademarkRequest);
+    ProductAttributeResponse saveTrademark(ProductAttributeRequest request);
 
-    String updateTrademark(TrademarkRequest trademarkRequest, Long trademarkId);
+    ProductAttributeResponse updateTrademark(ProductAttributeRequest request, Long trademarkId);
 
-    String deleteTrademark(Long trademarkId);
+    boolean deleteTrademark(Long trademarkId);
 
-    List<Unit> getAllUnits();
+    List<ProductAttributeResponse> getAllUnits();
 
-    String saveUnit(UnitRequest unitRequest);
+    ProductAttributeResponse createUnit(ProductAttributeRequest productAttributeRequest);
 
-    String updateUnit(UnitRequest unitRequest, Long unitId);
+    ProductAttributeResponse updateUnit(ProductAttributeRequest productAttributeRequest, Long unitId);
 
-    String deleteUnit(Long unitId);
+    boolean deleteUnit(Long unitId);
 
 }

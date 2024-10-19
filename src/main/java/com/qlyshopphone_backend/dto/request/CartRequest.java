@@ -9,12 +9,9 @@ import java.math.BigDecimal;
 public class CartRequest {
     private Long cartId;
     private Long productId;
-    private String productName;
-    private BigDecimal price;
+    private String name;
+    private float price;
     private Long userId;
     private Long quantity;
     private boolean sold;
-    private boolean deleteCart;
-    private MultipartFile file;
-    private String fileBase64;
-}
+    private boolean deleteCart;}

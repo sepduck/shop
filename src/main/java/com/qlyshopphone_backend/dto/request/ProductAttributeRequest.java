@@ -8,6 +8,6 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class LocationRequest {
-    private String locationName;
+public class ProductAttributeRequest {
+    private String name;
 }
