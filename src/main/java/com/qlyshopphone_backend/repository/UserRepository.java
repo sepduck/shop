@@ -48,4 +48,7 @@ public interface UserRepository extends JpaRepository<Users, Long> {
     @Query("SELECT u FROM Users u WHERE u.role = :role AND u.status = :status ORDER BY u.id DESC")
     List<UserRolesResponse> searchUserByStatus(@Param("role") Role role,
                                                @Param("status") Status status);
+
+    @Query("SELECT u FROM Users u WHERE u.id = :userId")
+    Users getUserById(@Param("userId") Long userId);
 }

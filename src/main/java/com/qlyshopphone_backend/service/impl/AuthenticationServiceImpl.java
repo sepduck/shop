@@ -3,6 +3,7 @@ package com.qlyshopphone_backend.service.impl;
 import static com.qlyshopphone_backend.constant.ErrorMessage.*;
 
 import com.qlyshopphone_backend.dto.request.AuthenticationRequest;
+import com.qlyshopphone_backend.dto.request.UserDetailRequest;
 import com.qlyshopphone_backend.dto.request.UserRequest;
 import com.qlyshopphone_backend.dto.response.LoginResponse;
 import com.qlyshopphone_backend.exceptions.ApiRequestException;
@@ -12,7 +13,8 @@ import com.qlyshopphone_backend.model.enums.Role;
 import com.qlyshopphone_backend.model.enums.Status;
 import com.qlyshopphone_backend.repository.*;
 import com.qlyshopphone_backend.service.AuthenticationService;
-import com.qlyshopphone_backend.service.jwt.JwtProvider;
+import com.qlyshopphone_backend.config.jwt.JwtProvider;
+import com.qlyshopphone_backend.service.util.AddressService;
 import com.qlyshopphone_backend.service.util.VerificationCodeGenerator;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
@@ -32,101 +34,100 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class AuthenticationServiceImpl implements AuthenticationService {
-    private final JwtProvider provider;
-    private final AuthenticationManager authenticationManager;
+    private final JwtProvider jwtProvider;
+    private final AuthenticationManager authManager;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final BasicMapper basicMapper;
-    private final VerificationTokenRepository verificationTokenRepository;
+    private final VerificationTokenRepository verificationTokenRepo;
     private final EmailService emailService;
-    private final AddressCountryRepository countryRepository;
-    private final AddressCityRepository cityRepository;
-    private final AddressWardRepository wardRepository;
+    private final AddressService addressService;
 
     @Override
-    public LoginResponse login(AuthenticationRequest request) {
-        Authentication authentication = authenticationManager
+    public LoginResponse loginUser(AuthenticationRequest request) {
+        Authentication authentication = authManager
                 .authenticate(new UsernamePasswordAuthenticationToken
                         (request.getUsername(), request.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        Users users = userRepository.getUserByUsername(request.getUsername());
-        String token = provider.generateToken(authentication);
-        UserRequest userRequest = basicMapper.convertToRequest(users, UserRequest.class);
-        return new LoginResponse(userRequest, token);
+        Users user = userRepository.getUserByUsername(request.getUsername());
+        String jwtToken = jwtProvider.generateToken(authentication);
+        UserRequest userRequest = basicMapper.convertToRequest(user, UserRequest.class);
+        return new LoginResponse(userRequest, jwtToken);
     }
 
     @Transactional
     @Override
-    public boolean registerUser(UserRequest request) throws MessagingException {
-        Users newUsers = basicMapper.convertToRequest(request, Users.class);
-        newUsers.setPassword(passwordEncoder.encode(request.getPassword()));
-        newUsers.setStatus(Status.ACTIVE);
-        newUsers.setRole(Role.CUSTOMER);
+    public boolean registerUser(UserDetailRequest request) throws MessagingException {
+        Users newUser = basicMapper.convertToRequest(request, Users.class);
+        newUser.setPassword(passwordEncoder.encode(request.getPassword()));
+        newUser.setStatus(Status.ACTIVE);
+        newUser.setRole(Role.CUSTOMER);
+        newUser.setOperatingTime(LocalDateTime.now());
 
-        AddressCities addressCities = cityRepository.findById(request.getCityId())
-                .orElseThrow(() -> new ApiRequestException("City not found", HttpStatus.BAD_REQUEST));
-        AddressCountries addressCountries = countryRepository.findById(request.getCountryId())
-                .orElseThrow(() -> new ApiRequestException("Country not found", HttpStatus.BAD_REQUEST));
-        AddressWards addressWards = wardRepository.findById(request.getWardId())
-                .orElseThrow(() -> new ApiRequestException("Ward not found", HttpStatus.BAD_REQUEST));
+        Address address = new Address();
+        addressService.setAddressDetails(
+                address,
+                request.getWardId(),
+                request.getCityId(),
+                request.getCountryId(),
+                request.getStreet()
+        );
 
-        UserAddress userAddress = new UserAddress(request.getAddress(), addressWards, addressCities, addressCountries);
-        newUsers.setAddress(userAddress);
-        userRepository.save(newUsers);
+        newUser.setAddress(address);
+        userRepository.save(newUser);
 
         String verificationCode = VerificationCodeGenerator.generateCode();
-        LocalDateTime tokenExpiration = LocalDateTime.now(ZoneId.systemDefault()).plusHours(2);
-        VerificationTokens verificationTokens = new VerificationTokens(verificationCode, newUsers, tokenExpiration);
-        verificationTokenRepository.save(verificationTokens);
+        LocalDateTime tokenExpiry = LocalDateTime.now(ZoneId.systemDefault()).plusHours(2);
+        VerificationTokens verificationToken = new VerificationTokens(verificationCode, newUser, tokenExpiry);
+        verificationTokenRepo.save(verificationToken);
 
-        emailService.sendVerificationMail(newUsers.getEmail(), verificationCode);
+        emailService.sendVerificationMail(newUser.getEmail(), verificationCode);
         return true;
     }
 
 
     @Transactional
     @Override
-    public String verifyAccount(String token) {
-        VerificationTokens verificationTokens = verificationTokenRepository.findByToken(token)
+    public String verifyUserAccount(String token) {
+        VerificationTokens verificationToken = verificationTokenRepo.findByToken(token)
                 .orElseThrow(() -> new ApiRequestException("Invalid verification code!", HttpStatus.BAD_REQUEST));
 
-        if (verificationTokens.getExpiryDate().isBefore(LocalDateTime.now(ZoneId.systemDefault()))) {
+        if (verificationToken.getExpiresAt().isBefore(LocalDateTime.now(ZoneId.systemDefault()))) {
             throw new ApiRequestException("Verification code has expired!", HttpStatus.BAD_REQUEST);
         }
-        Users users = verificationTokens.getUsers();
-        users.setVerify(true);
-        userRepository.save(users);
-
-        verificationTokenRepository.delete(verificationTokens);
+        Users user = verificationToken.getUser();
+        user.setVerify(true);
+        userRepository.save(user);
+        verificationTokenRepo.delete(verificationToken);
 
         return "Account has been successfully activated!";
     }
 
     @Transactional
     @Override
-    public String resendVerificationToken(String email) throws MessagingException {
-        Users users = getUserByEmail(email);
-        VerificationTokens verificationTokens = verificationTokenRepository.findByUsers(users)
-                .orElseThrow(() -> new RuntimeException("Verification token not found!"));
-        if (verificationTokens.getExpiryDate().isBefore(LocalDateTime.now(ZoneId.systemDefault()))) {
-            verificationTokenRepository.delete(verificationTokens);
-            String newVerifyCode = VerificationCodeGenerator.generateCode();
+    public String resendVerificationTokenEmail(String email) throws MessagingException {
+        Users user = getUserByEmail(email);
+        VerificationTokens verificationToken = verificationTokenRepo.findByUser(user)
+                .orElseThrow(() -> new ApiRequestException("Verification token not found!", HttpStatus.BAD_REQUEST));
+        if (verificationToken.getExpiresAt().isBefore(LocalDateTime.now(ZoneId.systemDefault()))) {
+            verificationTokenRepo.delete(verificationToken);
+            String newVerificationCode = VerificationCodeGenerator.generateCode();
             LocalDateTime newExpiryDate = LocalDateTime.now(ZoneId.systemDefault()).plusHours(2);
 
-            VerificationTokens newToken = new VerificationTokens(newVerifyCode, users, newExpiryDate);
-            verificationTokenRepository.save(newToken);
+            VerificationTokens newToken = new VerificationTokens(newVerificationCode, user, newExpiryDate);
+            verificationTokenRepo.save(newToken);
 
-            emailService.sendVerificationMail(users.getEmail(), newVerifyCode);
+            emailService.sendVerificationMail(user.getEmail(), newVerificationCode);
             return "A new verification code has been sent to your email.";
         } else {
-            emailService.sendVerificationMail(users.getEmail(), verificationTokens.getToken());
+            emailService.sendVerificationMail(user.getEmail(), verificationToken.getToken());
             return "Verification code is still valid, resent to your email.";
         }
     }
 
     @Override
     @Transactional
-    public String forgotPassword(String email) throws MessagingException {
+    public String resetUserPassword(String email) throws MessagingException {
         Users users = getUserByEmail(email);
 
         String newPassword = UUID.randomUUID().toString().substring(0, 8);
@@ -139,7 +140,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public Users getAuthenticatedUser() {
+    public Users getCurrentAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return userRepository.getUserByUsername(authentication.getName());
     }

@@ -1,4 +1,4 @@
-package com.qlyshopphone_backend.controller.rest;
+package com.qlyshopphone_backend.controller.admin;
 
 import static com.qlyshopphone_backend.constant.PathConstant.*;
 import com.qlyshopphone_backend.dto.request.CustomerInfoRequest;
@@ -13,12 +13,12 @@ import java.math.BigDecimal;
 import java.util.*;
 
 @RestController
-@RequestMapping(API_V1)
+@RequestMapping(API_V1_CART)
 @RequiredArgsConstructor
 public class CartController {
     private final CartService cartService;
 
-    @PostMapping(CART_ADD_PRODUCT_ID)
+    @PostMapping(ADD_PRODUCT_ID)
     public ResponseEntity<String> addCartItem(@PathVariable("productId") Long productId) {
         return ResponseEntity.ok(cartService.addProductToCart(productId));
     }
@@ -28,12 +28,12 @@ public class CartController {
         return ResponseEntity.ok(cartService.getUserCart());
     }
 
-    @DeleteMapping(DELETE_CART_CART_ID)
+    @DeleteMapping(DELETE_CART_ID)
     public ResponseEntity<?> deleteCartItem(@PathVariable("cartId") Long cartId) {
         return ResponseEntity.ok(cartService.deleteCart(cartId));
     }
 
-    @PostMapping(CART_SELLS)
+    @PostMapping(SELLS)
     public ResponseEntity<?> sellCart(@RequestBody PayForCartItemsRequest request) {
         try {
             String responseMessage = cartService.sellMultipleProducts(request);
@@ -43,7 +43,7 @@ public class CartController {
         }
     }
 
-    @GetMapping(ADMIN_TODAY_PURCHASES)
+    @GetMapping(TODAY_PURCHASES)
     public ResponseEntity<?> getTodayPurchases() {
         Map<String, Object> response = cartService.getTodayPurchasesReport();
         if (((List<?>) response.get("purchases")).isEmpty()) {

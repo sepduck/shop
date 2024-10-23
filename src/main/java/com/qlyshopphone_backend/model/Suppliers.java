@@ -21,23 +21,22 @@ public class Suppliers {
 
     private String phoneNumber;
 
-    private String address;
-
     private String email;
 
     private String company;
 
     private String taxCode;
 
+    @Enumerated(EnumType.STRING)
     private Status status;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "address_id")
+    private Address address;
 
     @ManyToOne
     @JoinColumn(name = "group_supplier_id")
-    private GroupSuppliers groupSuppliers;
-
-    @ManyToOne
-    @JoinColumn(name = "product_id")
-    private Products products;
+    private GroupSuppliers groupSupplier;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

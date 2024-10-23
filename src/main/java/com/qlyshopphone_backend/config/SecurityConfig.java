@@ -3,9 +3,11 @@ package com.qlyshopphone_backend.config;
 import static com.qlyshopphone_backend.constant.PathConstant.*;
 
 import com.qlyshopphone_backend.service.impl.UserSecurityDetailService;
-import com.qlyshopphone_backend.service.jwt.JwtEntryPoint;
-import com.qlyshopphone_backend.service.jwt.JwtFilter;
+import com.qlyshopphone_backend.config.jwt.JwtEntryPoint;
+import com.qlyshopphone_backend.config.jwt.JwtFilter;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,11 +31,12 @@ public class SecurityConfig {
     private final JwtFilter filter;
     private final UserSecurityDetailService service;
 
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable).cors(Customizer.withDefaults())
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers(API_V1_LOGIN, API_V1_REGISTER)
+                        .requestMatchers(API_V1_AUTH + "/**")
                         .permitAll()
                         .requestMatchers(API_V1_ADMIN + "/**").hasRole("ADMIN")
                         .anyRequest()

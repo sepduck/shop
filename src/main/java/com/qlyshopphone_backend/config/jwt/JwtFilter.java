@@ -1,5 +1,6 @@
-package com.qlyshopphone_backend.service.jwt;
+package com.qlyshopphone_backend.config.jwt;
 
+import com.qlyshopphone_backend.service.TokenService;
 import com.qlyshopphone_backend.service.impl.UserSecurityDetailService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -19,28 +20,24 @@ import java.io.IOException;
 public class JwtFilter extends OncePerRequestFilter {
     private final JwtProvider jwtProvider;
     private final UserSecurityDetailService userSecurityDetailService;
+    private final TokenService tokenService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String requestPath = request.getServletPath();
-
-        // Bỏ qua xác thực cho các endpoint đăng nhập và đăng ký
-        if (requestPath.equals("/api/v1/login") || requestPath.equals("/api/v1/register")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
         String token = request.getHeader("Authorization");
-        if (token != null && token.startsWith("Bearer ")) {
-            token = token.substring(7);
+        if (token != null) {
+            token = token.replace("Bearer", "").trim();
+            if (tokenService.isTokenBlacklisted(token)) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("Token has been disabled");
+                return;
+            }
             if (jwtProvider.validateToken(token)) {
-                String username = jwtProvider.getUsernameFromToken(token);
-                UserDetails userDetails = userSecurityDetailService.loadUserByUsername(username);
-                if (userDetails != null){
-                    UsernamePasswordAuthenticationToken authenticationToken =
-                            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                    SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-                }
+                String email = jwtProvider.getUsernameFromToken(token);
+                UserDetails userDetails = userSecurityDetailService.loadUserByUsername(email);
+                UsernamePasswordAuthenticationToken authenticationToken
+                        = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
             }
         }
         filterChain.doFilter(request, response);

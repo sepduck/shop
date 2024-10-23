@@ -66,7 +66,7 @@ public class Users implements UserDetails {
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "address_id")
-    private UserAddress address;
+    private Address address;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
@@ -74,8 +74,10 @@ public class Users implements UserDetails {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
+    private LocalDateTime operatingTime;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(role.name()));
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }
 }

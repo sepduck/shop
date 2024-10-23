@@ -22,13 +22,13 @@ public class VerificationTokens {
 
     @OneToOne(targetEntity = Users.class)
     @JoinColumn(name = "user_id")
-    private Users users;
+    private Users user;
 
-    private LocalDateTime expiryDate;
+    private LocalDateTime expiresAt;
 
-    public VerificationTokens(String token, Users users, LocalDateTime expiryDate) {
+    public VerificationTokens(String token, Users user, LocalDateTime expiryDate) {
         this.token = token;
-        this.users = users;
-        this.expiryDate = expiryDate;
+        this.user = user;
+        this.expiresAt = expiryDate;
     }
 }

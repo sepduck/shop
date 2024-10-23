@@ -3,12 +3,12 @@ package com.qlyshopphone_backend.dto.request;
 import lombok.*;
 
 import java.time.LocalDate;
+
 @Data
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 public class UserRequest {
     private String username;
     private String password;
@@ -21,9 +21,4 @@ public class UserRequest {
     private String firstName;
     private String lastName;
     private LocalDate birthday;
-
-    private String address;
-    private Long cityId;
-    private Long countryId;
-    private Long wardId;
 }

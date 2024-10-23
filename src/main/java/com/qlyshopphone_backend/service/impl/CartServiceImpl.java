@@ -39,7 +39,7 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public String addProductToCart(Long productId) {
-        Users users = authenticationService.getAuthenticatedUser();
+        Users users = authenticationService.getCurrentAuthenticatedUser();
         Products products = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException(PRODUCT_NOT_FOUND));
 
@@ -59,7 +59,7 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public List<CartRequest> getUserCart() {
-        Users users = authenticationService.getAuthenticatedUser();
+        Users users = authenticationService.getCurrentAuthenticatedUser();
         return users.getCarts()
                 .stream()
                 .filter(carts -> !carts.isSold() && !carts.isDeleteCart())
@@ -78,7 +78,7 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public String deleteCart(Long cartId) {
-        Users users = authenticationService.getAuthenticatedUser();
+        Users users = authenticationService.getCurrentAuthenticatedUser();
         cartRepository.deleteByCartId(cartId);
         String message = users.getUsername() + " deleted the product in the cart with code: " + cartId;
         notificationService.saveNotification(message, users);
@@ -88,7 +88,7 @@ public class CartServiceImpl implements CartService {
     @Transactional
     @Override
     public String sellMultipleProducts(PayForCartItemsRequest request) {
-        Users users = authenticationService.getAuthenticatedUser();
+        Users users = authenticationService.getCurrentAuthenticatedUser();
         BigDecimal totalPrice = BigDecimal.ZERO;
         long totalItems = 0;
         CustomerInfo customerInfo = customerInfoRepository.findById(request.getCustomerId())
@@ -166,7 +166,7 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public List<CustomerInfoRequest> getCustomerInfo() {
-        Users users = authenticationService.getAuthenticatedUser();
+        Users users = authenticationService.getCurrentAuthenticatedUser();
         return users.getCustomerInfo()
                 .stream()
                 .filter(customerInfo -> !customerInfo.isDeleteCustomerInfo())
@@ -176,7 +176,7 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public String createCustomerInfo(CustomerInfoRequest customerInfoRequest) {
-        Users users = authenticationService.getAuthenticatedUser();
+        Users users = authenticationService.getCurrentAuthenticatedUser();
         CustomerInfo customerInfo = new CustomerInfo();
         customerInfo.setName(customerInfoRequest.getName());
         customerInfo.setPhone(customerInfoRequest.getPhone());
@@ -211,15 +211,15 @@ public class CartServiceImpl implements CartService {
             if (cart.isSold()) {
                 throw new RuntimeException(PRODUCT_ALREADY_SOLD);
             }
-            if (cart.getProducts().getInventory() < cart.getQuantity()) {
-                throw new RuntimeException(PRODUCT_OUT_OF_STOCK);
-            }
+//            if (cart.getProducts().getInventory() < cart.getQuantity()) {
+//                throw new RuntimeException(PRODUCT_OUT_OF_STOCK);
+//            }
         }
     }
 
     private BigDecimal processCart(Carts carts, Users users) {
         Products products = carts.getProducts();
-        products.setInventory(products.getInventory() - carts.getQuantity());
+//        products.setInventory(products.getInventory() - carts.getQuantity());
         productRepository.save(products);
 
         carts.setSold(true);

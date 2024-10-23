@@ -8,6 +8,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -19,42 +21,34 @@ public class Products {
 
     private String name;
 
-    private float price;
-
-    private float capitalPrice;
-
-    private Long inventory;
-
-    private float weight;
-
     @Enumerated(EnumType.STRING)
     private Status status;
 
-    private boolean directSales;
+    private String thumbnail;
+
+    @ManyToMany
+    @JoinTable(
+            name = "product_images",
+            joinColumns = @JoinColumn(name = "product_id"),
+            inverseJoinColumns = @JoinColumn(name = "image_id")
+    )
+    private Set<Images> images = new HashSet<>();
 
     @ManyToOne
     @JoinColumn(name = "group_product_id")
-    private GroupProducts groupProducts;
+    private GroupProducts groupProduct;
 
     @ManyToOne
     @JoinColumn(name = "trademark_id")
-    private Trademarks trademarks;
-
-    @ManyToOne
-    @JoinColumn(name = "location_id")
-    private Locations locations;
-
-    @ManyToOne
-    @JoinColumn(name = "properties_id")
-    private Properties properties;
+    private Trademarks trademark;
 
     @ManyToOne
     @JoinColumn(name = "category_id")
-    private Categories categories;
+    private Categories category;
 
     @ManyToOne
     @JoinColumn(name = "unit_id")
-    private Units units;
+    private Units unit;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

@@ -1,4 +1,4 @@
-package com.qlyshopphone_backend.service.jwt;
+package com.qlyshopphone_backend.config.jwt;
 
 import com.qlyshopphone_backend.model.Users;
 import io.jsonwebtoken.Claims;
@@ -62,5 +62,6 @@ public class JwtProvider {
                 .parseClaimsJws(token)
                 .getBody();
         return claims.getSubject();
+
     }
 }

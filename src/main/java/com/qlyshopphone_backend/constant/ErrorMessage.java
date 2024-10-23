@@ -33,6 +33,8 @@ public class ErrorMessage {
     public static final String OLD_PASSWORD_DOSE_NOT_MATCH = "Old password does not match!";
     public static final String NEW_PASSWORD_DOSE_NOT_MATCH = "New password does not match";
     public static final String PASSWORD_CHANGED_SUCCESSFULLY = "Password changed successfully";
+    public static final String THE_TOKEN_IS_INVALID_OR_HAS_EXPIRED = "The token is invalid or has expired.";
+    public static final String TOKEN_HAS_BEEN_BLACKLISTED = "Token has been blacklisted.";
 
     public static final String GROUP_PRODUCT_NOT_FOUND = "Group product not found";
     public static final String GROUP_PRODUCT_SAVED_SUCCESSFULLY = "Group product saved successfully";
@@ -78,4 +80,10 @@ public class ErrorMessage {
 
     public static final String EMPLOYEE_ROLES_SUCCESSFULLY_SAVED = "Employee Roles successfully saved";
     public static final String EMPLOYEE_DELETED_SUCCESSFULLY = "Employee deleted successfully";
+
+    public static final String ADDRESS_NOT_FOUND = "Address not found";
+    public static final String WARD_NOT_FOUND = "Ward not found";
+    public static final String CITY_NOT_FOUND = "City not found";
+    public static final String COUNTRY_NOT_FOUND = "Country not found";
+
 }

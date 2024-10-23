@@ -3,18 +3,20 @@ package com.qlyshopphone_backend.service.impl;
 import static com.qlyshopphone_backend.constant.ErrorMessage.*;
 
 import com.qlyshopphone_backend.dto.request.ChangePasswordRequest;
+import com.qlyshopphone_backend.dto.request.UserDetailRequest;
 import com.qlyshopphone_backend.dto.request.UserUpdateRequest;
 import com.qlyshopphone_backend.dto.response.UserProjectResponse;
 import com.qlyshopphone_backend.dto.response.UserRolesResponse;
 import com.qlyshopphone_backend.exceptions.ApiRequestException;
 import com.qlyshopphone_backend.mapper.BasicMapper;
-import com.qlyshopphone_backend.model.Users;
+import com.qlyshopphone_backend.model.*;
 import com.qlyshopphone_backend.model.enums.Gender;
 import com.qlyshopphone_backend.model.enums.Role;
 import com.qlyshopphone_backend.model.enums.Status;
-import com.qlyshopphone_backend.repository.UserRepository;
+import com.qlyshopphone_backend.repository.*;
 import com.qlyshopphone_backend.service.AuthenticationService;
 import com.qlyshopphone_backend.service.UserService;
+import com.qlyshopphone_backend.service.util.AddressService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -33,100 +35,110 @@ public class UserServiceImpl implements UserService {
     private final AuthenticationService authenticationService;
     private final FirebaseStorageService firebaseStorageService;
     private final BasicMapper basicMapper;
+    private final AddressRepository addressRepository;
+    private final AddressService addressService;
 
     @Transactional
     @Override
     public boolean updateAvatar(MultipartFile file) throws IOException {
-        Users authUsers = authenticationService.getAuthenticatedUser();
+        Users authUser = authenticationService.getCurrentAuthenticatedUser();
         String avatarUrl = firebaseStorageService.uploadFile(file);
-        authUsers.setAvatar(avatarUrl);
-        userRepository.save(authUsers);
+        authUser.setAvatar(avatarUrl);
+        userRepository.save(authUser);
         return true;
     }
 
     @Transactional
     @Override
     public boolean updatePhoneNumber(UserUpdateRequest request) {
-        Users authUsers = authenticationService.getAuthenticatedUser();
-        authUsers.setPhoneNumber(request.getPhoneNumber());
-        userRepository.save(authUsers);
+        Users authUser = authenticationService.getCurrentAuthenticatedUser();
+        authUser.setPhoneNumber(request.getPhoneNumber());
+        userRepository.save(authUser);
         return true;
     }
 
     @Transactional
     @Override
     public boolean updateGender(UserUpdateRequest request) {
-        Users authUsers = authenticationService.getAuthenticatedUser();
-        authUsers.setGender(Gender.valueOf(request.getGender()));
-        userRepository.save(authUsers);
+        Users authUser = authenticationService.getCurrentAuthenticatedUser();
+        authUser.setGender(Gender.valueOf(request.getGender()));
+        userRepository.save(authUser);
         return true;
     }
 
     @Transactional
     @Override
     public boolean updateFacebook(UserUpdateRequest request) {
-        Users authUsers = authenticationService.getAuthenticatedUser();
-        authUsers.setFacebook(request.getFacebook());
-        userRepository.save(authUsers);
+        Users authUser = authenticationService.getCurrentAuthenticatedUser();
+        authUser.setFacebook(request.getFacebook());
+        userRepository.save(authUser);
         return true;
     }
 
     @Transactional
     @Override
-    public boolean updateAddress(UserUpdateRequest request) {
-        Users authUsers = authenticationService.getAuthenticatedUser();
-//        authUser.setAddress(request.getAddress());
-        userRepository.save(authUsers);
+    public boolean updateAddress(UserDetailRequest request) {
+        Users authUser = authenticationService.getCurrentAuthenticatedUser();
+        Address address = addressRepository.findById(authUser.getAddress().getId())
+                        .orElseThrow(() -> new ApiRequestException("User address not found", HttpStatus.BAD_REQUEST));
+        addressService.setAddressDetails(
+                address,
+                request.getWardId(),
+                request.getCityId(),
+                request.getCountryId(),
+                request.getStreet()
+        );
+        addressRepository.save(address);
         return true;
     }
 
     @Transactional
     @Override
     public boolean updateFirstName(UserUpdateRequest request) {
-        Users authUsers = authenticationService.getAuthenticatedUser();
-        authUsers.setFirstName(request.getFirstName());
-        userRepository.save(authUsers);
+        Users authUser = authenticationService.getCurrentAuthenticatedUser();
+        authUser.setFirstName(request.getFirstName());
+        userRepository.save(authUser);
         return true;
     }
 
     @Transactional
     @Override
     public boolean updateLastName(UserUpdateRequest request) {
-        Users authUsers = authenticationService.getAuthenticatedUser();
-        authUsers.setLastName(request.getLastName());
-        userRepository.save(authUsers);
+        Users authUser = authenticationService.getCurrentAuthenticatedUser();
+        authUser.setLastName(request.getLastName());
+        userRepository.save(authUser);
         return true;
     }
 
     @Transactional
     @Override
     public boolean updateBirthday(UserUpdateRequest request) {
-        Users authUsers = authenticationService.getAuthenticatedUser();
-        authUsers.setBirthday(request.getBirthday());
-        userRepository.save(authUsers);
+        Users authUser = authenticationService.getCurrentAuthenticatedUser();
+        authUser.setBirthday(request.getBirthday());
+        userRepository.save(authUser);
         return true;
     }
 
     @Transactional
     @Override
     public String changePassword(ChangePasswordRequest request) {
-        Users users = authenticationService.getAuthenticatedUser();
-        if (!passwordEncoder.matches(request.getOldPassword(), users.getPassword())) {
+        Users authUser = authenticationService.getCurrentAuthenticatedUser();
+        if (!passwordEncoder.matches(request.getOldPassword(), authUser.getPassword())) {
             throw new ApiRequestException(OLD_PASSWORD_DOSE_NOT_MATCH, HttpStatus.BAD_REQUEST);
         }
         if (!request.getNewPassword().equals(request.getConfirmPassword())) {
             throw new ApiRequestException(NEW_PASSWORD_DOSE_NOT_MATCH, HttpStatus.BAD_REQUEST);
         }
         String encodedPassword = passwordEncoder.encode(request.getNewPassword());
-        users.setPassword(encodedPassword);
-        userRepository.save(users);
+        authUser.setPassword(encodedPassword);
+        userRepository.save(authUser);
         return PASSWORD_CHANGED_SUCCESSFULLY;
     }
 
     @Override
     public UserProjectResponse getUserInfo() {
-        Users users = authenticationService.getAuthenticatedUser();
-        return basicMapper.convertToResponse(users, UserProjectResponse.class);
+        Users authUser = authenticationService.getCurrentAuthenticatedUser();
+        return basicMapper.convertToResponse(authUser, UserProjectResponse.class);
     }
 
     @Override
@@ -165,20 +177,20 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserRolesResponse> findAllByRoleEmployee() {
+    public List<UserRolesResponse> findAllEmployees() {
         return userRepository.findUsersByRole(Role.EMPLOYEE);
     }
 
     @Override
     public boolean assignEmployeeRole(Long userId) {
-        Users authUsers = authenticationService.getAuthenticatedUser();
-        if (authUsers.getRole() != Role.ADMIN) {
+        Users authUser = authenticationService.getCurrentAuthenticatedUser();
+        if (authUser.getRole() != Role.ADMIN) {
             throw new ApiRequestException("Ban khong co quyen", HttpStatus.BAD_REQUEST);
         }
-        Users users = userRepository.findById(userId)
+        Users userToAsign = userRepository.findById(userId)
                 .orElseThrow(() -> new ApiRequestException(USER_NOT_FOUND, HttpStatus.NOT_FOUND));
-        users.setRole(Role.EMPLOYEE);
-        userRepository.save(users);
+        userToAsign.setRole(Role.EMPLOYEE);
+        userRepository.save(userToAsign);
         return true;
     }
 
@@ -201,4 +213,11 @@ public class UserServiceImpl implements UserService {
     public List<UserRolesResponse> searchEmployeeByStatus(String status) {
         return userRepository.searchUserByStatus(Role.EMPLOYEE, Status.valueOf(status));
     }
+
+    @Override
+    public Users findUserById(Long id){
+        return userRepository.findById(id)
+                .orElseThrow(() -> new ApiRequestException(USER_NOT_FOUND, HttpStatus.NOT_FOUND));
+    }
+
 }

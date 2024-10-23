@@ -1,20 +1,22 @@
 package com.qlyshopphone_backend.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
 @Entity
-@Table(name = "user_address")
-public class UserAddress {
+@AllArgsConstructor
+@NoArgsConstructor
+public class Address {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "address")
-    private String address;
+    private String street;
 
     @ManyToOne
     @JoinColumn(name = "city_id")
@@ -28,8 +30,8 @@ public class UserAddress {
     @JoinColumn(name = "ward_id")
     private AddressWards ward;
 
-    public UserAddress(String address, AddressWards ward, AddressCities city, AddressCountries country) {
-        this.address = address;
+    public Address(String address, AddressWards ward, AddressCities city, AddressCountries country) {
+        this.street = address;
         this.ward = ward;
         this.city = city;
         this.country = country;

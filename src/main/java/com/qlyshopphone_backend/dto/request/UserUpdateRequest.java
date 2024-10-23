@@ -10,8 +10,12 @@ public class UserUpdateRequest {
     private String phoneNumber;
     private String gender;
     private String facebook;
-    private String address;
     private String firstName;
     private String lastName;
     private LocalDate birthday;
+
+    private String address;
+    private Long cityId;
+    private Long countryId;
+    private Long wardId;
 }

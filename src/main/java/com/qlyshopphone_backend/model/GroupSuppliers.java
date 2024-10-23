@@ -13,6 +13,4 @@ public class GroupSuppliers {
     private Long id;
 
     private String name;
-
-    private String  note;
 }

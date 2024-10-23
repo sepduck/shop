@@ -1,14 +1,15 @@
 package com.qlyshopphone_backend.service;
 
 import com.qlyshopphone_backend.dto.request.ChangePasswordRequest;
+import com.qlyshopphone_backend.dto.request.UserDetailRequest;
 import com.qlyshopphone_backend.dto.request.UserUpdateRequest;
 import com.qlyshopphone_backend.dto.response.UserProjectResponse;
 import com.qlyshopphone_backend.dto.response.UserRolesResponse;
+import com.qlyshopphone_backend.model.Users;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 public interface UserService {
     boolean updateAvatar(MultipartFile file) throws IOException;
@@ -17,7 +18,7 @@ public interface UserService {
 
     boolean updateFacebook(UserUpdateRequest request);
 
-    boolean updateAddress(UserUpdateRequest request);
+    boolean updateAddress(UserDetailRequest request);
 
     boolean updateFirstName(UserUpdateRequest request);
 
@@ -45,7 +46,7 @@ public interface UserService {
 
     List<UserRolesResponse> searchCustomerByGender(String gender);
 
-    List<UserRolesResponse> findAllByRoleEmployee();
+    List<UserRolesResponse> findAllEmployees();
 
     boolean assignEmployeeRole(Long userId);
 
@@ -57,4 +58,5 @@ public interface UserService {
 
     List<UserRolesResponse> searchEmployeeByStatus(String status);
 
+    Users findUserById(Long id);
 }

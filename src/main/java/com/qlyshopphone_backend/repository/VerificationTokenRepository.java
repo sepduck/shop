@@ -1,6 +1,5 @@
 package com.qlyshopphone_backend.repository;
 
-
 import com.qlyshopphone_backend.model.Users;
 import com.qlyshopphone_backend.model.VerificationTokens;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,5 +11,5 @@ import java.util.Optional;
 public interface VerificationTokenRepository extends JpaRepository<VerificationTokens, Long> {
     Optional<VerificationTokens> findByToken(String token);
 
-    Optional<VerificationTokens> findByUsers(Users users);
+    Optional<VerificationTokens> findByUser(Users user);
 }

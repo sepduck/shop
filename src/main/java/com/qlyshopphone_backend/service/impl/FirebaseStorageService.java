@@ -1,10 +1,10 @@
 package com.qlyshopphone_backend.service.impl;
 
-import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.firebase.cloud.StorageClient;
-import com.qlyshopphone_backend.repository.UserRepository;
-import com.qlyshopphone_backend.service.AuthenticationService;
+import com.qlyshopphone_backend.dto.response.ImagesResponse;
+import com.qlyshopphone_backend.model.Images;
+import com.qlyshopphone_backend.repository.ImageRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,7 +20,9 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class FirebaseStorageService {
-    public List<String> uploadFiles(MultipartFile[] files) throws IOException {
+    private final ImageRepository imageRepository;
+
+    public List<ImagesResponse> uploadFiles(MultipartFile[] files) throws IOException {
         if (files == null || files.length == 0) {
             throw new IllegalArgumentException("No files to upload");
         }
@@ -33,12 +35,17 @@ public class FirebaseStorageService {
             }
         }
 
-        List<String> fileNames = new ArrayList<>();
+        List<ImagesResponse> saveImages = new ArrayList<>();
         for (MultipartFile file : files) {
             String fileName = uploadFile(file);
-            fileNames.add(fileName);
+            Images image = new Images();
+            image.setUrl(fileName);
+            Images savedImage = imageRepository.save(image);
+
+            ImagesResponse imagesResponse = new ImagesResponse(savedImage.getId(), savedImage.getUrl());
+            saveImages.add(imagesResponse);
         }
-        return fileNames;
+        return saveImages;
     }
 
     public String uploadFile(MultipartFile file) throws IOException {

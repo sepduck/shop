@@ -11,11 +11,14 @@ import lombok.*;
 public class SupplierRequest {
     private String name;
     private String phoneNumber;
-    private String address;
     private String email;
     private String company;
     private String taxCode;
-    private boolean deleteProduct;
+    private String status;
     private Long groupSupplierId;
-    private Long productId;
+
+    private String street;
+    private Long cityId;
+    private Long countryId;
+    private Long wardId;
 }
