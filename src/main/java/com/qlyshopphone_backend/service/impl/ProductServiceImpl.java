@@ -1,21 +1,26 @@
 package com.qlyshopphone_backend.service.impl;
+
 import static com.qlyshopphone_backend.constant.ErrorMessage.*;
 
-import com.qlyshopphone_backend.dto.*;
-import com.qlyshopphone_backend.exceptions.DataNotFoundException;
+import com.qlyshopphone_backend.dto.request.*;
+import com.qlyshopphone_backend.dto.response.ProductAttributeResponse;
+import com.qlyshopphone_backend.dto.response.ProductResponse;
+import com.qlyshopphone_backend.exceptions.ApiRequestException;
+import com.qlyshopphone_backend.mapper.BasicMapper;
 import com.qlyshopphone_backend.model.*;
+import com.qlyshopphone_backend.model.enums.Status;
 import com.qlyshopphone_backend.repository.*;
-import com.qlyshopphone_backend.service.AuthenticationService;
-import com.qlyshopphone_backend.service.NotificationService;
+import com.qlyshopphone_backend.repository.projection.ProductAttributeProjection;
+import com.qlyshopphone_backend.repository.projection.ProductProjection;
 import com.qlyshopphone_backend.service.ProductService;
+import com.qlyshopphone_backend.service.util.EntityFinder;
+import com.qlyshopphone_backend.service.util.ProductServiceHelper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-
 
 @Service
 @RequiredArgsConstructor
@@ -23,331 +28,294 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final GroupProductRepository groupProductRepository;
     private final TrademarkRepository trademarkRepository;
-    private final LocationRepository locationRepository;
-    private final PropertiesRepository propertiesRepository;
     private final UnitRepository unitRepository;
     private final CategoryRepository categoryRepository;
-    private final NotificationService notificationService;
-    private final AuthenticationService authenticationService;
+    private final BasicMapper basicMapper;
+    private final ProductServiceHelper productServiceHelper;
+    private final ImageRepository imageRepository;
+    private final LocationRepository locationRepository;
+    private final EntityFinder entityFinder;
 
     @Override
-    public List<Map<String, Object>> getAllProducts() {
-        return productRepository.getAllProducts();
+    public List<ProductProjection> getAllProducts() {
+        return productRepository.getAllProducts(Status.ACTIVE);
     }
 
+    @Transactional
     @Override
-    public String saveProduct(ProductDTO productDTO) throws Exception {
-        Users users = authenticationService.getAuthenticatedUser();
-        Product product = new Product();
-        updateProductProperties(product, productDTO);
+    public boolean createProduct(ProductRequest request) {
+        Products product = new Products();
+        populateProductData(product, request);
 
-        sendProductNotification(users, "successfully added", product.getProductName(), null);
-        productRepository.save(product);
-        return PRODUCT_CREATED_SUCCESSFULLY;
+        Products savedProduct = productRepository.save(product);
+        List<Images> images = imageRepository.findAllById(request.getImageIds());
+        savedProduct.getImages().addAll(images);
+        if (!images.isEmpty()) {
+            savedProduct.setThumbnail(images.getFirst().getUrl());
+        }
+        productRepository.save(savedProduct);
+        return true;
     }
 
+    @Transactional
     @Override
-    public String updateProduct(Long productId, ProductDTO productDTO) throws Exception {
-        Users users = authenticationService.getAuthenticatedUser();
-        Product existingProduct = productRepository.findById(productId)
-                .orElseThrow(() -> new DataNotFoundException(PRODUCT_NOT_FOUND));
+    public ProductResponse updateProduct(Long productId, ProductRequest request) {
+        Products existingProduct = entityFinder.findProductById(productId);
 
-        updateProductProperties(existingProduct, productDTO);
-
-        sendProductNotification(users, "edited", productDTO.getProductName(), existingProduct.getProductName());
+        populateProductData(existingProduct, request);
         productRepository.save(existingProduct);
-        return PRODUCT_UPDATED_SUCCESSFULLY;
+        return basicMapper.convertToResponse(existingProduct, ProductResponse.class);
     }
 
-
-    private void updateProductProperties(Product product, ProductDTO productDTO) throws IOException {
-        GroupProduct existingGroupProduct = groupProductRepository.findById(productDTO.getGroupProductId())
-                .orElseThrow(() -> new RuntimeException(GROUP_PRODUCT_NOT_FOUND));
-        Trademark existingTrademark = trademarkRepository.findById(productDTO.getTrademarkId())
-                .orElseThrow(() -> new RuntimeException(TRADEMARK_NOT_FOUND));
-        Location existingLocation = locationRepository.findById(productDTO.getLocationId())
-                .orElseThrow(() -> new RuntimeException(LOCATION_NOT_FOUND));
-        Properties existingProperties = propertiesRepository.findById(productDTO.getPropertiesId())
-                .orElseThrow(() -> new RuntimeException(PROPERTIES_NOT_FOUND));
-        Unit existingUnit = unitRepository.findById(productDTO.getUnitId())
-                .orElseThrow(() -> new RuntimeException(UNIT_NOT_FOUND));
-        Category existingCategory = categoryRepository.findById(productDTO.getCategoryId())
-                .orElseThrow(() -> new RuntimeException(CATEGORY_NOT_FOUND));
-
-        product.setProductName(productDTO.getProductName());
-        product.setPrice(productDTO.getPrice());
-        product.setCapitalPrice(productDTO.getCapitalPrice());
-        product.setInventory(productDTO.getInventory());
-        product.setGroupProduct(existingGroupProduct);
-        product.setLocation(existingLocation);
-        product.setTrademark(existingTrademark);
-        product.setWeight(productDTO.getWeight());
-        product.setProperties(existingProperties);
-        product.setUnit(existingUnit);
-        product.setDeleteProduct(productDTO.isDeleteProduct());
-        product.setCategory(existingCategory);
-        product.setDirectSales(productDTO.isDirectSales());
-        product.setFile(productDTO.getFile().getBytes());
+    @Transactional
+    @Override
+    public boolean deleteProduct(Long productId) {
+        return productRepository.findById(productId)
+                .map(product -> {
+                    product.setStatus(Status.DELETED);
+                    productRepository.save(product);
+                    return true;
+                })
+                .orElseThrow(() -> new ApiRequestException(PRODUCT_NOT_FOUND, HttpStatus.NOT_FOUND));
     }
 
-    private void sendProductNotification(Users users, String action, String productName, String newProductName) {
-        String message = String.format("%s have %s product %s%s", users.getFullName(), action, productName,
-                newProductName != null ? " to " + newProductName : "");
-        notificationService.saveNotification(message, users);
-    }
 
     @Override
-    public String deleteProduct(Long productId) {
-        Users users = authenticationService.getAuthenticatedUser();
-        Product product = productRepository.findById(productId)
-                        .orElseThrow(() -> new RuntimeException(PRODUCT_NOT_FOUND));
-        productRepository.deleteProductById(product.getProductId());
-        String message = users.getFullName() + " have successfully deleted product " + product.getProductName();
-        notificationService.saveNotification(message, users);
-        return PRODUCT_DELETED_SUCCESSFULLY;
+    public List<ProductAttributeResponse> getAllGroupProducts() {
+        List<GroupProducts> groups = groupProductRepository.findAll();
+        return basicMapper.convertToResponseList(groups, ProductAttributeResponse.class);
     }
 
+    @Transactional
     @Override
-    public List<Map<String, Object>> searchAllByProductName(String productName) {
-        return productRepository.searchAllByProductName(productName);
-    }
-
-    @Override
-    public List<Map<String, Object>> searchAllByProductId(Long productId) {
-        return productRepository.searchAllByProductId(productId);
-    }
-
-    @Override
-    public List<Map<String, Object>> searchGroupProductId(Long groupProductId) {
-        return productRepository.searchGroupProductId(groupProductId);
-    }
-
-    @Override
-    public List<Map<String, Object>> searchInventory(int number) {
-        return switch (number) {
-            case 1 -> productRepository.getAllProducts();
-            case 2 -> productRepository.searchBelowInventoryThreshold();
-            case 3 -> productRepository.searchExceedingInventoryLimit();
-            case 4 -> productRepository.searchStockAvailable();
-            case 5 -> productRepository.searchNoInventoryAvailable();
-            default -> new ArrayList<>();
-        };
-    }
-
-    @Override
-    public List<Map<String, Object>> searchActive(int number) {
-        return switch (number) {
-            case 1 -> productRepository.searchActive();
-            case 2 -> productRepository.searchNoActive();
-            case 3 -> productRepository.getAllProducts();
-            default -> new ArrayList<>();
-        };
-    }
-
-    @Override
-    public List<Map<String, Object>> searchDirectSales(int number) {
-        return switch (number) {
-            case 1 -> productRepository.getAllProducts();
-            case 2 -> productRepository.searchDirectSales();
-            case 3 -> productRepository.searchNoDirectSales();
-            default -> new ArrayList<>();
-        };
-    }
-
-    @Override
-    public List<Map<String, Object>> searchByLocationId(Long locationId) {
-        return productRepository.searchByLocationId(locationId);
-    }
-
-    @Override
-    public List<Map<String, Object>> searchCategory(int number) {
-        return switch (number) {
-            case 1 -> productRepository.getAllProducts();
-            case 2 -> productRepository.searchCategory1();
-            case 3 -> productRepository.searchCategory2();
-            case 4 -> productRepository.searchCategory3();
-            default -> new ArrayList<>();
-        };
-    }
-
-    @Override
-    public List<Category> getAllCategory() {
-        return categoryRepository.findAll();
-    }
-
-    @Override
-    public String saveCategory(CategoryDTO categoryDTO) {
-            Category category = new Category();
-            category.setCategoryName(categoryDTO.getCategoryName());
-            categoryRepository.save(category);
-            return CATEGORY_SAVED_SUCCESSFULLY;
-    }
-
-    @Override
-    public String updateCategory(CategoryDTO categoryDTO, Long categoryId) {
-        Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new RuntimeException(CATEGORY_NOT_FOUND));
-        category.setCategoryName(categoryDTO.getCategoryName());
-        categoryRepository.save(category);
-        return CATEGORY_UPDATED_SUCCESSFULLY;
-    }
-
-    @Override
-    public String deleteCategory(Long categoryId) {
-        Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new RuntimeException(CATEGORY_NOT_FOUND));
-        categoryRepository.deleteById(category.getCategoryId());
-        return CATEGORY_DELETED_SUCCESSFULLY;
-
-    }
-
-    @Override
-    public List<GroupProduct> getAllGroupProduct() {
-        return groupProductRepository.findAll();
-    }
-
-    @Override
-    public String saveGroupProduct(GroupProductDTO groupProductDTO) {
-        GroupProduct groupProduct = new GroupProduct();
-        groupProduct.setGroupProductName(groupProductDTO.getGroupProductName());
+    public ProductAttributeResponse createGroupProduct(ProductAttributeRequest request) {
+        GroupProducts groupProduct = new GroupProducts();
+        groupProduct.setName(request.getName());
         groupProductRepository.save(groupProduct);
-        return GROUP_PRODUCT_SAVED_SUCCESSFULLY;
+        return basicMapper.convertToResponse(groupProduct, ProductAttributeResponse.class);
+    }
+
+    @Transactional
+    @Override
+    public ProductAttributeResponse updateGroupProduct(ProductAttributeRequest request, Long groupProductId) {
+        return productServiceHelper.updateAttribute(
+                groupProductId,
+                request,
+                groupProductRepository::findById,
+                groupProductRepository::save,
+                GroupProducts::getName,
+                GroupProducts::setName,
+                GROUP_PRODUCT_NOT_FOUND
+        );
+    }
+
+    @Transactional
+    @Override
+    public boolean deleteGroupProduct(Long groupProductId) {
+        if (!groupProductRepository.existsById(groupProductId)) {
+            throw new ApiRequestException(GROUP_PRODUCT_NOT_FOUND, HttpStatus.NOT_FOUND);
+        }
+        groupProductRepository.deleteById(groupProductId);
+        return true;
     }
 
     @Override
-    public String updateGroupProduct(GroupProductDTO groupProductDTO, Long groupProductId) {
-        GroupProduct groupProduct = groupProductRepository.findById(groupProductId)
-                .orElseThrow(() -> new RuntimeException(GROUP_PRODUCT_NOT_FOUND));
-        groupProduct.setGroupProductName(groupProductDTO.getGroupProductName());
-        groupProductRepository.save(groupProduct);
-        return GROUP_PRODUCT_UPDATED_SUCCESSFULLY;
+    public List<ProductAttributeResponse> getAllTrademarks() {
+        List<Trademarks> list = trademarkRepository.findAll();
+        return basicMapper.convertToResponseList(list, ProductAttributeResponse.class);
+    }
+
+    @Transactional
+    @Override
+    public ProductAttributeResponse createTrademark(ProductAttributeRequest request) {
+        Trademarks trademarks = new Trademarks();
+        trademarks.setName(request.getName());
+        trademarkRepository.save(trademarks);
+        return basicMapper.convertToResponse(trademarks, ProductAttributeResponse.class);
+    }
+
+    @Transactional
+    @Override
+    public ProductAttributeResponse updateTrademark(ProductAttributeRequest request, Long trademarkId) {
+        return productServiceHelper.updateAttribute(
+                trademarkId,
+                request,
+                trademarkRepository::findById,
+                trademarkRepository::save,
+                Trademarks::getName,
+                Trademarks::setName,
+                TRADEMARK_NOT_FOUND
+        );
+    }
+
+    @Transactional
+    @Override
+    public boolean deleteTrademark(Long id) {
+        if (!trademarkRepository.existsById(id)) {
+            throw new ApiRequestException(TRADEMARK_NOT_FOUND, HttpStatus.NOT_FOUND);
+        }
+        trademarkRepository.deleteById(id);
+        return true;
     }
 
     @Override
-    public String deleteGroupProduct(Long groupProductId) {
-        GroupProduct groupProduct = groupProductRepository.findById(groupProductId)
-                .orElseThrow(() -> new RuntimeException(GROUP_PRODUCT_NOT_FOUND));
-        groupProductRepository.deleteById(groupProduct.getGroupProductId());
-        return GROUP_PRODUCT_DELETED_SUCCESSFULLY;
+    public List<ProductAttributeResponse> getAllUnits() {
+        List<Units> list = unitRepository.findAll();
+        return basicMapper.convertToResponseList(list, ProductAttributeResponse.class);
+    }
+
+    @Transactional
+    @Override
+    public ProductAttributeResponse createUnit(ProductAttributeRequest request) {
+        Units units = new Units();
+        units.setName(request.getName());
+        unitRepository.save(units);
+        return basicMapper.convertToResponse(units, ProductAttributeResponse.class);
+    }
+
+    @Transactional
+    @Override
+    public ProductAttributeResponse updateUnit(ProductAttributeRequest request, Long unitId) {
+        return productServiceHelper.updateAttribute(
+                unitId,
+                request,
+                unitRepository::findById,
+                unitRepository::save,
+                Units::getName,
+                Units::setName,
+                UNIT_NOT_FOUND
+        );
+    }
+
+    @Transactional
+    @Override
+    public boolean deleteUnit(Long unitId) {
+        if (!unitRepository.existsById(unitId)) {
+            throw new ApiRequestException(UNIT_NOT_FOUND, HttpStatus.NOT_FOUND);
+        }
+        unitRepository.deleteById(unitId);
+        return true;
     }
 
     @Override
-    public List<Location> getAllLocation() {
-        return locationRepository.findAll();
+    public List<ProductAttributeProjection> getAllCategories() {
+        return categoryRepository.findAllCategories();
+    }
+
+    @Transactional
+    @Override
+    public ProductAttributeResponse createCategory(ProductAttributeRequest request) {
+        Categories categories = new Categories();
+        categories.setName(request.getName());
+        categoryRepository.save(categories);
+        return basicMapper.convertToResponse(categories, ProductAttributeResponse.class);
+    }
+
+    @Transactional
+    @Override
+    public ProductAttributeResponse updateCategory(ProductAttributeRequest request, Long categoryId) {
+        return productServiceHelper.updateAttribute(
+                categoryId,
+                request,
+                categoryRepository::findById,
+                categoryRepository::save,
+                Categories::getName,
+                Categories::setName,
+                CATEGORY_NOT_FOUND
+        );
+    }
+
+    @Transactional
+    @Override
+    public boolean deleteCategory(Long id) {
+        if (!categoryRepository.existsById(id)) {
+            throw new ApiRequestException(CATEGORY_NOT_FOUND, HttpStatus.BAD_REQUEST);
+        }
+        categoryRepository.deleteById(id);
+        return true;
+    }
+
+    private void populateProductData(Products products, ProductRequest request) {
+        GroupProducts groupProduct = entityFinder.findGroupProductById(request.getGroupProductId());
+        Trademarks trademark = entityFinder.findTrademarkById(request.getTrademarkId());
+        Units unit = entityFinder.findUnitById(request.getUnitId());
+        Categories category = entityFinder.findCategoryById(request.getCategoryId());
+
+        products.setName(request.getName());
+        products.setGroupProduct(groupProduct);
+        products.setTrademark(trademark);
+        products.setUnit(unit);
+        products.setStatus(Status.ACTIVE);
+        products.setCategory(category);
+    }
+
+
+    @Transactional
+    @Override
+    public ProductAttributeResponse createLocation(ProductAttributeRequest request) {
+        Locations locations = new Locations();
+        locations.setName(request.getName());
+        locationRepository.save(locations);
+        return basicMapper.convertToResponse(locations, ProductAttributeResponse.class);
+    }
+
+    @Transactional
+    @Override
+    public ProductAttributeResponse updateLocation(ProductAttributeRequest request, Long locationId) {
+        return productServiceHelper.updateAttribute(
+                locationId,
+                request,
+                locationRepository::findById,
+                locationRepository::save,
+                Locations::getName,
+                Locations::setName,
+                LOCATION_NOT_FOUND
+        );
+    }
+
+    @Transactional
+    @Override
+    public boolean deleteLocation(Long locationId) {
+        if (!locationRepository.existsById(locationId)) {
+            throw new ApiRequestException(LOCATION_NOT_FOUND, HttpStatus.NOT_FOUND);
+        }
+        locationRepository.deleteById(locationId);
+        return true;
     }
 
     @Override
-    public String saveLocation(LocationDTO locationDTO) {
-        Location location = new Location();
-        location.setLocationName(locationDTO.getLocationName());
-        locationRepository.save(location);
-        return LOCATION_SAVED_SUCCESSFULLY;
+    public List<ProductProjection> searchProductByName(String name) {
+        return productRepository.searchProductsByName(Status.ACTIVE, name);
     }
 
     @Override
-    public String updateLocation(LocationDTO locationDTO, Long locationId) {
-        Location location = locationRepository.findById(locationId)
-                .orElseThrow(() -> new RuntimeException(LOCATION_NOT_FOUND));
-        location.setLocationName(locationDTO.getLocationName());
-        locationRepository.save(location);
-        return LOCATION_UPDATED_SUCCESSFULLY;
+    public List<ProductProjection> searchProductById(Long id) {
+        return productRepository.searchProductsById(Status.ACTIVE, id);
     }
 
     @Override
-    public String deleteLocation(Long locationId) {
-        Location location = locationRepository.findById(locationId)
-                .orElseThrow(() -> new RuntimeException(LOCATION_NOT_FOUND));
-        locationRepository.deleteById(location.getLocationId());
-        return LOCATION_DELETED_SUCCESSFULLY;
+    public List<ProductProjection> searchProductByGroupProductId(Long id) {
+        return productRepository.searchProductsByGroupProductId(Status.ACTIVE, id);
     }
 
     @Override
-    public List<Properties> getAllProperties() {
-        return propertiesRepository.findAll();
+    public List<ProductProjection> searchProductsByTrademarkId(Long id) {
+        return productRepository.searchProductsByTrademarkId(Status.ACTIVE, id);
     }
 
     @Override
-    public String saveProperties(PropertiesDTO propertiesDTO) {
-        Properties properties = new Properties();
-        properties.setPropertiesName(propertiesDTO.getPropertiesName());
-        propertiesRepository.save(properties);
-        return PROPERTIES_SAVED_SUCCESSFULLY;
+    public List<ProductProjection> searchProductsByStatus(String status) {
+        return productRepository.searchProductsByStatus(Status.valueOf(status));
     }
 
     @Override
-    public String updateProperties(PropertiesDTO propertiesDTO, Long propertiesId) {
-        Properties properties = propertiesRepository.findById(propertiesId)
-                .orElseThrow(() -> new RuntimeException(PROPERTIES_NOT_FOUND));
-        properties.setPropertiesName(propertiesDTO.getPropertiesName());
-        propertiesRepository.save(properties);
-        return PROPERTIES_UPDATED_SUCCESSFULLY;
+    public List<ProductProjection> getProductById(Long id) {
+        return productRepository.findProductById(Status.ACTIVE, id);
     }
 
     @Override
-    public String deleteProperties(Long propertiesId) {
-        Properties properties = propertiesRepository.findById(propertiesId)
-                .orElseThrow(() -> new RuntimeException(PROPERTIES_NOT_FOUND));
-        propertiesRepository.deleteById(properties.getPropertiesId());
-        return PROPERTIES_DELETED_SUCCESSFULLY;
+    public List<ProductProjection> searchProductsByCategoryId(Long id) {
+        return productRepository.searchProductsByCategoryId(Status.ACTIVE, id);
     }
 
-    @Override
-    public List<Trademark> getAllTrademarks() {
-        return trademarkRepository.findAll();
-    }
-
-    @Override
-    public String saveTrademark(TrademarkDTO trademarkDTO) {
-        Trademark trademark = new Trademark();
-        trademark.setTrademarkName(trademarkDTO.getTrademarkName());
-        trademarkRepository.save(trademark);
-        return TRADEMARK_SAVED_SUCCESSFULLY;
-    }
-
-    @Override
-    public String updateTrademark(TrademarkDTO trademarkDTO, Long trademarkId) {
-        Trademark trademark = trademarkRepository.findById(trademarkId)
-                .orElseThrow(() -> new RuntimeException(TRADEMARK_NOT_FOUND));
-        trademark.setTrademarkName(trademarkDTO.getTrademarkName());
-        trademarkRepository.save(trademark);
-        return TRADEMARK_UPDATED_SUCCESSFULLY;
-    }
-
-    @Override
-    public String deleteTrademark(Long trademarkId) {
-        Trademark trademark = trademarkRepository.findById(trademarkId)
-                .orElseThrow(() -> new RuntimeException(TRADEMARK_NOT_FOUND));
-        trademarkRepository.deleteById(trademark.getTrademarkId());
-        return TRADEMARK_DELETED_SUCCESSFULLY;
-    }
-
-    @Override
-    public List<Unit> getAllUnits() {
-        return unitRepository.findAll();
-    }
-
-    @Override
-    public String saveUnit(UnitDTO unitDTO) {
-        Unit unit = new Unit();
-        unit.setUnitName(unitDTO.getUnitName());
-        unitRepository.save(unit);
-        return UNIT_SAVED_SUCCESSFULLY;
-    }
-
-    @Override
-    public String updateUnit(UnitDTO unitDTO, Long unitId) {
-        Unit unit = unitRepository.findById(unitId)
-                .orElseThrow(() -> new RuntimeException(UNIT_NOT_FOUND));
-        unit.setUnitName(unitDTO.getUnitName());
-        unitRepository.save(unit);
-        return UNIT_UPDATED_SUCCESSFULLY;
-    }
-
-    @Override
-    public String deleteUnit(Long unitId) {
-        Unit unit = unitRepository.findById(unitId)
-                .orElseThrow(() -> new RuntimeException(UNIT_NOT_FOUND));
-        unitRepository.deleteById(unit.getUnitId());
-        return UNIT_DELETED_SUCCESSFULLY;
-    }
 }

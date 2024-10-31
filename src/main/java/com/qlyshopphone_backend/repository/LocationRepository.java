@@ -1,9 +1,9 @@
 package com.qlyshopphone_backend.repository;
 
-import com.qlyshopphone_backend.model.Location;
+import com.qlyshopphone_backend.model.Locations;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface LocationRepository extends JpaRepository<Location, Long> {
+public interface LocationRepository extends JpaRepository<Locations, Long> {
 }

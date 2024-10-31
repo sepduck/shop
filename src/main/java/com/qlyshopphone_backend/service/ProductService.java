@@ -1,84 +1,98 @@
 package com.qlyshopphone_backend.service;
 
-import com.qlyshopphone_backend.dto.*;
-import com.qlyshopphone_backend.model.*;
-import org.springframework.http.ResponseEntity;
+import com.qlyshopphone_backend.dto.request.*;
+import com.qlyshopphone_backend.dto.response.ProductAttributeResponse;
+import com.qlyshopphone_backend.dto.response.ProductResponse;
+import com.qlyshopphone_backend.repository.projection.ProductAttributeProjection;
+import com.qlyshopphone_backend.repository.projection.ProductProjection;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 public interface ProductService {
-    List<Map<String, Object>> getAllProducts();
+    List<ProductProjection> getAllProducts();
 
-    String saveProduct(ProductDTO productDTO) throws Exception;
+    boolean createProduct(ProductRequest request);
 
-    String updateProduct(Long productId, ProductDTO productDTO) throws Exception;
+    ProductResponse updateProduct(Long productId, ProductRequest request);
 
-    String deleteProduct(Long productId);
+    boolean deleteProduct(Long productId);
 
-    List<Map<String, Object>> searchAllByProductName(String productName);
+    List<ProductAttributeProjection> getAllCategories();
 
-    List<Map<String, Object>> searchAllByProductId(Long productId);
+    ProductAttributeResponse createCategory(ProductAttributeRequest request);
 
-    List<Map<String, Object>> searchGroupProductId(Long groupProductId);
+    ProductAttributeResponse updateCategory(ProductAttributeRequest request, Long categoryId);
 
-    List<Map<String, Object>> searchInventory(int number);
+    boolean deleteCategory(Long categoryId);
 
-    List<Map<String, Object>> searchActive(int number);
+    List<ProductAttributeResponse> getAllGroupProducts();
 
-    List<Map<String, Object>> searchDirectSales(int number);
+    ProductAttributeResponse createGroupProduct(ProductAttributeRequest request);
 
-    List<Map<String, Object>> searchByLocationId( Long locationId);
+    ProductAttributeResponse updateGroupProduct(ProductAttributeRequest request, Long groupProductId);
 
-    List<Map<String, Object>> searchCategory(int number);
+    boolean deleteGroupProduct(Long groupProductId);
 
-    List<Category> getAllCategory();
+    List<ProductAttributeResponse> getAllTrademarks();
 
-    String saveCategory(CategoryDTO categoryDTO);
+    ProductAttributeResponse createTrademark(ProductAttributeRequest request);
 
-    String updateCategory(CategoryDTO categoryDTO, Long categoryId);
+    ProductAttributeResponse updateTrademark(ProductAttributeRequest request, Long trademarkId);
 
-    String deleteCategory(Long categoryId);
+    boolean deleteTrademark(Long trademarkId);
 
-    List<GroupProduct> getAllGroupProduct();
+    List<ProductAttributeResponse> getAllUnits();
 
-    String saveGroupProduct(GroupProductDTO groupProductDTO);
+    ProductAttributeResponse createUnit(ProductAttributeRequest productAttributeRequest);
 
-    String updateGroupProduct(GroupProductDTO groupProductDTO, Long groupProductId);
+    ProductAttributeResponse updateUnit(ProductAttributeRequest productAttributeRequest, Long unitId);
 
-    String deleteGroupProduct(Long groupProductId);
+    boolean deleteUnit(Long unitId);
 
-    List<Location> getAllLocation();
 
-    String saveLocation(LocationDTO locationDTO);
+//    List<ProductAttributeResponse> getAllLocation();
+//
+    ProductAttributeResponse createLocation(ProductAttributeRequest request);
 
-    String updateLocation(LocationDTO locationDTO, Long locationId);
+    ProductAttributeResponse updateLocation(ProductAttributeRequest request, Long locationId);
 
-    String deleteLocation(Long locationId);
+    boolean deleteLocation(Long locationId);
 
-    List<Properties> getAllProperties();
+    List<ProductProjection> searchProductByName(String name);
 
-    String saveProperties(PropertiesDTO propertiesDTO);
+    List<ProductProjection> searchProductById(Long id);
 
-    String updateProperties(PropertiesDTO propertiesDTO, Long propertiesId);
+    List<ProductProjection> searchProductByGroupProductId(Long id);
 
-    String deleteProperties(Long propertiesId);
+    List<ProductProjection> searchProductsByTrademarkId(Long id);
 
-    List<Trademark> getAllTrademarks();
+    List<ProductProjection> searchProductsByStatus(String status);
 
-    String saveTrademark(TrademarkDTO trademarkDTO);
+    List<ProductProjection> getProductById(Long id);
 
-    String updateTrademark(TrademarkDTO trademarkDTO, Long trademarkId);
+    List<ProductProjection> searchProductsByCategoryId(Long id);
 
-    String deleteTrademark(Long trademarkId);
-
-    List<Unit> getAllUnits();
-
-    String saveUnit(UnitDTO unitDTO);
-
-    String updateUnit(UnitDTO unitDTO, Long unitId);
-
-    String deleteUnit(Long unitId);
+//
+//    List<ProductAttributeResponse> getAllProperties();
+//
+//    ProductAttributeResponse saveProperties(ProductAttributeRequest request);
+//
+//    ProductAttributeResponse updateProperties(ProductAttributeRequest request, Long propertiesId);
+//
+//    boolean deleteProperties(Long propertiesId);
+//
+//    List<Products> searchAllByProductName(String productName);
+//
+//    List<Map<String, Object>> searchAllByProductId(Long productId);
+//
+//    List<Map<String, Object>> searchGroupProductId(Long groupProductId);
+//
+//    List<Map<String, Object>> searchInventory(int number);
+//
+//    List<Map<String, Object>> searchActive(int number);
+//
+//    List<Map<String, Object>> searchDirectSales(int number);
+//
+//    List<Map<String, Object>> searchByLocationId( Long locationId);
 
 }

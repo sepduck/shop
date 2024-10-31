@@ -1,41 +1,48 @@
 package com.qlyshopphone_backend.service;
 
-import com.qlyshopphone_backend.dto.GroupSupplierDTO;
-import com.qlyshopphone_backend.dto.SupplierDTO;
-import com.qlyshopphone_backend.model.GroupSupplier;
-import com.qlyshopphone_backend.model.Users;
-import org.springframework.http.ResponseEntity;
+import com.qlyshopphone_backend.dto.request.ProductAttributeRequest;
+import com.qlyshopphone_backend.dto.request.SupplierRequest;
+import com.qlyshopphone_backend.dto.response.ProductAttributeResponse;
+import com.qlyshopphone_backend.dto.response.SupplierResponse;
+import com.qlyshopphone_backend.repository.projection.SupplierProjection;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
-import java.util.Map;
 
 public interface SupplierService {
-    List<Map<String, Object>> getAllSuppliers();
+    List<SupplierProjection> getSupplier(Pageable pageable);
 
-    String saveSuppliers(SupplierDTO supplierDTO);
+    SupplierResponse createSupplier(SupplierRequest supplierRequest);
 
-    String updateSuppliers(Long supplierId, SupplierDTO supplierDTO) throws Exception;
+    boolean updateSupplierName(SupplierRequest request, Long id);
 
-    String deleteSuppliers(Long supplierId);
+    boolean updateSupplierPhone(SupplierRequest request, Long id);
 
-    List<Map<String, Object>> searchByPhoneNumber(String phoneNumber);
+    boolean updateSupplierEmail(SupplierRequest request, Long id);
 
-    List<Map<String, Object>> searchByTaxCode(String taxCode);
+    boolean updateSupplierCompany(SupplierRequest request, Long id);
 
-    List<Map<String, Object>> searchBySupplierName(String supplierName);
+    boolean updateSupplierTaxCode(SupplierRequest request, Long id);
 
-    List<Map<String, Object>> searchByGroupSupplier(Long groupSupplierId);
+    boolean updateInfoGroupInSupplier(SupplierRequest request, Long id);
 
-    List<Map<String, Object>> getSupplier();
+    boolean updateSupplierAddress(SupplierRequest request, Long id);
 
-    List<Map<String, Object>> searchNoActive(int number);
+    boolean inactiveSupplier(Long id);
 
-    List<GroupSupplier> getAllGroupSupplier();
+    List<ProductAttributeResponse> getAllGroupSupplier();
 
-    String saveGroupSupplier(GroupSupplierDTO groupSupplierDTO);
+    ProductAttributeResponse createGroupSupplier(ProductAttributeRequest request);
 
-    String updateGroupSupplier(GroupSupplierDTO groupSupplierDTO, Long groupSupplierId);
+    ProductAttributeResponse updateGroupSupplier(ProductAttributeRequest request, Long groupSupplierId);
 
-    String deleteGroupSupplier(Long groupSupplierId);
+    List<SupplierProjection> searchSuppliersByPhone(String phone);
 
+    List<SupplierProjection> searchSuppliersByTaxCode(String taxCode);
+
+    List<SupplierProjection> searchSuppliersByName(String name);
+
+    List<SupplierProjection> searchSuppliersByGroupSupplier(Long id);
+
+    List<SupplierProjection> searchSuppliersByStatus(String status);
 }

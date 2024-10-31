@@ -22,21 +22,19 @@ public class ErrorMessage {
 
     public static final String CART_SOLD_SUCCESSFULLY = "Cart sold successfully";
     public static final String CART_NOT_FOUND = "Cart not found";
-    public static final String NO_ITEMS_IN_CART = "No items in cart";
 
     public static final String USER_NOT_FOUND = "User not found";
-    public static final String USER_SAVED_SUCCESSFULLY = "User saved successfully";
     public static final String USER_UPDATED_SUCCESSFULLY = "User updated successfully";
     public static final String USER_DELETED_SUCCESSFULLY = "User deleted successfully";
     public static final String GENDER_NOT_FOUND = "Gender not found";
-    public static final String ROLE_NOT_FOUND = "Role not found";
-    public static final String INTRODUCE_LOCAL_VARIABLE = "Introduce local variable";
-    public static final String SUCCESSFULLY_ADDED_TO_CART = "Successfully added to cart";
+    public static final String ROLE_NOT_FOUND = "Roles not found";
     public static final String SUCCESSFULLY_DELETED_THE_PRODUCT_FROM_THE_CART = "Successfully deleted the product from the cart";
     public static final String ACCOUNT_DOES_NOT_EXIST = "Account does not exist";
-    public static final String OLD_PASSWORD_DOSE_NOT_MATCH = "New password does not match";
+    public static final String OLD_PASSWORD_DOSE_NOT_MATCH = "Old password does not match!";
     public static final String NEW_PASSWORD_DOSE_NOT_MATCH = "New password does not match";
-    public static final String SUCCESSFULLY_UPDATED_PASSWORD = "Successfully updated password";
+    public static final String PASSWORD_CHANGED_SUCCESSFULLY = "Password changed successfully";
+    public static final String THE_TOKEN_IS_INVALID_OR_HAS_EXPIRED = "The token is invalid or has expired.";
+    public static final String TOKEN_HAS_BEEN_BLACKLISTED = "Token has been blacklisted.";
 
     public static final String GROUP_PRODUCT_NOT_FOUND = "Group product not found";
     public static final String GROUP_PRODUCT_SAVED_SUCCESSFULLY = "Group product saved successfully";
@@ -82,4 +80,34 @@ public class ErrorMessage {
 
     public static final String EMPLOYEE_ROLES_SUCCESSFULLY_SAVED = "Employee Roles successfully saved";
     public static final String EMPLOYEE_DELETED_SUCCESSFULLY = "Employee deleted successfully";
+
+    public static final String ADDRESS_NOT_FOUND = "Address not found";
+    public static final String WARD_NOT_FOUND = "Ward not found";
+    public static final String CITY_NOT_FOUND = "City not found";
+    public static final String COUNTRY_NOT_FOUND = "Country not found";
+
+    public static final String SIZE_NOT_FOUND = "size not found";
+
+    public static final String COLOR_NOT_FOUND = "color not found";
+
+    public static final String PRODUCT_VARIANT_NOT_FOUND = "Product variant not found";
+
+    public static final String ORDER_WAITING_FOR_CONFIRMATION_IS_NOT_EXISTING = "Order waiting for confirmation isn't existing";
+
+    public static final String INVENTORY_NOT_FOUND = "Inventory not found";
+
+    public static final String VERIFICATION_TOKEN_NOT_FOUND = "Verification token not found";
+    public static final String INVALID_VERIFICATION_CODE = "Invalid verification code!";
+    public static final String VERIFICATION_CODE_HAS_EXPIRED = "Verification code has expired!";
+    public static final String ACCOUNT_HAS_BEEN_SUCCESSFULLY_ACTIVATED = "Account has been successfully activated!";
+    public static final String VERIFICATION_CODE_IS_STILL_VALID_RESENT_TO_YOUR_EMAIL = "Verification code is still valid, resent to your email.";
+    public static final String A_NEW_VERIFICATION_CODE_HAS_BEEN_SENT_TO_YOUR_EMAIL = "A new verification code has been sent to your email.";
+    public static final String A_NEW_PASSWORD_HAS_BEEN_SENT_TO_YOUR_EMAIL = "A new password has been sent to your email.";
+
+    public static final String INSUFFICIENT_INVENTORY_FOR_THE_PRODUCT = "Insufficient inventory for the product: ";
+    public static final String EXISTING_PRODUCT_WAREHOUSE_NOT_FOUND = "Existing product warehouse not found: ";
+    public static final String NO_PRODUCTS_HAVE_BEEN_SELECTED_TO_ORDER = "No products have been selected to order.";
+
+    public static final String NO_FILES_TO_UPLOAD = "No files to upload";
+    public static final String ONLY_IMAGE_OR_VIDEO_UPLOADS_ARE_ALLOWED = "Only image or video uploads are allowed.";
 }

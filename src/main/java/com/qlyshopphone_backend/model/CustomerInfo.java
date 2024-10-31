@@ -1,31 +1,37 @@
 package com.qlyshopphone_backend.model;
 
+import com.qlyshopphone_backend.model.enums.Status;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Setter
 @Getter
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
 public class CustomerInfo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "customer_id")
-    private Long customerId;
-
-    @Column(name = "customer_name", length = 50, nullable = false)
-    private String customerName;
-
-    @Column(name = "phone", length = 11, nullable = false)
+    private Long id;
+    private String name;
     private String phone;
-
-    @Column(name = "address", length = 250, nullable = false)
-    private String address;
-
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private Users user;
+    @JoinColumn(name = "address_id")
+    private Address address;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private Users users;
+    @Enumerated(EnumType.STRING)
+    private Status status;
 
-    @Column(name = "delete_customer_info", columnDefinition = "boolean default false")
-    private boolean deleteCustomerInfo = false;
+    public CustomerInfo(String name, String phone, Address address, Users users, Status status) {
+        this.name = name;
+        this.phone = phone;
+        this.address = address;
+        this.users = users;
+        this.status = status;
+    }
 }

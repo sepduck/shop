@@ -16,20 +16,10 @@ import java.math.BigDecimal;
 public class UserStatistics {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_statistics_id")
-    private Long userStatisticsId;
-
+    private Long id;
     @OneToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private Users user;
-
-    @Column(name = "total_amount_paid", precision = 15, scale = 2, nullable = false)
+    @JoinColumn(name = "user_id")
+    private Users users;
     private BigDecimal totalAmountPaid;
-
-    @Column(name = "total_item_bought", nullable = false)
     private Long totalItemBought;
-
-    public UserStatistics(Users user) {
-        this.user = user;
-    }
 }

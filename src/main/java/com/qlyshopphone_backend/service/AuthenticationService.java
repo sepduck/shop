@@ -1,12 +1,23 @@
 package com.qlyshopphone_backend.service;
 
-import com.qlyshopphone_backend.dto.UsersDTO;
+import com.qlyshopphone_backend.dto.request.AuthenticationRequest;
+import com.qlyshopphone_backend.dto.request.UserDetailRequest;
+import com.qlyshopphone_backend.dto.response.LoginResponse;
 import com.qlyshopphone_backend.model.Users;
+import jakarta.mail.MessagingException;
 
 public interface AuthenticationService {
-    String login(Users users);
+    LoginResponse loginUser(AuthenticationRequest request);
 
-    String register(UsersDTO usersDTO) throws Exception;
+    boolean registerUser(UserDetailRequest request) throws MessagingException;
 
-    Users getAuthenticatedUser();
+    String verifyUserAccount(String token);
+
+    String resendVerificationTokenEmail(String email) throws MessagingException;
+
+    String resetUserPassword(String email) throws MessagingException;
+
+    Users getCurrentAuthenticatedUser();
+
+    Users getUserByEmail(String email);
 }

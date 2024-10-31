@@ -1,61 +1,60 @@
 package com.qlyshopphone_backend.service;
 
-import com.qlyshopphone_backend.dto.PasswordChangeRequestDTO;
-import com.qlyshopphone_backend.dto.UsersDTO;
-import com.qlyshopphone_backend.model.Gender;
+import com.qlyshopphone_backend.dto.request.ChangePasswordRequest;
+import com.qlyshopphone_backend.dto.request.UserDetailRequest;
+import com.qlyshopphone_backend.dto.request.UserUpdateRequest;
+import com.qlyshopphone_backend.dto.response.UserProjectResponse;
+import com.qlyshopphone_backend.dto.response.UserRolesResponse;
 import com.qlyshopphone_backend.model.Users;
-import org.springframework.http.ResponseEntity;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.sql.SQLException;
+import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 public interface UserService {
-    List<Map<String, Object>> getAllUsers();
+    boolean updateAvatar(MultipartFile file) throws IOException;
 
-    String updatePassword(PasswordChangeRequestDTO passwordChangeRequestDTO);
+    boolean updateGender(UserUpdateRequest request);
 
-    String updateUser(Long userId, UsersDTO usersDTO);
+    boolean updateFacebook(UserUpdateRequest request);
 
-    String updateUserInfo(UsersDTO usersDTO) throws Exception;
+    boolean updateAddress(UserDetailRequest request);
 
-    String updateUserInfoFile(UsersDTO usersDTO) throws Exception;
+    boolean updateFirstName(UserUpdateRequest request);
 
-    String deleteUser(Long id);
+    boolean updateLastName(UserUpdateRequest request);
 
-    Map<String, Object> getUserInfo();
+    boolean updateBirthday(UserUpdateRequest request);
 
-    List<Map<String, Object>> getAllCustomers();
+    String changePassword(ChangePasswordRequest request);
 
-    String deleteCustomerById(Long userId);
+    boolean updatePhoneNumber(UserUpdateRequest request);
 
-    List<Map<String, Object>> searchCustomerByName(String fullName);
+    UserProjectResponse getUserInfo();
 
-    List<Map<String, Object>> searchCustomerByEmail(String customerEmail);
+    List<UserRolesResponse> getAllCustomers();
 
-    List<Map<String, Object>> searchCustomerByPhone(String customerPhone);
+    List<UserRolesResponse> searchCustomerByName(String fullName);
 
-    List<Map<String, Object>> searchCustomerById(Long userId);
+    List<UserRolesResponse> searchCustomerByEmail(String email);
 
-    List<Map<String, Object>> searchCustomerByAddress(String address);
+    List<UserRolesResponse> searchCustomerByPhone(String phone);
 
-    List<Map<String, Object>> searchCustomerByActive(byte active);
+    List<UserRolesResponse> searchCustomerById(Long userId);
 
-    List<Map<String, Object>> searchCustomerByGender(int number);
+    List<UserRolesResponse> searchCustomerByStatus(String status);
 
-    List<Map<String, Object>> getAllEmployees();
+    List<UserRolesResponse> searchCustomerByGender(String gender);
 
-    String saveEmployeeRoles(Long userId) throws SQLException;
+    List<UserRolesResponse> findAllEmployees();
 
-    String deleteEmployeeById(Long id);
+    boolean assignEmployeeRole(Long userId);
 
-    List<Map<String, Object>> searchEmployeeById(Long id);
+    List<UserRolesResponse> searchEmployeeById(Long id);
 
-    List<Map<String, Object>> searchEmployeeByName(String employeeName);
+    List<UserRolesResponse> searchEmployeeByName(String employeeName);
 
-    List<Map<String, Object>> searchEmployeeByPhoneNumber(String phoneNumber);
+    List<UserRolesResponse> searchEmployeeByPhoneNumber(String phoneNumber);
 
-    List<Map<String, Object>> searchEmployeeByActive(int number);
-
-    List<Gender> getAllGender();
+    List<UserRolesResponse> searchEmployeeByStatus(String status);
 }
