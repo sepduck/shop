@@ -3,9 +3,7 @@ package com.qlyshopphone_backend.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
 
-import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
@@ -14,12 +12,22 @@ public class Notifications {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String message;
+//    @CreationTimestamp
+//    private LocalDateTime createdAt;
+//
+//    @Enumerated(EnumType.STRING)
+//    private NotificationType notificationType;
+//
+//    @OneToOne
+//    @JoinColumn(name = "notified_user_id")
+//    private Users notifiedUser;
+//
+//    @OneToOne
+//    @JoinColumn(name = "user_id")
+//    private Users user;
+//
+//    @OneToOne
+//    @JoinColumn(name = "user_id")
+//    private Products product;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private Users users;
-
-    @CreationTimestamp
-    private LocalDateTime timestamp;
 }

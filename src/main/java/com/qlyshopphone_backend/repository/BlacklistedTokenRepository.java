@@ -9,6 +9,10 @@ import java.util.Optional;
 
 @Repository
 public interface BlacklistedTokenRepository extends JpaRepository<BlacklistedTokens, Long> {
-    @Query("SELECT blt FROM BlacklistedTokens blt WHERE blt.token = :token")
+    @Query("""
+            SELECT blt
+            FROM BlacklistedTokens blt
+            WHERE blt.token = :token
+            """)
     Optional<BlacklistedTokens> findByToken(String token);
 }

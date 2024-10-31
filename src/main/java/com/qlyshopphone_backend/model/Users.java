@@ -25,55 +25,37 @@ public class Users implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     @Column(unique = true)
     private String username;
-
-    private String password;
-
+    @Column(unique = true)
+    private String email;
+    @Column(unique = true)
     private String phoneNumber;
-
+    private String password;
     private String idCard;
-
     @Enumerated(EnumType.STRING)
     private Gender gender;
-
     private String facebook;
-
-    private String email;
-
     private String firstName;
-
     private String lastName;
-
     @Enumerated(EnumType.STRING)
     private Status status;
-
     private LocalDate birthday;
-
     @Enumerated(EnumType.STRING)
     private Role role;
-
     private boolean verify;
-
     private String avatar;
-
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Carts> carts = new ArrayList<>();
-
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CustomerInfo> customerInfo = new ArrayList<>();
-
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "address_id")
     private Address address;
-
     @CreationTimestamp
     private LocalDateTime createdAt;
-
     @UpdateTimestamp
     private LocalDateTime updatedAt;
-
     private LocalDateTime operatingTime;
 
     @Override

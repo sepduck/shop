@@ -20,9 +20,9 @@ public class PathConstant {
 
     public static final String CART = "/cart";
     public static final String API_V1_CART = API_V1 + CART;
-    public static final String ADD_PRODUCT_ID = "/add/{productId}";
+    public static final String ADD_CART = "/add-cart";
     public static final String LIST_CART = "/list-cart";
-    public static final String DELETE_CART_ID = "/delete/{cartId}";public static final String SELLS = "/sells";
+    public static final String DELETE_CART = "/delete-cart";public static final String SELLS = "/sells";
     public static final String SALE = "/sale";
     public static final String CART_VIEW = "/view-cart";
     public static final String TODAY_PURCHASES = "/today-purchases";
@@ -31,8 +31,8 @@ public class PathConstant {
     public static final String ADMIN_SALES_PERCENTAGE_CHANGE = ADMIN + "/sales-percentage-change";
     public static final String ADMIN_SALES_MONTH_PERCENTAGE_CHANGE = ADMIN + "/sales-month-percentage-change";
     public static final String CART_SESSION = CART + "/session";
-    public static final String CUSTOMER_INFO = CART + "/customer-info";
-    public static final String CUSTOMER_INFO_ID = CUSTOMER_INFO + "/{customerInfoId}";
+    public static final String CUSTOMER_INFO = "/customer-info";
+    public static final String CUSTOMER_INFO_ID = CUSTOMER_INFO + "/{id}";
 
     public static final String NOTIFICATION = "/notification";
     public static final String API_V1_NOTIFICATION = API_V1 + NOTIFICATION;
@@ -45,13 +45,14 @@ public class PathConstant {
     public static final String SEARCH = "/search";
     public static final String ADMIN_PRODUCT = ADMIN + "/product";
     public static final String ADMIN_PRODUCT_SEARCH = ADMIN_PRODUCT + SEARCH;
-    public static final String SEARCH_NAME = SEARCH + "/{name}";
-    public static final String SEARCH_ID = SEARCH + "/{id}";
+    public static final String SEARCH_NAME = SEARCH + "/name/{name}";
+    public static final String SEARCH_ID = SEARCH + "/id/{id}";
     public static final String SEARCH_INVENTORY = SEARCH + "/inventory/{number}";
-    public static final String SEARCH_ACTIVE = SEARCH + "/active/{number}";
+    public static final String SEARCH_STATUS = SEARCH + "/status/{status}";
     public static final String SEARCH_GROUP_PRODUCT_ID = SEARCH + "/group-product/{id}";
+    public static final String SEARCH_TRADEMARK_ID = SEARCH + "/trademark/{id}";
     public static final String SEARCH_LOCATION_ID = SEARCH + "/location/{id}";
-    public static final String SEARCH_CATEGORY = SEARCH + "/category/{number}";
+    public static final String SEARCH_CATEGORY = SEARCH + "/category/{id}";
     public static final String ADMIN_PRODUCT_SEARCH_DIRECT_SALES_NUMBER = ADMIN_PRODUCT_SEARCH + "/direct-sales/{number}";
 
     public static final String GROUP_PRODUCT = "/group-product";
@@ -83,11 +84,9 @@ public class PathConstant {
     public static final String GROUP_IN_SUPPLIER = "/group-in-supplier/{id}";
     public static final String ADDRESS_ID = "/address/{id}";
     public static final String ADMIN_SUPPLIERS_SEARCH = ADMIN + "/search";
-    public static final String SEARCH_PHONE_NUMBER = SEARCH + "/phone/{number}";
-    public static final String SEARCH_TAX_CODE_NUMBER = SEARCH + "/tax-code/{number}";
-    public static final String SEARCH_SUPPLIER_NAME = SEARCH + SUPPLIER + "/{name}";
-    public static final String SEARCH_GROUP_SUPPLIER_NUMBER = SEARCH + "/group-supplier/{number}";
-    public static final String SEARCH_SUPPLIER_ACTIVE_NUMBER = SEARCH + "/supplier-active/{number}";
+    public static final String SEARCH_PHONE = SEARCH + "/phone/{phone}";
+    public static final String SEARCH_TAX_CODE = SEARCH + "/tax-code/{tax_code}";
+    public static final String SEARCH_GROUP_SUPPLIER = SEARCH + "/group-supplier/{id}";
 
     public static final String GROUP_SUPPLIER = "/group-supplier";
     public static final String GROUP_SUPPLIER_ID = GROUP_SUPPLIER + "/{id}";
@@ -121,4 +120,26 @@ public class PathConstant {
     public static final String UPDATE_PHONE = "/update-phone";
 
     public static final String RECEIPT = "/receipt";
+
+    public static final String API_V1_PRODUCT_VARIANT = API_V1 + "/product-variant";
+
+    public static final String API_V1_CUSTOMER_INFO = API_V1  + "/customer-info";
+
+    public static final String API_V1_ORDER = API_V1 + "/order";
+    public static final String PLACE = "/place";
+    public static final String CONFIRM = "/confirm";
+    public static final String DISPATCHING = "/dispatching";
+    public static final String DISPATCHED = "/dispatched";
+    public static final String IN_TRANSIT = "/in-transit";
+    public static final String ON_DELIVERY = "/on-delivery";
+    public static final String DELIVERED = "/delivered";
+    public static final String RETURNED = "/return";
+    public static final String RECEIVED = "/received";
+    public static final String CANCELLED = "/cancelled";
+
+
+
+    public static final String API_V1_RECEIPT = API_V1 + "/receipt";
+
+    public static final String API_V1_WEBSOCKET = API_V1 + "/websocket";
 }

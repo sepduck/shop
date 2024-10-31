@@ -11,9 +11,7 @@ public class AddressWards {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String name;
-
     @ManyToOne
     @JoinColumn(name = "city_id")
     private AddressCities city;

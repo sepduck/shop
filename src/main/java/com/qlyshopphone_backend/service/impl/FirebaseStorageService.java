@@ -2,6 +2,7 @@ package com.qlyshopphone_backend.service.impl;
 
 import com.google.cloud.storage.Bucket;
 import com.google.firebase.cloud.StorageClient;
+import static com.qlyshopphone_backend.constant.ErrorMessage.*;
 import com.qlyshopphone_backend.dto.response.ImagesResponse;
 import com.qlyshopphone_backend.model.Images;
 import com.qlyshopphone_backend.repository.ImageRepository;
@@ -24,14 +25,14 @@ public class FirebaseStorageService {
 
     public List<ImagesResponse> uploadFiles(MultipartFile[] files) throws IOException {
         if (files == null || files.length == 0) {
-            throw new IllegalArgumentException("No files to upload");
+            throw new IllegalArgumentException(NO_FILES_TO_UPLOAD);
         }
 
         for (MultipartFile file : files) {
             if (file.isEmpty() ||
                     (!Objects.requireNonNull(file.getContentType()).startsWith("image/") &&
                             !file.getContentType().startsWith("video/"))) {
-                throw new IllegalArgumentException("Only image or video uploads are allowed.");
+                throw new IllegalArgumentException(ONLY_IMAGE_OR_VIDEO_UPLOADS_ARE_ALLOWED);
             }
         }
 

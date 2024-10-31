@@ -7,7 +7,6 @@ import com.qlyshopphone_backend.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -28,7 +27,7 @@ public class ProductController {
 
     @GetMapping(GROUP_PRODUCT)
     public ResponseEntity<List<ProductAttributeResponse>> getAllGroupProduct() {
-        return ResponseEntity.ok(productService.getAllGroupProduct());
+        return ResponseEntity.ok(productService.getAllGroupProducts());
     }
 
     @GetMapping(TRADEMARK)

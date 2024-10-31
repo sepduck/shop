@@ -2,6 +2,7 @@ package com.qlyshopphone_backend.service.impl;
 
 import static com.qlyshopphone_backend.constant.ErrorMessage.*;
 
+import com.qlyshopphone_backend.constant.ErrorMessage;
 import com.qlyshopphone_backend.dto.request.AuthenticationRequest;
 import com.qlyshopphone_backend.dto.request.UserDetailRequest;
 import com.qlyshopphone_backend.dto.request.UserRequest;
@@ -13,7 +14,7 @@ import com.qlyshopphone_backend.model.enums.Role;
 import com.qlyshopphone_backend.model.enums.Status;
 import com.qlyshopphone_backend.repository.*;
 import com.qlyshopphone_backend.service.AuthenticationService;
-import com.qlyshopphone_backend.config.jwt.JwtProvider;
+import com.qlyshopphone_backend.configuration.jwt.JwtProvider;
 import com.qlyshopphone_backend.service.util.AddressService;
 import com.qlyshopphone_backend.service.util.VerificationCodeGenerator;
 import jakarta.mail.MessagingException;
@@ -90,25 +91,25 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public String verifyUserAccount(String token) {
         VerificationTokens verificationToken = verificationTokenRepo.findByToken(token)
-                .orElseThrow(() -> new ApiRequestException("Invalid verification code!", HttpStatus.BAD_REQUEST));
+                .orElseThrow(() -> new ApiRequestException(INVALID_VERIFICATION_CODE, HttpStatus.BAD_REQUEST));
 
         if (verificationToken.getExpiresAt().isBefore(LocalDateTime.now(ZoneId.systemDefault()))) {
-            throw new ApiRequestException("Verification code has expired!", HttpStatus.BAD_REQUEST);
+            throw new ApiRequestException(VERIFICATION_CODE_HAS_EXPIRED, HttpStatus.BAD_REQUEST);
         }
         Users user = verificationToken.getUser();
         user.setVerify(true);
         userRepository.save(user);
         verificationTokenRepo.delete(verificationToken);
 
-        return "Account has been successfully activated!";
+        return ACCOUNT_HAS_BEEN_SUCCESSFULLY_ACTIVATED;
     }
 
     @Transactional
     @Override
     public String resendVerificationTokenEmail(String email) throws MessagingException {
         Users user = getUserByEmail(email);
-        VerificationTokens verificationToken = verificationTokenRepo.findByUser(user)
-                .orElseThrow(() -> new ApiRequestException("Verification token not found!", HttpStatus.BAD_REQUEST));
+        VerificationTokens verificationToken = verificationTokenRepo.findByUserId(user.getId())
+                .orElseThrow(() -> new ApiRequestException(VERIFICATION_TOKEN_NOT_FOUND, HttpStatus.BAD_REQUEST));
         if (verificationToken.getExpiresAt().isBefore(LocalDateTime.now(ZoneId.systemDefault()))) {
             verificationTokenRepo.delete(verificationToken);
             String newVerificationCode = VerificationCodeGenerator.generateCode();
@@ -118,10 +119,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             verificationTokenRepo.save(newToken);
 
             emailService.sendVerificationMail(user.getEmail(), newVerificationCode);
-            return "A new verification code has been sent to your email.";
+            return A_NEW_VERIFICATION_CODE_HAS_BEEN_SENT_TO_YOUR_EMAIL;
         } else {
             emailService.sendVerificationMail(user.getEmail(), verificationToken.getToken());
-            return "Verification code is still valid, resent to your email.";
+            return VERIFICATION_CODE_IS_STILL_VALID_RESENT_TO_YOUR_EMAIL;
         }
     }
 
@@ -136,7 +137,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         userRepository.save(users);
 
         emailService.sendNewPasswordMail(users.getEmail(), newPassword);
-        return "A new password has been sent to your email.";
+        return A_NEW_PASSWORD_HAS_BEEN_SENT_TO_YOUR_EMAIL;
     }
 
     @Override

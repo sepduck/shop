@@ -22,24 +22,18 @@ public class Receipts {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     @ManyToOne
     @JoinColumn(name = "supplier_id")
     private Suppliers supplier;
-
     @ManyToOne
     @JoinColumn(name = "location_id")
     private Locations location;
-
     private BigDecimal totalValue;
-
+    @Enumerated(EnumType.STRING)
     private Status status;
-
     private Long createdBy;
-
     @CreationTimestamp
     private LocalDateTime createdAt;
-
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 

@@ -10,6 +10,10 @@ import java.util.Optional;
 
 @Repository
 public interface UserStatisticsRepository extends JpaRepository<UserStatistics, Long> {
-    @Query("SELECT us FROM UserStatistics us WHERE us.users.id = :userId")
+    @Query("""
+            SELECT us
+            FROM UserStatistics us
+            WHERE us.users.id = :userId
+            """)
     Optional<UserStatistics> findByUsersId(@Param("userId") Long userId);
 }

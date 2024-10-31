@@ -1,17 +1,21 @@
 package com.qlyshopphone_backend.service.impl;
 
 import com.qlyshopphone_backend.broker.producer.KafkaEventProducer;
+import static com.qlyshopphone_backend.constant.ErrorMessage.*;
 import com.qlyshopphone_backend.dto.event.InventoryEvent;
 import com.qlyshopphone_backend.dto.request.ReceiptDetailRequest;
 import com.qlyshopphone_backend.dto.request.ReceiptRequest;
+import com.qlyshopphone_backend.exceptions.ApiRequestException;
 import com.qlyshopphone_backend.model.*;
 import com.qlyshopphone_backend.model.enums.ChangeReason;
 import com.qlyshopphone_backend.model.enums.Status;
 import com.qlyshopphone_backend.repository.*;
 import com.qlyshopphone_backend.service.*;
+import com.qlyshopphone_backend.service.util.EntityFinder;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,23 +26,20 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class ReceiptServiceImpl implements ReceiptService {
-    private final AuthenticationService authenticationService;
     private final ReceiptRepository receiptRepository;
     private final ReceiptDetailRepository receiptDetailRepository;
-    private final SupplierService supplierService;
-    private final ProductService productService;
     private final InventoryRepository inventoryRepository;
     private final InventoryHistoryRepository inventoryHistoryRepository;
     private final KafkaEventProducer kafkaEventProducer;
-    private final UserService userService;
+    private final EntityFinder entityFinder;
     private final Logger logger = LoggerFactory.getLogger(ReceiptServiceImpl.class);
 
     @Transactional
     @Override
     public Receipts createReceipt(ReceiptRequest request) {
-        Users authUser = authenticationService.getCurrentAuthenticatedUser();
-        Suppliers supplier = supplierService.findSupplierById(request.getSupplierId());
-        Locations location = productService.findLocationById(request.getLocationId());
+        Users authUser = entityFinder.getCurrentAuthenticatedUser();
+        Suppliers supplier = entityFinder.findSupplierById(request.getSupplierId());
+        Locations location = entityFinder.findLocationById(request.getLocationId());
 
         Receipts receipts = new Receipts(supplier, location, Status.ACTIVE, authUser.getId());
 
@@ -48,7 +49,7 @@ public class ReceiptServiceImpl implements ReceiptService {
 
         List<ReceiptDetails> receiptDetailsList = new ArrayList<>();
         for (ReceiptDetailRequest detail : request.getDetail()) {
-            Products product = productService.findProductById(detail.getProductId());
+            Products product = entityFinder.findProductById(detail.getProductId());
 
             // Tính tổng giá trị của sản phẩm (purchasePrice * quantity)
             BigDecimal quantity = BigDecimal.valueOf(detail.getQuantity());
@@ -77,10 +78,11 @@ public class ReceiptServiceImpl implements ReceiptService {
     @Transactional
     @Override
     public void createAndUpdateInventory(InventoryEvent event){
-        Users authUser = userService.findUserById(event.getUserId());
+        Users authUser = entityFinder.findUserById(event.getUserId());
         logger.info("Receipt Service: {}", authUser.getId());
-        Products product = productService.findProductById(event.getProductId());
-        Inventory inventory = inventoryRepository.findByProductId(event.getProductId());
+        Products product = entityFinder.findProductById(event.getProductId());
+        Inventory inventory = inventoryRepository.findByProductId(event.getProductId())
+                .orElseThrow(() -> new ApiRequestException(PRODUCT_NOT_FOUND, HttpStatus.BAD_REQUEST));
         Long previousQuantity = inventory != null ? inventory.getQuantity() : 0L;
 
         if (inventory == null) {
@@ -88,7 +90,6 @@ public class ReceiptServiceImpl implements ReceiptService {
             inventoryRepository.save(inventory);
 
         } else {
-            // Nếu tồn kho đã có, cập nhật số lượng
             inventory.setQuantity(inventory.getQuantity() + event.getQuantity());
             inventoryRepository.save(inventory);
         }

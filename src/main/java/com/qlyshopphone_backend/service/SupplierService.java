@@ -4,7 +4,6 @@ import com.qlyshopphone_backend.dto.request.ProductAttributeRequest;
 import com.qlyshopphone_backend.dto.request.SupplierRequest;
 import com.qlyshopphone_backend.dto.response.ProductAttributeResponse;
 import com.qlyshopphone_backend.dto.response.SupplierResponse;
-import com.qlyshopphone_backend.model.Suppliers;
 import com.qlyshopphone_backend.repository.projection.SupplierProjection;
 import org.springframework.data.domain.Pageable;
 
@@ -37,18 +36,13 @@ public interface SupplierService {
 
     ProductAttributeResponse updateGroupSupplier(ProductAttributeRequest request, Long groupSupplierId);
 
-    Suppliers findSupplierById(Long id);
+    List<SupplierProjection> searchSuppliersByPhone(String phone);
 
-//    List<Suppliers> searchByPhoneNumber(String phoneNumber);
-//
-//    List<Suppliers> searchByTaxCode(String taxCode);
+    List<SupplierProjection> searchSuppliersByTaxCode(String taxCode);
 
-//    List<Suppliers> searchBySupplierName(String supplierName);
+    List<SupplierProjection> searchSuppliersByName(String name);
 
-//    List<Suppliers> searchByGroupSupplier(Long groupSupplierId);
+    List<SupplierProjection> searchSuppliersByGroupSupplier(Long id);
 
-//    List<Suppliers> getSupplier();
-//
-//    List<Suppliers> searchNoActive(int number);
-
+    List<SupplierProjection> searchSuppliersByStatus(String status);
 }

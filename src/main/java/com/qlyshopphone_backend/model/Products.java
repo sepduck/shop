@@ -18,14 +18,10 @@ public class Products {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String name;
-
     @Enumerated(EnumType.STRING)
     private Status status;
-
     private String thumbnail;
-
     @ManyToMany
     @JoinTable(
             name = "product_images",
@@ -33,28 +29,20 @@ public class Products {
             inverseJoinColumns = @JoinColumn(name = "image_id")
     )
     private Set<Images> images = new HashSet<>();
-
     @ManyToOne
     @JoinColumn(name = "group_product_id")
     private GroupProducts groupProduct;
-
     @ManyToOne
     @JoinColumn(name = "trademark_id")
     private Trademarks trademark;
-
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Categories category;
-
     @ManyToOne
     @JoinColumn(name = "unit_id")
     private Units unit;
-
     @CreationTimestamp
     private LocalDateTime createdAt;
-
     @UpdateTimestamp
     private LocalDateTime updatedAt;
-
-
 }

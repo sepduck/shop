@@ -12,13 +12,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@RequestMapping(API_V1)
+@RequestMapping(API_V1_RECEIPT)
 @RestController
 @RequiredArgsConstructor
 public class ReceiptController {
     private final ReceiptService receiptService;
 
-    @PostMapping(RECEIPT)
+    @PostMapping()
     public ResponseEntity<Receipts> createReceipt(@RequestBody ReceiptRequest request) {
         return ResponseEntity.ok(receiptService.createReceipt(request));
     }

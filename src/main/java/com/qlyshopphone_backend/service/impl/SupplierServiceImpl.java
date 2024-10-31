@@ -14,6 +14,7 @@ import com.qlyshopphone_backend.repository.SupplierRepository;
 import com.qlyshopphone_backend.repository.projection.SupplierProjection;
 import com.qlyshopphone_backend.service.SupplierService;
 import com.qlyshopphone_backend.service.util.AddressService;
+import com.qlyshopphone_backend.service.util.EntityFinder;
 import com.qlyshopphone_backend.service.util.ProductServiceHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -34,6 +35,7 @@ public class SupplierServiceImpl implements SupplierService {
     private final ProductServiceHelper productServiceHelper;
     private final AddressService addressService;
     private final AddressRepository addressRepository;
+    private final EntityFinder entityFinder;
 
     @Override
     public List<SupplierProjection> getSupplier(Pageable pageable) {
@@ -67,7 +69,7 @@ public class SupplierServiceImpl implements SupplierService {
     @Transactional
     @Override
     public boolean updateSupplierName(SupplierRequest request, Long id) {
-        Suppliers supplier = findSupplierById(id);
+        Suppliers supplier = entityFinder.findSupplierById(id);
         supplier.setName(request.getName());
         supplierRepository.save(supplier);
         return true;
@@ -76,7 +78,7 @@ public class SupplierServiceImpl implements SupplierService {
     @Transactional
     @Override
     public boolean updateSupplierPhone(SupplierRequest request, Long id) {
-        Suppliers supplier = findSupplierById(id);
+        Suppliers supplier = entityFinder.findSupplierById(id);
         supplier.setPhoneNumber(request.getPhoneNumber());
         supplierRepository.save(supplier);
         return true;
@@ -85,7 +87,7 @@ public class SupplierServiceImpl implements SupplierService {
     @Transactional
     @Override
     public boolean updateSupplierEmail(SupplierRequest request, Long id) {
-        Suppliers supplier = findSupplierById(id);
+        Suppliers supplier = entityFinder.findSupplierById(id);
         supplier.setEmail(request.getEmail());
         supplierRepository.save(supplier);
         return true;
@@ -94,7 +96,7 @@ public class SupplierServiceImpl implements SupplierService {
     @Transactional
     @Override
     public boolean updateSupplierCompany(SupplierRequest request, Long id) {
-        Suppliers supplier = findSupplierById(id);
+        Suppliers supplier = entityFinder.findSupplierById(id);
         supplier.setCompany(request.getCompany());
         supplierRepository.save(supplier);
         return true;
@@ -103,25 +105,27 @@ public class SupplierServiceImpl implements SupplierService {
     @Transactional
     @Override
     public boolean updateSupplierTaxCode(SupplierRequest request, Long id) {
-        Suppliers supplier = findSupplierById(id);
+        Suppliers supplier = entityFinder.findSupplierById(id);
         supplier.setTaxCode(request.getTaxCode());
         supplierRepository.save(supplier);
         return true;
     }
+
     @Transactional
     @Override
     public boolean updateInfoGroupInSupplier(SupplierRequest request, Long id) {
-        Suppliers supplier = findSupplierById(id);
+        Suppliers supplier = entityFinder.findSupplierById(id);
         GroupSuppliers groupSupplier = groupSupplierRepository.findById(request.getGroupSupplierId())
                 .orElseThrow(() -> new ApiRequestException(GROUP_SUPPLIER_NOT_FOUND, HttpStatus.BAD_REQUEST));
         supplier.setGroupSupplier(groupSupplier);
         supplierRepository.save(supplier);
         return true;
     }
+
     @Transactional
     @Override
     public boolean updateSupplierAddress(SupplierRequest request, Long id) {
-        Suppliers supplier = findSupplierById(id);
+        Suppliers supplier = entityFinder.findSupplierById(id);
         Address address = addressRepository.findById(supplier.getAddress().getId())
                 .orElseThrow(() -> new ApiRequestException(ADDRESS_NOT_FOUND, HttpStatus.BAD_REQUEST));
         addressService.setAddressDetails(
@@ -137,12 +141,12 @@ public class SupplierServiceImpl implements SupplierService {
 
     @Override
     public boolean inactiveSupplier(Long id) {
-        Suppliers supplier = findSupplierById(id);
+        Suppliers supplier = entityFinder.findSupplierById(id);
         supplier.setStatus(Status.INACTIVE);
         supplierRepository.save(supplier);
         return true;
     }
-    
+
     @Override
     public List<ProductAttributeResponse> getAllGroupSupplier() {
         List<GroupSuppliers> list = groupSupplierRepository.findAll();
@@ -171,32 +175,28 @@ public class SupplierServiceImpl implements SupplierService {
     }
 
     @Override
-    public Suppliers findSupplierById(Long id) {
-        return supplierRepository.findById(id).orElseThrow(() -> new ApiRequestException(SUPPLIER_NOT_FOUND, HttpStatus.BAD_REQUEST));
-    }
-
-
-/*    @Override
-    public List<Suppliers> searchByPhoneNumber(String phoneNumber) {
-        return supplierRepository.searchAllByPhoneNumber(phoneNumber);
+    public List<SupplierProjection> searchSuppliersByPhone(String phone) {
+        return supplierRepository.searchSuppliersByPhone(Status.ACTIVE, phone);
     }
 
     @Override
-    public List<Suppliers> searchByTaxCode(String taxCode) {
+    public List<SupplierProjection> searchSuppliersByTaxCode(String taxCode) {
 
-        return supplierRepository.searchAllByTaxCode(taxCode);
-    }*/
+        return supplierRepository.searchSuppliersByTaxCode(Status.ACTIVE, taxCode);
+    }
 
-//    @Override
-//    public List<Suppliers> searchBySupplierName(String supplierName) {
-//        return supplierRepository.searchAllBySupplierNameLike(supplierName);
-//    }
+    @Override
+    public List<SupplierProjection> searchSuppliersByName(String name) {
+        return supplierRepository.searchSuppliersByName(Status.ACTIVE, name);
+    }
 
-//    @Override
-//    public List<Suppliers> searchByGroupSupplier(Long groupSupplierId) {
-//        return supplierRepository.searchByid(groupSupplierId);
-//    }
+    @Override
+    public List<SupplierProjection> searchSuppliersByGroupSupplier(Long id) {
+        return supplierRepository.searchSupplierByGroupSupplierId(Status.ACTIVE, id);
+    }
 
-
-
+    @Override
+    public List<SupplierProjection> searchSuppliersByStatus(String status) {
+        return supplierRepository.searchSupplierByStatus(Status.valueOf(status));
+    }
 }

@@ -20,22 +20,16 @@ public class InventoryHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     @ManyToOne
     @JoinColumn(name = "user_id")
     private Users user;
-
     @ManyToOne
     @JoinColumn(name = "product_id")
     private Products product;
-
     private Long previousQuantity;
-
     private Long newQuantity;
-
     @Enumerated(EnumType.STRING)
     private ChangeReason changeReason;
-
     @CreationTimestamp
     private LocalDateTime createdAt;
 

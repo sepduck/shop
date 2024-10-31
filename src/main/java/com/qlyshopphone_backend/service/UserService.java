@@ -57,6 +57,4 @@ public interface UserService {
     List<UserRolesResponse> searchEmployeeByPhoneNumber(String phoneNumber);
 
     List<UserRolesResponse> searchEmployeeByStatus(String status);
-
-    Users findUserById(Long id);
 }

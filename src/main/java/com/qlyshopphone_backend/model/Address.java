@@ -15,17 +15,13 @@ public class Address {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String street;
-
     @ManyToOne
     @JoinColumn(name = "city_id")
     private AddressCities city;
-
     @ManyToOne
     @JoinColumn(name = "country_id")
     private AddressCountries country;
-
     @ManyToOne
     @JoinColumn(name = "ward_id")
     private AddressWards ward;

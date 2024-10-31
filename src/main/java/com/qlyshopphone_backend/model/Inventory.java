@@ -15,17 +15,13 @@ public class Inventory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)
     private Products product;
-
     @ManyToOne
     @JoinColumn(name = "location_id", nullable = false)
     private Locations location;
-
     private Long quantity;
-
     public Inventory(Products product, Long quantity) {
         this.product = product;
         this.quantity = quantity;

@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 @Getter
 @Setter
 @Entity
@@ -15,16 +17,9 @@ public class UserStatistics {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     @OneToOne
     @JoinColumn(name = "user_id")
     private Users users;
-
-    private float totalAmountPaid;
-
+    private BigDecimal totalAmountPaid;
     private Long totalItemBought;
-
-    public UserStatistics(Users users) {
-        this.users = users;
-    }
 }

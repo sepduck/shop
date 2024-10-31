@@ -33,37 +33,43 @@ public class SupplierController {
 
     @PutMapping(NAME_ID)
     public ResponseEntity<Boolean> updateSupplierName(@RequestBody SupplierRequest request,
-                                                               @PathVariable Long id) {
+                                                      @PathVariable Long id) {
         return ResponseEntity.ok(supplierService.updateSupplierName(request, id));
     }
+
     @PutMapping(PHONE_ID)
     public ResponseEntity<Boolean> updateSupplierPhone(@RequestBody SupplierRequest request,
-                                                      @PathVariable Long id) {
+                                                       @PathVariable Long id) {
         return ResponseEntity.ok(supplierService.updateSupplierPhone(request, id));
     }
+
     @PutMapping(EMAIL_ID)
     public ResponseEntity<Boolean> updateSupplierEmail(@RequestBody SupplierRequest request,
-                                                      @PathVariable Long id) {
+                                                       @PathVariable Long id) {
         return ResponseEntity.ok(supplierService.updateSupplierEmail(request, id));
     }
+
     @PutMapping(COMPANY)
     public ResponseEntity<Boolean> updateSupplierCompany(@RequestBody SupplierRequest request,
-                                                      @PathVariable Long id) {
+                                                         @PathVariable Long id) {
         return ResponseEntity.ok(supplierService.updateSupplierCompany(request, id));
     }
+
     @PutMapping(TAX_CODE)
     public ResponseEntity<Boolean> updateSupplierTaxCode(@RequestBody SupplierRequest request,
-                                                      @PathVariable Long id) {
+                                                         @PathVariable Long id) {
         return ResponseEntity.ok(supplierService.updateSupplierTaxCode(request, id));
     }
+
     @PutMapping(GROUP_IN_SUPPLIER)
     public ResponseEntity<Boolean> updateInfoGroupInSupplier(@RequestBody SupplierRequest request,
-                                                      @PathVariable Long id) {
+                                                             @PathVariable Long id) {
         return ResponseEntity.ok(supplierService.updateInfoGroupInSupplier(request, id));
     }
+
     @PutMapping(ADDRESS_ID)
     public ResponseEntity<Boolean> updateSupplierAddress(@RequestBody SupplierRequest request,
-                                                      @PathVariable Long id) {
+                                                         @PathVariable Long id) {
         return ResponseEntity.ok(supplierService.updateSupplierAddress(request, id));
     }
 
@@ -91,28 +97,28 @@ public class SupplierController {
     }
 
 
-//    @GetMapping(SEARCH_PHONE_NUMBER)
-//    public ResponseEntity<?> searchAllByPhoneNumber(@PathVariable("number") String phoneNumber) {
-//        return ResponseEntity.ok(supplierService.searchByPhoneNumber(phoneNumber));
-//    }
-//
-//    @GetMapping(SEARCH_TAX_CODE_NUMBER)
-//    public ResponseEntity<?> searchAllByTaxCode(@PathVariable("number") String taxCode) {
-//        return ResponseEntity.ok(supplierService.searchByTaxCode(taxCode));
-//    }
+    @GetMapping(SEARCH_PHONE)
+    public ResponseEntity<List<SupplierProjection>> searchAllByPhoneNumber(@PathVariable("phone") String phone) {
+        return ResponseEntity.ok(supplierService.searchSuppliersByPhone(phone));
+    }
 
-//    @GetMapping(SEARCH_NAME)
-//    public ResponseEntity<?> searchSupplierName(@PathVariable("name") String supplierName) {
-//        return ResponseEntity.ok(supplierService.searchBySupplierName(supplierName));
-//    }
+    @GetMapping(SEARCH_TAX_CODE)
+    public ResponseEntity<List<SupplierProjection>> searchAllByTaxCode(@PathVariable("tax_code") String taxCode) {
+        return ResponseEntity.ok(supplierService.searchSuppliersByTaxCode(taxCode));
+    }
 
-//    @GetMapping(SEARCH_GROUP_SUPPLIER_NUMBER)
-//    public ResponseEntity<?> searchByGroupSupplier(@PathVariable Long number) {
-//        return ResponseEntity.ok(supplierService.searchByGroupSupplier(number));
-//    }
+    @GetMapping(SEARCH_NAME)
+    public ResponseEntity<List<SupplierProjection>> searchSupplierName(@PathVariable("name") String name) {
+        return ResponseEntity.ok(supplierService.searchSuppliersByName(name));
+    }
 
-//    @GetMapping(SEARCH_SUPPLIER_ACTIVE_NUMBER)
-//    public ResponseEntity<?> searchActive(@PathVariable int number) {
-//        return ResponseEntity.ok(supplierService.searchNoActive(number));
-//    }
+    @GetMapping(SEARCH_GROUP_SUPPLIER)
+    public ResponseEntity<List<SupplierProjection>> searchByGroupSupplier(@PathVariable Long id) {
+        return ResponseEntity.ok(supplierService.searchSuppliersByGroupSupplier(id));
+    }
+
+    @GetMapping(SEARCH_STATUS)
+    public ResponseEntity<List<SupplierProjection>> searchActive(@PathVariable String status) {
+        return ResponseEntity.ok(supplierService.searchSuppliersByStatus(status));
+    }
 }

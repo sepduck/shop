@@ -1,12 +1,11 @@
 package com.qlyshopphone_backend.service.impl;
 
-import com.qlyshopphone_backend.config.jwt.JwtProvider;
+import com.qlyshopphone_backend.configuration.jwt.JwtProvider;
 import static com.qlyshopphone_backend.constant.ErrorMessage.*;
 import com.qlyshopphone_backend.model.BlacklistedTokens;
 import com.qlyshopphone_backend.repository.BlacklistedTokenRepository;
 import com.qlyshopphone_backend.service.TokenService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;

@@ -6,7 +6,6 @@ import com.qlyshopphone_backend.dto.request.*;
 import com.qlyshopphone_backend.dto.response.ImagesResponse;
 import com.qlyshopphone_backend.dto.response.ProductAttributeResponse;
 import com.qlyshopphone_backend.dto.response.ProductResponse;
-import com.qlyshopphone_backend.model.Images;
 import com.qlyshopphone_backend.repository.projection.ProductProjection;
 import com.qlyshopphone_backend.service.ProductService;
 import com.qlyshopphone_backend.service.impl.FirebaseStorageService;
@@ -44,7 +43,7 @@ public class ProductAdminController {
 
     @PutMapping(PRODUCT_ID)
     public ResponseEntity<ProductResponse> updateProduct(@PathVariable("id") Long id,
-                                           @RequestBody ProductRequest productRequest){
+                                                         @RequestBody ProductRequest productRequest) {
         return ResponseEntity.ok(productService.updateProduct(id, productRequest));
     }
 
@@ -71,7 +70,7 @@ public class ProductAdminController {
 
     @PostMapping(TRADEMARK)
     public ResponseEntity<ProductAttributeResponse> saveTrademark(@RequestBody ProductAttributeRequest request) {
-        return ResponseEntity.ok(productService.saveTrademark(request));
+        return ResponseEntity.ok(productService.createTrademark(request));
     }
 
     @PutMapping(TRADEMARK_ID)
@@ -84,7 +83,6 @@ public class ProductAdminController {
     public ResponseEntity<Boolean> deleteTrademark(@PathVariable Long id) {
         return ResponseEntity.ok(productService.deleteTrademark(id));
     }
-
 
     @PostMapping(UNIT)
     public ResponseEntity<ProductAttributeResponse> saveUnits(@RequestBody ProductAttributeRequest request) {
@@ -118,16 +116,6 @@ public class ProductAdminController {
         return ResponseEntity.ok(productService.deleteCategory(id));
     }
 
-//    @GetMapping(SEARCH_INVENTORY)
-//    public ResponseEntity<?> searchInventory(@PathVariable("number") int number) {
-//        return ResponseEntity.ok(productService.searchInventory(number));
-//    }
-//
-//    @GetMapping(SEARCH_ACTIVE)
-//    public ResponseEntity<?> searchActive(@PathVariable("number") int number) {
-//        return ResponseEntity.ok(productService.searchActive(number));
-//    }
-
     @PostMapping(LOCATION)
     public ResponseEntity<ProductAttributeResponse> saveLocation(@RequestBody ProductAttributeRequest request) {
         return ResponseEntity.ok(productService.createLocation(request));
@@ -144,26 +132,40 @@ public class ProductAdminController {
         return ResponseEntity.ok(productService.deleteLocation(id));
     }
 
-//    @PostMapping(PROPERTIES)
-//    public ResponseEntity<ProductAttributeResponse> saveProperties(@RequestBody ProductAttributeRequest request) {
-//        return ResponseEntity.ok(productService.saveProperties(request));
-//    }
-//
-//    @PutMapping(PROPERTIES_ID)
-//    public ResponseEntity<ProductAttributeResponse> updateProperties(@RequestBody ProductAttributeRequest request,
-//                                                                     @PathVariable Long id) {
-//        return ResponseEntity.ok(productService.updateProperties(request, id));
-//    }
-//
-//    @DeleteMapping(PROPERTIES_ID)
-//    public ResponseEntity<Boolean> deleteProperties(@PathVariable Long id) {
-//        return ResponseEntity.ok(productService.deleteProperties(id));
-//    }
-//
-//    @GetMapping(ADMIN_PRODUCT_SEARCH_DIRECT_SALES_NUMBER)
-//    public ResponseEntity<?> searchDirectSales(@PathVariable int number) {
-//        return ResponseEntity.ok(productService.searchDirectSales(number));
-//    }
+    @GetMapping(SEARCH_NAME)
+    public ResponseEntity<List<ProductProjection>> searchProductByName(@PathVariable String name) {
+        return ResponseEntity.ok(productService.searchProductByName(name));
+    }
+
+    @GetMapping(SEARCH_ID)
+    public ResponseEntity<List<ProductProjection>> searchProductById(@PathVariable Long id) {
+        return ResponseEntity.ok(productService.searchProductById(id));
+    }
+
+    @GetMapping(SEARCH_GROUP_PRODUCT_ID)
+    public ResponseEntity<List<ProductProjection>> searchProductByGroupProductId(@PathVariable Long id) {
+        return ResponseEntity.ok(productService.searchProductByGroupProductId(id));
+    }
+
+    @GetMapping(SEARCH_TRADEMARK_ID)
+    public ResponseEntity<List<ProductProjection>> searchProductsByTrademarkId(@PathVariable Long id) {
+        return ResponseEntity.ok(productService.searchProductsByTrademarkId(id));
+    }
+
+    @GetMapping(SEARCH_STATUS)
+    public ResponseEntity<List<ProductProjection>> searchProductsByStatus(@PathVariable String status) {
+        return ResponseEntity.ok(productService.searchProductsByStatus(status));
+    }
+
+    @GetMapping(PRODUCT_ID)
+    public ResponseEntity<List<ProductProjection>> getProductById(@PathVariable Long id) {
+        return ResponseEntity.ok(productService.getProductById(id));
+    }
+
+    @GetMapping(SEARCH_CATEGORY)
+    public ResponseEntity<List<ProductProjection>> searchProductsByCategoryId(@PathVariable Long id) {
+        return ResponseEntity.ok(productService.searchProductsByCategoryId(id));
+    }
 
 }
 

@@ -80,7 +80,7 @@ public class UserServiceImpl implements UserService {
     public boolean updateAddress(UserDetailRequest request) {
         Users authUser = authenticationService.getCurrentAuthenticatedUser();
         Address address = addressRepository.findById(authUser.getAddress().getId())
-                        .orElseThrow(() -> new ApiRequestException("User address not found", HttpStatus.BAD_REQUEST));
+                        .orElseThrow(() -> new ApiRequestException(ADDRESS_NOT_FOUND, HttpStatus.BAD_REQUEST));
         addressService.setAddressDetails(
                 address,
                 request.getWardId(),
@@ -212,12 +212,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserRolesResponse> searchEmployeeByStatus(String status) {
         return userRepository.searchUserByStatus(Role.EMPLOYEE, Status.valueOf(status));
-    }
-
-    @Override
-    public Users findUserById(Long id){
-        return userRepository.findById(id)
-                .orElseThrow(() -> new ApiRequestException(USER_NOT_FOUND, HttpStatus.NOT_FOUND));
     }
 
 }

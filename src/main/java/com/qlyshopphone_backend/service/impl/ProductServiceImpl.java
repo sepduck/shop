@@ -13,15 +13,14 @@ import com.qlyshopphone_backend.repository.*;
 import com.qlyshopphone_backend.repository.projection.ProductAttributeProjection;
 import com.qlyshopphone_backend.repository.projection.ProductProjection;
 import com.qlyshopphone_backend.service.ProductService;
+import com.qlyshopphone_backend.service.util.EntityFinder;
 import com.qlyshopphone_backend.service.util.ProductServiceHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +34,7 @@ public class ProductServiceImpl implements ProductService {
     private final ProductServiceHelper productServiceHelper;
     private final ImageRepository imageRepository;
     private final LocationRepository locationRepository;
+    private final EntityFinder entityFinder;
 
     @Override
     public List<ProductProjection> getAllProducts() {
@@ -45,7 +45,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public boolean createProduct(ProductRequest request) {
         Products product = new Products();
-        createAndUpdateProduct(product, request);
+        populateProductData(product, request);
 
         Products savedProduct = productRepository.save(product);
         List<Images> images = imageRepository.findAllById(request.getImageIds());
@@ -60,9 +60,9 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     @Override
     public ProductResponse updateProduct(Long productId, ProductRequest request) {
-        Products existingProduct = findProductById(productId);
+        Products existingProduct = entityFinder.findProductById(productId);
 
-        createAndUpdateProduct(existingProduct, request);
+        populateProductData(existingProduct, request);
         productRepository.save(existingProduct);
         return basicMapper.convertToResponse(existingProduct, ProductResponse.class);
     }
@@ -81,9 +81,9 @@ public class ProductServiceImpl implements ProductService {
 
 
     @Override
-    public List<ProductAttributeResponse> getAllGroupProduct() {
-        List<GroupProducts> list = groupProductRepository.findAll();
-        return basicMapper.convertToResponseList(list, ProductAttributeResponse.class);
+    public List<ProductAttributeResponse> getAllGroupProducts() {
+        List<GroupProducts> groups = groupProductRepository.findAll();
+        return basicMapper.convertToResponseList(groups, ProductAttributeResponse.class);
     }
 
     @Transactional
@@ -127,7 +127,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Transactional
     @Override
-    public ProductAttributeResponse saveTrademark(ProductAttributeRequest request) {
+    public ProductAttributeResponse createTrademark(ProductAttributeRequest request) {
         Trademarks trademarks = new Trademarks();
         trademarks.setName(request.getName());
         trademarkRepository.save(trademarks);
@@ -137,8 +137,8 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     @Override
     public ProductAttributeResponse updateTrademark(ProductAttributeRequest request, Long trademarkId) {
-        return productServiceHelper.updateAttribute(-
-                        trademarkId,
+        return productServiceHelper.updateAttribute(
+                trademarkId,
                 request,
                 trademarkRepository::findById,
                 trademarkRepository::save,
@@ -235,11 +235,11 @@ public class ProductServiceImpl implements ProductService {
         return true;
     }
 
-    private void createAndUpdateProduct(Products products, ProductRequest request) {
-        GroupProducts groupProduct = findGroupProductById(request.getGroupProductId());
-        Trademarks trademark = findTrademarkById(request.getTrademarkId());
-        Units unit = findUnitById(request.getUnitId());
-        Categories category = findCategoryById(request.getCategoryId());
+    private void populateProductData(Products products, ProductRequest request) {
+        GroupProducts groupProduct = entityFinder.findGroupProductById(request.getGroupProductId());
+        Trademarks trademark = entityFinder.findTrademarkById(request.getTrademarkId());
+        Units unit = entityFinder.findUnitById(request.getUnitId());
+        Categories category = entityFinder.findCategoryById(request.getCategoryId());
 
         products.setName(request.getName());
         products.setGroupProduct(groupProduct);
@@ -284,136 +284,38 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Products findProductById(Long productId) {
-        return productRepository.findById(productId)
-                .orElseThrow(() -> new ApiRequestException(PRODUCT_NOT_FOUND, HttpStatus.BAD_REQUEST));
+    public List<ProductProjection> searchProductByName(String name) {
+        return productRepository.searchProductsByName(Status.ACTIVE, name);
     }
 
     @Override
-    public Locations findLocationById(Long locationId) {
-        return locationRepository.findById(locationId)
-                .orElseThrow(() -> new ApiRequestException(LOCATION_NOT_FOUND, HttpStatus.BAD_REQUEST));
+    public List<ProductProjection> searchProductById(Long id) {
+        return productRepository.searchProductsById(Status.ACTIVE, id);
     }
 
     @Override
-    public GroupProducts findGroupProductById(Long groupProductId) {
-        return groupProductRepository.findById(groupProductId)
-                .orElseThrow(() -> new ApiRequestException(GROUP_PRODUCT_NOT_FOUND, HttpStatus.BAD_REQUEST));
+    public List<ProductProjection> searchProductByGroupProductId(Long id) {
+        return productRepository.searchProductsByGroupProductId(Status.ACTIVE, id);
     }
 
     @Override
-    public Categories findCategoryById(Long categoryId) {
-        return categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new ApiRequestException(CATEGORY_NOT_FOUND, HttpStatus.BAD_REQUEST));
+    public List<ProductProjection> searchProductsByTrademarkId(Long id) {
+        return productRepository.searchProductsByTrademarkId(Status.ACTIVE, id);
     }
 
     @Override
-    public Units findUnitById(Long unitId) {
-        return unitRepository.findById(unitId)
-                .orElseThrow(() -> new ApiRequestException(UNIT_NOT_FOUND, HttpStatus.BAD_REQUEST));
+    public List<ProductProjection> searchProductsByStatus(String status) {
+        return productRepository.searchProductsByStatus(Status.valueOf(status));
     }
 
     @Override
-    public Trademarks findTrademarkById(Long trademarkId) {
-        return trademarkRepository.findById(trademarkId)
-                .orElseThrow(() -> new ApiRequestException(TRADEMARK_NOT_FOUND, HttpStatus.BAD_REQUEST));
+    public List<ProductProjection> getProductById(Long id) {
+        return productRepository.findProductById(Status.ACTIVE, id);
     }
 
-//    @Override
-//    public List<ProductAttributeResponse> getAllLocation() {
-//        List<Locations> list = locationRepository.findAll();
-//        return basicMapper.convertToResponseList(list, ProductAttributeResponse.class);
-//    }
-//
-//    @Override
-//    public List<ProductAttributeResponse> getAllProperties() {
-//        List<Properties> list = propertiesRepository.findAll();
-//        return basicMapper.convertToResponseList(list, ProductAttributeResponse.class);
-//    }
-//
-//    @Transactional
-//    @Override
-//    public ProductAttributeResponse saveProperties(ProductAttributeRequest request) {
-//        Properties properties = new Properties();
-//        properties.setName(request.getName());
-//        propertiesRepository.save(properties);
-//        return basicMapper.convertToResponse(properties, ProductAttributeResponse.class);
-//    }
-//
-//    @Transactional
-//    @Override
-//    public ProductAttributeResponse updateProperties(ProductAttributeRequest request, Long propertiesId) {
-//        return productServiceHelper.updateAttribute(
-//                propertiesId,
-//                request,
-//                propertiesRepository::findById,
-//                propertiesRepository::save,
-//                Properties::getName,
-//                Properties::setName,
-//                PROPERTIES_NOT_FOUND
-//        );
-//    }
-//
-//    @Transactional
-//    @Override
-//    public boolean deleteProperties(Long propertiesId) {
-//        if (!propertiesRepository.existsById(propertiesId)) {
-//            throw new ApiRequestException(PROPERTIES_NOT_FOUND, HttpStatus.NOT_FOUND);
-//        }
-//        propertiesRepository.deleteById(propertiesId);
-//        return true;
-//    }
-//    @Override
-//    public List<Products> searchAllByProductName(String productName) {
-//        return productRepository.searchAllByProductName(Status.ACTIVE, productName);
-//    }
-//
-//    @Override
-//    public List<Map<String, Object>> searchAllByProductId(Long productId) {
-//        return productRepository.searchAllByProductId(productId);
-//    }
-//
-//    @Override
-//    public List<Map<String, Object>> searchGroupProductId(Long groupProductId) {
-//        return productRepository.searchAllByProductId(groupProductId);
-//    }
-//
-//    @Override
-//    public List<Map<String, Object>> searchInventory(int number) {
-//        return switch (number) {
-//            case 1 -> productRepository.getAllProducts(Status.ACTIVE);
-//            case 2 -> productRepository.searchBelowInventoryThreshold();
-//            case 3 -> productRepository.searchExceedingInventoryLimit();
-//            case 4 -> productRepository.searchStockAvailable();
-//            case 5 -> productRepository.searchNoInventoryAvailable();
-//            default -> new ArrayList<>();
-//        };
-//    }
-//
-//    @Override
-//    public List<Map<String, Object>> searchActive(int number) {
-//        return switch (number) {
-//            case 1 -> productRepository.searchActive();
-//            case 2 -> productRepository.searchNoActive();
-//            case 3 -> productRepository.getAllProducts();
-//            default -> new ArrayList<>();
-//        };
-//    }
-//
-//    @Override
-//    public List<Map<String, Object>> searchDirectSales(int number) {
-//        return switch (number) {
-//            case 1 -> productRepository.getAllProducts();
-//            case 2 -> productRepository.searchDirectSales();
-//            case 3 -> productRepository.searchNoDirectSales();
-//            default -> new ArrayList<>();
-//        };
-//    }
-//
-//    @Override
-//    public List<Map<String, Object>> searchByLocationId(Long locationId) {
-//        return productRepository.searchAllByProductId(locationId);
-//    }
-
+    @Override
+    public List<ProductProjection> searchProductsByCategoryId(Long id) {
+        return productRepository.searchProductsByCategoryId(Status.ACTIVE, id);
+    }
 
 }

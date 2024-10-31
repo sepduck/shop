@@ -18,19 +18,14 @@ public class ReceiptDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     @ManyToOne
     @JoinColumn(name = "receipt_id", nullable = false)
     private Receipts receipt;
-
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)
     private Products product;
-
     private Long quantity;
-
     private BigDecimal purchasePrice;
-
     private BigDecimal total;
 
     public ReceiptDetails(Receipts receipt, Products product, Long quantity, BigDecimal purchasePrice, BigDecimal total) {

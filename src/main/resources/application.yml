@@ -42,6 +42,7 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
 mail:
   email: cutexinhzai2018@gmail.com
   password: tfgvojuvqtemfayg
@@ -53,4 +54,13 @@ jwt:
 logging:
   level:
     org.springframework.security: DEBUG
-
+#payment:
+#  vnPay:
+#    url: https://pay.vnpay.vn
+#    tmnCode: your_tmn_code
+#    secretKey: ${SECRET_KEY}
+#    returnUrl: http://your-return-url.com
+#    version: ${VERSION}
+#    command: ${COMMAND}
+#    orderType: ${ORDER_TYPE}
+#

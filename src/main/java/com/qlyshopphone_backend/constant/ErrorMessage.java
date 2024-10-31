@@ -86,4 +86,28 @@ public class ErrorMessage {
     public static final String CITY_NOT_FOUND = "City not found";
     public static final String COUNTRY_NOT_FOUND = "Country not found";
 
+    public static final String SIZE_NOT_FOUND = "size not found";
+
+    public static final String COLOR_NOT_FOUND = "color not found";
+
+    public static final String PRODUCT_VARIANT_NOT_FOUND = "Product variant not found";
+
+    public static final String ORDER_WAITING_FOR_CONFIRMATION_IS_NOT_EXISTING = "Order waiting for confirmation isn't existing";
+
+    public static final String INVENTORY_NOT_FOUND = "Inventory not found";
+
+    public static final String VERIFICATION_TOKEN_NOT_FOUND = "Verification token not found";
+    public static final String INVALID_VERIFICATION_CODE = "Invalid verification code!";
+    public static final String VERIFICATION_CODE_HAS_EXPIRED = "Verification code has expired!";
+    public static final String ACCOUNT_HAS_BEEN_SUCCESSFULLY_ACTIVATED = "Account has been successfully activated!";
+    public static final String VERIFICATION_CODE_IS_STILL_VALID_RESENT_TO_YOUR_EMAIL = "Verification code is still valid, resent to your email.";
+    public static final String A_NEW_VERIFICATION_CODE_HAS_BEEN_SENT_TO_YOUR_EMAIL = "A new verification code has been sent to your email.";
+    public static final String A_NEW_PASSWORD_HAS_BEEN_SENT_TO_YOUR_EMAIL = "A new password has been sent to your email.";
+
+    public static final String INSUFFICIENT_INVENTORY_FOR_THE_PRODUCT = "Insufficient inventory for the product: ";
+    public static final String EXISTING_PRODUCT_WAREHOUSE_NOT_FOUND = "Existing product warehouse not found: ";
+    public static final String NO_PRODUCTS_HAVE_BEEN_SELECTED_TO_ORDER = "No products have been selected to order.";
+
+    public static final String NO_FILES_TO_UPLOAD = "No files to upload";
+    public static final String ONLY_IMAGE_OR_VIDEO_UPLOADS_ARE_ALLOWED = "Only image or video uploads are allowed.";
 }

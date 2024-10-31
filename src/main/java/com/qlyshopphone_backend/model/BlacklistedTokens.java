@@ -18,9 +18,7 @@ public class BlacklistedTokens {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String token;
-
     @CreationTimestamp
     private LocalDateTime expiryDate;
 }

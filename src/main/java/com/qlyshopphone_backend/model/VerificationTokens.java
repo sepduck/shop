@@ -17,13 +17,10 @@ public class VerificationTokens {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String token;
-
     @OneToOne(targetEntity = Users.class)
     @JoinColumn(name = "user_id")
     private Users user;
-
     private LocalDateTime expiresAt;
 
     public VerificationTokens(String token, Users user, LocalDateTime expiryDate) {

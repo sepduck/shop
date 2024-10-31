@@ -3,12 +3,10 @@ package com.qlyshopphone_backend.service;
 import com.qlyshopphone_backend.dto.request.*;
 import com.qlyshopphone_backend.dto.response.ProductAttributeResponse;
 import com.qlyshopphone_backend.dto.response.ProductResponse;
-import com.qlyshopphone_backend.model.*;
 import com.qlyshopphone_backend.repository.projection.ProductAttributeProjection;
 import com.qlyshopphone_backend.repository.projection.ProductProjection;
 
 import java.util.List;
-import java.util.Map;
 
 public interface ProductService {
     List<ProductProjection> getAllProducts();
@@ -27,7 +25,7 @@ public interface ProductService {
 
     boolean deleteCategory(Long categoryId);
 
-    List<ProductAttributeResponse> getAllGroupProduct();
+    List<ProductAttributeResponse> getAllGroupProducts();
 
     ProductAttributeResponse createGroupProduct(ProductAttributeRequest request);
 
@@ -37,7 +35,7 @@ public interface ProductService {
 
     List<ProductAttributeResponse> getAllTrademarks();
 
-    ProductAttributeResponse saveTrademark(ProductAttributeRequest request);
+    ProductAttributeResponse createTrademark(ProductAttributeRequest request);
 
     ProductAttributeResponse updateTrademark(ProductAttributeRequest request, Long trademarkId);
 
@@ -60,17 +58,20 @@ public interface ProductService {
 
     boolean deleteLocation(Long locationId);
 
-    Products findProductById(Long productId);
+    List<ProductProjection> searchProductByName(String name);
 
-    Locations findLocationById(Long locationId);
+    List<ProductProjection> searchProductById(Long id);
 
-    GroupProducts findGroupProductById(Long groupProductId);
+    List<ProductProjection> searchProductByGroupProductId(Long id);
 
-    Categories findCategoryById(Long categoryId);
+    List<ProductProjection> searchProductsByTrademarkId(Long id);
 
-    Units findUnitById(Long unitId);
+    List<ProductProjection> searchProductsByStatus(String status);
 
-    Trademarks findTrademarkById(Long trademarkId);
+    List<ProductProjection> getProductById(Long id);
+
+    List<ProductProjection> searchProductsByCategoryId(Long id);
+
 //
 //    List<ProductAttributeResponse> getAllProperties();
 //
