@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(API_V1_SUPPLIER)
+@RequestMapping(API_V1_ADMIN_SUPPLIER)
 @RequiredArgsConstructor
 public class SupplierController {
     private final SupplierService supplierService;

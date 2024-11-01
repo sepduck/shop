@@ -10,6 +10,9 @@ import java.util.List;
 
 @Repository
 public interface CategoryRepository extends JpaRepository<Categories, Long> {
-    @Query("SELECT c FROM Categories c")
+    @Query("""
+            SELECT c
+            FROM Categories c
+            """)
     List<ProductAttributeProjection> findAllCategories();
 }

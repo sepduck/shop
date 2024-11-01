@@ -25,14 +25,16 @@ public class PathConstant {
     public static final String DELETE_CART = "/delete-cart";public static final String SELLS = "/sells";
     public static final String SALE = "/sale";
     public static final String CART_VIEW = "/view-cart";
-    public static final String TODAY_PURCHASES = "/today-purchases";
-    public static final String ADMIN_LAST_30_DAYS_PURCHASES = ADMIN + "/last-30-days-purchases";
-    public static final String ADMIN_DAILY_SALES_TOTAL_PRICE_LAST_30_DAYS = ADMIN + "/daily-sales-total-price-last-30-days";
-    public static final String ADMIN_SALES_PERCENTAGE_CHANGE = ADMIN + "/sales-percentage-change";
-    public static final String ADMIN_SALES_MONTH_PERCENTAGE_CHANGE = ADMIN + "/sales-month-percentage-change";
     public static final String CART_SESSION = CART + "/session";
     public static final String CUSTOMER_INFO = "/customer-info";
     public static final String CUSTOMER_INFO_ID = CUSTOMER_INFO + "/{id}";
+
+    public static final String API_V1_ADMIN_REVENUE_STATISTIC = API_V1_ADMIN + "/revenue-statistic";
+    public static final String TODAY_PURCHASES = "/today-purchases";
+    public static final String LAST_30_DAYS_PURCHASES = "/last-30-days-purchases";
+    public static final String DAILY_SALES_TOTAL_PRICE_LAST_30_DAYS = "/daily-sales-total-price-last-30-days";
+    public static final String SALES_PERCENTAGE_CHANGE = "/sales-percentage-change";
+    public static final String SALES_MONTH_PERCENTAGE_CHANGE = "/sales-month-percentage-change";
 
     public static final String NOTIFICATION = "/notification";
     public static final String API_V1_NOTIFICATION = API_V1 + NOTIFICATION;
@@ -74,7 +76,7 @@ public class PathConstant {
     public static final String CATEGORY_ID = CATEGORY + "{id}";
 
     public static final String SUPPLIER = "/supplier";
-    public static final String API_V1_SUPPLIER = API_V1 + SUPPLIER;
+    public static final String API_V1_ADMIN_SUPPLIER = API_V1_ADMIN + SUPPLIER;
     public static final String SUPPLIERS = "/suppliers";
     public static final String NAME_ID = "/name/{id}";
     public static final String PHONE_ID = "/phone/{id}";

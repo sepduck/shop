@@ -1,4 +1,4 @@
-package com.qlyshopphone_backend.controller.admin;
+package com.qlyshopphone_backend.controller.auth;
 
 import static com.qlyshopphone_backend.constant.PathConstant.*;
 

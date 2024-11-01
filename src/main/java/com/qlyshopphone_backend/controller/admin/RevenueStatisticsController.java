@@ -14,7 +14,7 @@ import java.util.Map;
 import static com.qlyshopphone_backend.constant.PathConstant.*;
 
 @RestController
-@RequestMapping
+@RequestMapping(API_V1_ADMIN_REVENUE_STATISTIC)
 @RequiredArgsConstructor
 public class RevenueStatisticsController {
     private final RevenueStatisticsService revenueStatisticsService;
@@ -24,22 +24,22 @@ public class RevenueStatisticsController {
         return ResponseEntity.ok(revenueStatisticsService.getReceiveAPurchaseReportToday());
     }
 
-    @GetMapping(ADMIN_LAST_30_DAYS_PURCHASES)
+    @GetMapping(LAST_30_DAYS_PURCHASES)
     public ResponseEntity<Map<String, Object>> getLast30DaysPurchases() {
         return ResponseEntity.ok(revenueStatisticsService.generateLast30DaysRevenueStatistics());
     }
 
-    @GetMapping(ADMIN_DAILY_SALES_TOTAL_PRICE_LAST_30_DAYS)
+    @GetMapping(DAILY_SALES_TOTAL_PRICE_LAST_30_DAYS)
     public ResponseEntity<List<BigDecimal>> getDailySalesTotalPriceLast30Days() {
         return ResponseEntity.ok(revenueStatisticsService.calculateDailySalesForLast30Days());
     }
 
-    @GetMapping(ADMIN_SALES_PERCENTAGE_CHANGE)
+    @GetMapping(SALES_PERCENTAGE_CHANGE)
     public ResponseEntity<BigDecimal> getSalesPercentageChange() {
         return ResponseEntity.ok(revenueStatisticsService.getPercentageChangeFromYesterdayToToday());
     }
 
-    @GetMapping(ADMIN_SALES_MONTH_PERCENTAGE_CHANGE)
+    @GetMapping(SALES_MONTH_PERCENTAGE_CHANGE)
     public ResponseEntity<BigDecimal> getSalesMonthPercentageChange() {
         return ResponseEntity.ok(revenueStatisticsService.getPercentageChangeFromLastMonthToThisMonth());
     }

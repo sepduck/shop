@@ -1,4 +1,4 @@
-package com.qlyshopphone_backend.controller.admin;
+package com.qlyshopphone_backend.controller.auth;
 
 import com.qlyshopphone_backend.dto.request.CustomerInfoRequest;
 import com.qlyshopphone_backend.repository.projection.CustomerInfoProjection;
